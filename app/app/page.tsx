@@ -13,6 +13,7 @@ import { computeTerminals } from "./lib/terminals";
 import { TerminalCard } from "./components/TerminalCard";
 import { Metric } from "./components/Metric";
 import MovementPanel from "./components/MovementPanel";
+import AutomationModal from "./components/AutomationModal";
 
 const SHORT_N = 20;
 const LONG_N = 200;
@@ -47,6 +48,53 @@ export default function Page() {
   const [distN2, setDistN2] = useState<number | null>(null);
   const [pickingFor, setPickingFor] = useState<"n1" | "n2" | null>(null);
   const [selectedX, setSelectedX] = useState<number[]>([]);
+
+  // Estados para Automação
+  const [isAutoModalOpen, setIsAutoModalOpen] = useState(false);
+  const [automationId, setAutomationId] = useState("");
+  const [isAutoActive, setIsAutoActive] = useState(false);
+
+  useEffect(() => {
+    const savedId = localStorage.getItem("automation_id");
+    if (savedId) {
+      setAutomationId(savedId);
+      setIsAutoActive(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isAutoActive && automationId) {
+      const fetchNumbers = async () => {
+        try {
+          const res = await fetch(`https://padrao-fifa-backend.vercel.app/data/${automationId}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.numbers && data.numbers.length > 0) {
+              const newNumbers = data.numbers.map(Number);
+              // Só atualiza se o número mais recente for diferente do que já temos
+              if (history.length === 0 || newNumbers[0] !== history[0]) {
+                // Sincroniza o histórico inteiro (limitado a LONG_N)
+                setHistory(newNumbers.slice(0, LONG_N));
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Erro na automação:", err);
+        }
+      };
+
+      fetchNumbers(); // Busca imediata
+      interval = setInterval(fetchNumbers, 5000); // Polling a cada 5s
+    }
+    return () => clearInterval(interval);
+  }, [isAutoActive, automationId, history]);
+
+  const handleSaveAutomation = (id: string) => {
+    setAutomationId(id);
+    setIsAutoActive(true);
+    localStorage.setItem("automation_id", id);
+  };
 
   // Estados para minimizar blocos
   const [minimized, setMinimized] = useState({
@@ -362,6 +410,13 @@ export default function Page() {
             />
           </div>
           <button className="btn btn-send" onClick={onSend}>ENVIAR</button>
+          <button 
+            className="btn btn-send" 
+            onClick={() => setIsAutoModalOpen(true)} 
+            style={{ background: isAutoActive ? "#22c55e" : "#3b82f6", color: "#fff" }}
+          >
+            {isAutoActive ? "🟢 AUTOMATIZADO" : "🤖 AUTOMATIZAR"}
+          </button>
           <button className="btn btn-send" onClick={onSendInverted} style={{ background: "#ef4444", color: "#fff" }}>INVERTER E ENVIAR</button>
           <button className="btn btn-undo" onClick={onUndoLast}>APAGAR</button>
           <button className="btn btn-reset" onClick={onResetAll}>RESET TOTAL</button>
@@ -556,6 +611,13 @@ export default function Page() {
           </div>
         </div>
       </div>
+
+      <AutomationModal 
+        isOpen={isAutoModalOpen} 
+        onClose={() => setIsAutoModalOpen(false)} 
+        onSave={handleSaveAutomation}
+        currentId={automationId}
+      />
     </div>
   );
 }
