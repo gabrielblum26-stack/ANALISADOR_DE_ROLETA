@@ -85,7 +85,7 @@ export default function Page() {
       };
 
       fetchNumbers(); // Busca imediata
-      interval = setInterval(fetchNumbers, 5000); // Polling a cada 5s
+      interval = setInterval(fetchNumbers, 2000); // Polling a cada 2s
     }
     return () => clearInterval(interval);
   }, [isAutoActive, automationId, history]);
