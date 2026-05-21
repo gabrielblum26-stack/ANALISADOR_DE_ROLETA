@@ -36,6 +36,19 @@ export default function AutomationModal({ isOpen, onClose, onSave, currentId }: 
         </div>
         <div className="modal-body">
           <p>Insira a <strong>Chave de Identificação</strong> gerada pela sua extensão Padrão FIFA para receber os números automaticamente.</p>
+          
+          <div style={{ marginBottom: '20px', padding: '15px', background: '#222', borderRadius: '8px', border: '1px dashed #ffd000', textAlign: 'center' }}>
+            <p style={{ margin: '0 0 10px 0', fontSize: '0.8rem', color: '#ffd000' }}>Ainda não tem a extensão?</p>
+            <a 
+              href="/extensao_padrao_fifa.zip" 
+              download 
+              className="btn btn-download"
+              style={{ display: 'inline-block', textDecoration: 'none', background: '#333', color: '#ffd000', border: '1px solid #ffd000', padding: '8px 15px', borderRadius: '5px', fontSize: '0.8rem', fontWeight: 'bold' }}
+            >
+              📥 BAIXAR EXTENSÃO V9
+            </a>
+          </div>
+
           <div className="input-group">
             <label>ID da Extensão:</label>
             <input 
