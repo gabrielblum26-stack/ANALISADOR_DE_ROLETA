@@ -45,7 +45,7 @@ export default function AutomationModal({ isOpen, onClose, onSave, currentId }: 
               className="btn btn-download"
               style={{ display: 'inline-block', textDecoration: 'none', background: '#333', color: '#ffd000', border: '1px solid #ffd000', padding: '8px 15px', borderRadius: '5px', fontSize: '0.8rem', fontWeight: 'bold' }}
             >
-              📥 BAIXAR EXTENSÃO V14 (NOTIFICAÇÕES)
+              📥 BAIXAR EXTENSÃO V15 (SMART)
             </a>
           </div>
 
