@@ -96,6 +96,29 @@ export default function Page() {
     localStorage.setItem("automation_id", id);
   };
 
+  const handleDeactivateAutomation = () => {
+    setIsAutoActive(false);
+  };
+
+  const handleClearAutomation = async () => {
+    if (!automationId) return;
+    if (!confirm("Deseja realmente LIMPAR o histórico no sistema e no banco de dados?")) return;
+
+    try {
+      // 1. Limpa no Banco de Dados via Backend
+      await fetch(`https://padrao-fifa-backend.vercel.app/clear/${automationId}`, { method: 'POST' });
+      
+      // 2. Limpa no Sistema Local
+      setHistory([]);
+      setIsAutoActive(false);
+      
+      alert("Sistema e Banco de Dados limpos com sucesso!");
+    } catch (err) {
+      console.error("Erro ao limpar:", err);
+      alert("Erro ao limpar o banco de dados.");
+    }
+  };
+
   // Estados para minimizar blocos
   const [minimized, setMinimized] = useState({
     history: false,
@@ -410,13 +433,31 @@ export default function Page() {
             />
           </div>
           <button className="btn btn-send" onClick={onSend}>ENVIAR</button>
-          <button 
-            className="btn btn-send" 
-            onClick={() => setIsAutoModalOpen(true)} 
-            style={{ background: isAutoActive ? "#22c55e" : "#3b82f6", color: "#fff" }}
-          >
-            {isAutoActive ? "🟢 AUTOMATIZADO" : "🤖 AUTOMATIZAR"}
-          </button>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            <button 
+              className="btn btn-send" 
+              onClick={() => setIsAutoModalOpen(true)} 
+              style={{ background: isAutoActive ? "#22c55e" : "#3b82f6", color: "#fff" }}
+            >
+              {isAutoActive ? "🟢 AUTOMATIZADO" : "🤖 AUTOMATIZAR"}
+            </button>
+            {isAutoActive && (
+              <button 
+                className="btn btn-undo" 
+                onClick={handleDeactivateAutomation} 
+                style={{ background: "#f59e0b", color: "#000", minWidth: '80px' }}
+              >
+                PAUSAR
+              </button>
+            )}
+            <button 
+              className="btn btn-reset" 
+              onClick={handleClearAutomation} 
+              style={{ background: "#ef4444", color: "#fff", minWidth: '100px' }}
+            >
+              LIMPAR BD
+            </button>
+          </div>
           <button className="btn btn-send" onClick={onSendInverted} style={{ background: "#ef4444", color: "#fff" }}>INVERTER E ENVIAR</button>
           <button className="btn btn-undo" onClick={onUndoLast}>APAGAR</button>
           <button className="btn btn-reset" onClick={onResetAll}>RESET TOTAL</button>
