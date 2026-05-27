@@ -56,7 +56,7 @@ export default function AutomationModal({
               className="btn btn-download"
               style={{ display: 'inline-block', textDecoration: 'none', background: '#333', color: '#ffd000', border: '1px solid #ffd000', padding: '8px 15px', borderRadius: '5px', fontSize: '0.8rem', fontWeight: 'bold' }}
             >
-              📥 BAIXAR EXTENSÃO V16 (IMMERSIVE)
+              📥 BAIXAR EXTENSÃO V17 (FIX)
             </a>
           </div>
 
