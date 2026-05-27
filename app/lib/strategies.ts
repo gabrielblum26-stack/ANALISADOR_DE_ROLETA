@@ -15,4 +15,7 @@ export const STRATEGIES: Strategy[] = [
   { name: "Padrão de Saída Órfã", nums: [0, 1, 2, 6, 9, 13, 14, 16, 17, 18, 20, 22, 25, 27, 31, 33, 34], color: "#06b6d4" },
   { name: "Padrão Exato/Disfarçados Juntos", nums: [0, 11, 14, 15, 16, 17, 18, 24, 25, 29, 30, 31, 32, 33, 34], color: "#22c55e" },
   { name: "Padrão Desenho", nums: [0, 1, 5, 9, 11, 12, 13, 14, 16, 19, 22, 23, 26, 27, 30, 32, 34], color: "#f97316" },
+  { name: "Disfarçado 1", nums: [1, 2, 4, 5, 8, 10, 11, 12, 15, 19, 20, 21, 23, 28, 30, 33], color: "#facc15" },
+  { name: "Disfarçado 2", nums: [0, 4, 7, 9, 11, 14, 13, 18, 19, 20, 21, 22, 25, 27, 29], color: "#f472b6" },
+  { name: "Disfarçado 3", nums: [0, 6, 8, 11, 14, 10, 13, 15, 18, 20, 23, 22, 27, 29], color: "#fb7185" },
 ];
