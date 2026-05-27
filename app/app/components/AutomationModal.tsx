@@ -6,10 +6,21 @@ interface AutomationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (id: string) => void;
+  onPause: () => void;
+  onClear: () => void;
   currentId: string;
+  isAutoActive: boolean;
 }
 
-export default function AutomationModal({ isOpen, onClose, onSave, currentId }: AutomationModalProps) {
+export default function AutomationModal({ 
+  isOpen, 
+  onClose, 
+  onSave, 
+  onPause, 
+  onClear, 
+  currentId,
+  isAutoActive 
+}: AutomationModalProps) {
   const [id, setId] = useState(currentId);
 
   useEffect(() => {
@@ -59,9 +70,30 @@ export default function AutomationModal({ isOpen, onClose, onSave, currentId }: 
             />
           </div>
         </div>
-        <div className="modal-footer">
-          <button className="btn btn-save" onClick={handleSave}>SALVAR E ATIVAR</button>
-          <button className="btn btn-cancel" onClick={onClose}>CANCELAR</button>
+        <div className="modal-footer" style={{ flexDirection: 'column' }}>
+          <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+            <button className="btn btn-save" onClick={handleSave}>SALVAR E ATIVAR</button>
+            <button className="btn btn-cancel" onClick={onClose}>CANCELAR</button>
+          </div>
+          
+          {isAutoActive && (
+            <div style={{ display: 'flex', gap: '10px', width: '100%', marginTop: '10px' }}>
+              <button 
+                className="btn" 
+                style={{ background: '#eab308', color: '#000' }} 
+                onClick={() => { onPause(); onClose(); }}
+              >
+                ⏸️ PAUSAR
+              </button>
+              <button 
+                className="btn" 
+                style={{ background: '#ef4444', color: '#fff' }} 
+                onClick={() => { onClear(); onClose(); }}
+              >
+                🗑️ LIMPAR BD
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

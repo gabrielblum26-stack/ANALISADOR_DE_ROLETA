@@ -416,8 +416,7 @@ export default function Page() {
       
       <div className="panel topbar">
         <div className="topbarLine">
-          <div className="userGreeting">Olá, Cleber!</div>
-          <label>Digite (vírgula ou espaço):</label>
+          {/* GRUPO 1: ENTRADA E ENVIO */}
           <div className="inputWrap">
             <input
               type="text"
@@ -432,44 +431,38 @@ export default function Page() {
               }}
             />
           </div>
-          <button className="btn btn-send" onClick={onSend}>ENVIAR</button>
-          <div style={{ display: 'flex', gap: '5px' }}>
+          <div style={{ display: 'flex', gap: '8px', paddingRight: '15px', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+            <button className="btn btn-send" onClick={onSend}>ENVIAR</button>
+            <button className="btn btn-send" onClick={onSendInverted} style={{ background: "#ef4444", color: "#fff" }}>INVERTER E ENVIAR</button>
+            <button className="btn btn-undo" onClick={onUndoLast}>APAGAR</button>
+          </div>
+          
+          {/* GRUPO 2: AUTOMAÇÃO */}
+          <div style={{ display: 'flex', gap: '8px', padding: '0 15px', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
             <button 
-              className="btn btn-send" 
+              className="btn" 
               onClick={() => setIsAutoModalOpen(true)} 
-              style={{ background: isAutoActive ? "#22c55e" : "#3b82f6", color: "#fff" }}
+              style={{ 
+                background: isAutoActive ? "#22c55e" : "#333", 
+                color: "#fff",
+                border: isAutoActive ? "1px solid #4ade80" : "1px solid #444",
+                minWidth: '140px'
+              }}
             >
               {isAutoActive ? "🟢 AUTOMATIZADO" : "🤖 AUTOMATIZAR"}
             </button>
-            {isAutoActive && (
-              <button 
-                className="btn btn-undo" 
-                onClick={handleDeactivateAutomation} 
-                style={{ background: "#f59e0b", color: "#000", minWidth: '80px' }}
-              >
-                PAUSAR
-              </button>
-            )}
-            <button 
-              className="btn btn-reset" 
-              onClick={handleClearAutomation} 
-              style={{ background: "#ef4444", color: "#fff", minWidth: '100px' }}
-            >
-              LIMPAR BD
+          </div>
+
+          {/* GRUPO 3: FERRAMENTAS */}
+          <div style={{ display: 'flex', gap: '8px', paddingLeft: '15px' }}>
+            <button className="btn btn-reset" onClick={onResetAll}>RESET TOTAL</button>
+            <button className="btn btn-keyboard" onClick={openKeyboard} style={{ background: "#9333ea", color: "#fff" }}>
+              KEYBOARD
+            </button>
+            <button className="btn btn-colors" onClick={openStrategies} style={{ background: "#22c55e", color: "#fff" }}>
+              ESTRATEGIAS
             </button>
           </div>
-          <button className="btn btn-send" onClick={onSendInverted} style={{ background: "#ef4444", color: "#fff" }}>INVERTER E ENVIAR</button>
-          <button className="btn btn-undo" onClick={onUndoLast}>APAGAR</button>
-          <button className="btn btn-reset" onClick={onResetAll}>RESET TOTAL</button>
-          <button className="btn btn-keyboard" onClick={openKeyboard} style={{ background: "#9333ea", color: "#fff" }}>
-            KEYBOARD
-          </button>
-          <button className="btn btn-contador" onClick={openStrategies} style={{ background: "#f59e0b", color: "#000" }}>
-            CONTADOR
-          </button>
-          <button className="btn btn-colors" onClick={openStrategies} style={{ background: "#22c55e", color: "#fff" }}>
-            ESTRATEGIAS
-          </button>
         </div>
 
         <div className="topbarLine secondary">
@@ -640,7 +633,12 @@ export default function Page() {
             </div>
             {!minimized.raceDist && (
               <>
-                <RaceTrack sel={sel} onPick={onSelect} getCellStyles={getEnhancedCellStyles} />
+                <RaceTrack 
+                  sel={sel} 
+                  onPick={onSelect} 
+                  getCellStyles={getEnhancedCellStyles}
+                  strategyMode={strategyMode}
+                />
                 
                 <div className="quickKeyboard">
                   <div className="keyboardRow">
@@ -669,7 +667,10 @@ export default function Page() {
         isOpen={isAutoModalOpen} 
         onClose={() => setIsAutoModalOpen(false)} 
         onSave={handleSaveAutomation}
+        onPause={handleDeactivateAutomation}
+        onClear={handleClearAutomation}
         currentId={automationId}
+        isAutoActive={isAutoActive}
       />
     </div>
   );

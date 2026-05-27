@@ -71,12 +71,14 @@ type Props = {
   sel: SelState;
   onPick: (n: number) => void;
   getCellStyles: (n: number) => React.CSSProperties;
+  strategyMode?: "total" | "intersection";
 };
 
 export default function RaceTrack({
   sel,
   onPick,
-  getCellStyles
+  getCellStyles,
+  strategyMode
 }: Props) {
   const pts = buildTrackPoints();
   const viewW = 1100;
@@ -144,11 +146,14 @@ export default function RaceTrack({
           const override = selectionFill(sel, n, customStyles);
           const fill = override ?? `var(--${base})`;
           
+          const styles = getCellStyles(n);
+          const opacity = styles.opacity !== undefined ? styles.opacity : 1;
+
           return (
             <g 
               key={n} 
               onClick={() => onPick(n)} 
-              style={{ cursor: "pointer" }}
+              style={{ cursor: "pointer", opacity }}
               className="raceNode"
             >
               <circle
