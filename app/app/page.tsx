@@ -41,7 +41,7 @@ export default function Page() {
   const [selMode, setSelMode] = useState<SelMode>("neighbors");
   const [markingMode, setMarkingMode] = useState<"unique" | "cumulative">("cumulative");
   const [showEaster99, setShowEaster99] = useState(false);
-  const [onlyIntersections, setOnlyIntersections] = useState(false);
+  const [strategyMode, setStrategyMode] = useState<"total" | "intersection">("total");
 
   // Estados para o Calculador de Distância
   const [distN1, setDistN1] = useState<number | null>(null);
@@ -321,7 +321,7 @@ export default function Page() {
     const colors = getNumberColors(sel, n);
     
     // Filtro de intersecção
-    if (onlyIntersections && mergedNumbers.maxCount > 1) {
+    if (strategyMode === "intersection" && mergedNumbers.maxCount > 1) {
       if (colors.length < mergedNumbers.maxCount) {
         return { opacity: 0.1, pointerEvents: 'none' as const, transition: 'all 0.3s' };
       }
@@ -516,6 +516,19 @@ export default function Page() {
               ACUMULADA
             </button>
           </div>
+
+          <div className="modeSelectWrap" style={{ marginLeft: '15px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '15px' }}>
+            <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#ffd000' }}>MODO ESTRATÉGIAS</span>
+            <select 
+              className="modeSelect"
+              value={strategyMode}
+              onChange={(e) => setStrategyMode(e.target.value as "total" | "intersection")}
+              style={{ borderColor: '#ffd000', color: '#ffd000' }}
+            >
+              <option value="total">TOTAL</option>
+              <option value="intersection">INTERSECÇÃO</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -580,8 +593,7 @@ export default function Page() {
               sel={sel} 
               onPick={onSelect} 
               onMarkStrategy={onMarkStrategy}
-              onlyIntersections={onlyIntersections}
-              onToggleIntersections={() => setOnlyIntersections(!onlyIntersections)}
+              strategyMode={strategyMode}
               isMinimized={minimized.neighbors}
               onToggle={() => toggleMin("neighbors")}
             />

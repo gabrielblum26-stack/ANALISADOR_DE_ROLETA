@@ -12,8 +12,7 @@ type Props = {
   onMarkStrategy?: (nums: number[], colorIndex: number) => void;
   isMinimized?: boolean;
   onToggle?: () => void;
-  onlyIntersections?: boolean;
-  onToggleIntersections?: () => void;
+  strategyMode?: "total" | "intersection";
 };
 
 export default function NeighborsBlock({ 
@@ -23,8 +22,7 @@ export default function NeighborsBlock({
   onMarkStrategy, 
   isMinimized, 
   onToggle, 
-  onlyIntersections, 
-  onToggleIntersections 
+  strategyMode
 }: Props) {
   
   // 1. Lógica de Sincronização (Intersecção entre estratégias ativas)
@@ -36,6 +34,8 @@ export default function NeighborsBlock({
       const isActive = s.nums.length > 0 && sel.sets[colorKey]?.has(s.nums[0]);
       return { ...s, isActive, colorIdx };
     }).filter(s => s.isActive);
+
+    const onlyIntersections = strategyMode === "intersection";
 
     const counts: Record<number, number> = {};
     activeStrategies.forEach(s => {
@@ -104,26 +104,24 @@ export default function NeighborsBlock({
 
       {!isMinimized && (
         <>
-          <div style={{ padding: "0 10px 10px" }}>
-            <button 
-              onClick={onToggleIntersections}
-              style={{
+          {strategyMode === "intersection" && (
+            <div style={{ padding: "0 10px 10px" }}>
+              <div style={{
                 width: "100%",
                 padding: "8px",
-                background: onlyIntersections ? "#3b82f6" : "#262626",
-                color: "#fff",
-                border: "1px solid #3b82f6",
+                background: "rgba(255, 208, 0, 0.1)",
+                color: "#ffd000",
+                border: "1px solid #ffd000",
                 borderRadius: "4px",
-                cursor: "pointer",
+                textAlign: "center",
                 fontWeight: "bold",
-                fontSize: "11px",
-                transition: "all 0.3s",
-                boxShadow: onlyIntersections ? "0 0 10px rgba(59, 130, 246, 0.5)" : "none"
-              }}
-            >
-              {onlyIntersections ? "MOSTRANDO APENAS INTERSECÇÕES" : "MOSTRAR APENAS INTERSECÇÕES"}
-            </button>
-          </div>
+                fontSize: "10px",
+                letterSpacing: "1px"
+              }}>
+                MODO INTERSECÇÃO ATIVO
+              </div>
+            </div>
+          )}
           
           <div className="strategiesList">
             {STRATEGIES.map((strategy, idx) => {
