@@ -373,11 +373,19 @@ export default function Page() {
     return styles;
   }, [selectedX, history]);
 
-  const getEnhancedCellStyles = (n: number) => {
-    const xStyle = xHighlightStyles[n];
-    if (xStyle) return xStyle;
-    return getCellStyles(n);
-  };
+	  const getTextColor = (n: number, styles: React.CSSProperties) => {
+	    const bg = styles.backgroundColor as string;
+	    if (!bg) return "#fff";
+	    const lightColors = ["#ffffff", "white", "#ffd000", "#facc15", "#ffcc00", "var(--selC2)", "var(--selC9)", "var(--selC11)"];
+	    if (lightColors.includes(bg.toLowerCase())) return "#000";
+	    return "#fff";
+	  };
+
+	  const getEnhancedCellStyles = (n: number) => {
+	    const xStyle = xHighlightStyles[n];
+	    if (xStyle) return xStyle;
+	    return getCellStyles(n);
+	  };
 
   const topZonePattern = useMemo(() => {
     if (history.length === 0) return null;
@@ -536,11 +544,23 @@ export default function Page() {
                 <div
                   key={n}
                   className={`chip ${colorOf(n)}`}
-                  style={{ ...getCellStyles(n), width: '35px', height: '35px', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', cursor: 'pointer', fontWeight: 'bold', color: '#fff' }}
-                  onClick={() => onSelect(n)}
-                >
-                  {n}
-                </div>
+	                  style={{ 
+	                    ...getCellStyles(n), 
+	                    width: '35px', 
+	                    height: '35px', 
+	                    fontSize: '14px', 
+	                    display: 'flex', 
+	                    alignItems: 'center', 
+	                    justifyContent: 'center', 
+	                    borderRadius: '50%', 
+	                    cursor: 'pointer', 
+	                    fontWeight: 'bold', 
+	                    color: getTextColor(n, getCellStyles(n)) 
+	                  }}
+	                  onClick={() => onSelect(n)}
+	                >
+	                  {n}
+	                </div>
               ))}
             </div>
           </div>
@@ -559,15 +579,18 @@ export default function Page() {
                 {longGridItems.map((n, idx) => {
                   if (n === null) return <div key={idx} className="longCell empty" />;
                   return (
-                    <div
-                      key={idx}
-                      className={`longCell ${colorOf(n)} ${disguisedPairIdx.has(idx) ? "historyPair" : ""}`}
-                      style={getCellStyles(n)}
-                      onClick={() => onSelect(n)}
-                      title="Clique para selecionar (não registra)"
-                    >
-                      {n}
-                    </div>
+	                    <div
+	                      key={idx}
+	                      className={`longCell ${colorOf(n)} ${disguisedPairIdx.has(idx) ? "historyPair" : ""}`}
+	                      style={{
+	                        ...getCellStyles(n),
+	                        color: getTextColor(n, getCellStyles(n))
+	                      }}
+	                      onClick={() => onSelect(n)}
+	                      title="Clique para selecionar (não registra)"
+	                    >
+	                      {n}
+	                    </div>
                   );
                 })}
               </div>
