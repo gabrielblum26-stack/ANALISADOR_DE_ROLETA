@@ -82,6 +82,17 @@ export default function RaceTrack({
   const viewW = 1100;
   const viewH = 300;
 
+  const getTextColor = (n: number) => {
+    const styles = getCellStyles(n);
+    const bg = styles.backgroundColor as string;
+    if (!bg) return "#fff";
+    
+    const lightColors = ["#ffffff", "white", "#ffd000", "#facc15", "#ffcc00", "var(--selC2)", "var(--selC9)", "var(--selC11)"];
+    if (lightColors.includes(bg.toLowerCase())) return "#000";
+    
+    return "#fff";
+  };
+
   return (
     <div className="raceBox" aria-label="Race Profissional">
       <svg viewBox={`0 0 ${viewW} ${viewH}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
@@ -156,7 +167,7 @@ export default function RaceTrack({
                 textAnchor="middle" 
                 fontSize="17" 
                 fontWeight="bold" 
-                fill="#fff"
+                fill={getTextColor(n)}
                 style={{ userSelect: 'none' }}
               >
                 {n}

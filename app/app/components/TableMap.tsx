@@ -40,6 +40,18 @@ export default function TableMap({
 
   const betCls = (k: RepHighlight) => `bet ${repHighlights.has(k) ? "rep" : ""}`.trim();
 
+  const getTextColor = (n: number) => {
+    const styles = getCellStyles(n);
+    const bg = styles.backgroundColor as string;
+    if (!bg) return "#fff";
+    
+    // Se for branco ou amarelo claro, usa texto preto
+    const lightColors = ["#ffffff", "white", "#ffd000", "#facc15", "#ffcc00", "var(--selC2)", "var(--selC9)", "var(--selC11)"];
+    if (lightColors.includes(bg.toLowerCase())) return "#000";
+    
+    return "#fff";
+  };
+
   return (
     <div className="mapBox" aria-label="Mapa completo (clicável para seleção)">
       <div className="table">
@@ -50,6 +62,7 @@ export default function TableMap({
             gridColumn: "1", 
             fontSize: 18, 
             ...getCellStyles(0),
+            color: getTextColor(0),
             border: getCellStyles(0).border || undefined,
             boxShadow: getCellStyles(0).boxShadow || undefined,
             zIndex: getCellStyles(0).zIndex || undefined
@@ -69,6 +82,7 @@ export default function TableMap({
                   gridRow: String(rIdx + 1), 
                   gridColumn: String(2 + cIdx), 
                   ...getCellStyles(n),
+                  color: getTextColor(n),
                   border: getCellStyles(n).border || undefined,
                   boxShadow: getCellStyles(n).boxShadow || undefined,
                   zIndex: getCellStyles(n).zIndex || undefined
