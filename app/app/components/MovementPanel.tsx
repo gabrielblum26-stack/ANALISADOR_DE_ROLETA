@@ -103,12 +103,12 @@ export default function MovementPanel({
     <div className="movementPanel compact">
       <div className="movementHeader">
         <div className="movementTitle">DESLOCAMENTO (H/A)</div>
-        <div className="movementControls">
-          <button className="btn-reset-marks" onClick={() => { setMarks({}); onXChange([]); }}>RESET</button>
-          <div className="movementModeSelector">
-            <button className={`modeBtn ${mode === "shortest" ? "active" : ""}`} onClick={() => setMode("shortest")}>CURTO</button>
-            <button className={`modeBtn ${mode === "longest" ? "active" : ""}`} onClick={() => setMode("longest")}>LONGO</button>
-          </div>
+      </div>
+      <div className="movementControls">
+        <button className="btn-reset-marks" onClick={() => { setMarks({}); onXChange([]); }}>RESET</button>
+        <div className="movementModeSelector">
+          <button className={`modeBtn ${mode === "shortest" ? "active" : ""}`} onClick={() => setMode("shortest")}>CURTO</button>
+          <button className={`modeBtn ${mode === "longest" ? "active" : ""}`} onClick={() => setMode("longest")}>LONGO</button>
         </div>
       </div>
 
@@ -214,7 +214,7 @@ export default function MovementPanel({
         .movementTitle { font-size: 11px; font-weight: 900; color: #888; }
         .movementHeader {
           display: flex;
-          justify-content: space-between;
+          justify-content: flex-start;
           align-items: center;
           margin-bottom: 8px;
         }
@@ -222,6 +222,7 @@ export default function MovementPanel({
           display: flex;
           gap: 6px;
           align-items: center;
+          margin-bottom: 8px;
         }
         .movementHighlight.compact { gap: 4px; margin-bottom: 8px; padding: 6px; }
         .highlightRow { 
