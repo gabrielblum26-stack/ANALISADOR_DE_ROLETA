@@ -77,9 +77,6 @@ export default function HistoricoPage() {
 
   return (
     <div className="panel" style={{ padding: "20px", width: "100%", display: "flex", flexDirection: "column" }}>
-      <div style={{ background: "rgba(255, 208, 0, 0.1)", border: "1px solid rgba(255, 208, 0, 0.3)", borderRadius: "4px", padding: "10px", marginBottom: "15px", fontSize: "12px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>
-        PARA FIXAR CTRL + WIN + T
-      </div>
       <div className="sectionTitle" style={{ marginBottom: "15px", fontSize: "18px", color: "#ffd000", fontWeight: "bold" }}>HISTÓRICO (80)</div>
       <div className="longGrid" style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "5px" }}>
         {longGridItems.map((n, idx) => {

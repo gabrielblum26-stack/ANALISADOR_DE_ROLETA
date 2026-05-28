@@ -72,9 +72,6 @@ export default function RacetrackPage() {
 
   return (
     <div style={{ padding: "20px", width: "100%", display: "flex", flexDirection: "column" }}>
-      <div style={{ background: "rgba(255, 208, 0, 0.1)", border: "1px solid rgba(255, 208, 0, 0.3)", borderRadius: "4px", padding: "10px", marginBottom: "15px", fontSize: "12px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>
-        PARA FIXAR CTRL + WIN + T
-      </div>
       <div className="sectionTitle" style={{ marginBottom: "20px", fontSize: "18px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>RACETRACK</div>
       <RaceTrack 
         sel={sel} 
