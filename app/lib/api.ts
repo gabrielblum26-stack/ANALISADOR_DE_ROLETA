@@ -67,4 +67,13 @@ export const api = {
 
   adminDeleteUser: (token: string, id: number) =>
     request<{ ok: true }>(`/admin/users/${id}`, { method: "DELETE", token }),
+
+  // Estratégias
+  listStrategies: () => request<any[]>("/strategies"),
+  createStrategy: (data: { name: string; nums: number[]; color?: string }) =>
+    request<any>("/strategies", { method: "POST", body: data }),
+  updateStrategy: (id: number | string, data: { name: string; nums: number[]; color?: string }) =>
+    request<any>(`/strategies/${id}`, { method: "PUT", body: data }),
+  deleteStrategy: (id: number | string) =>
+    request<{ success: true }>(`/strategies/${id}`, { method: "DELETE" }),
 };

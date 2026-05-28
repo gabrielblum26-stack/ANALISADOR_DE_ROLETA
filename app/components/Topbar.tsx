@@ -40,14 +40,24 @@ export default function Topbar() {
         </Link>
 
         {user?.role === "admin" && (
-          <Link 
-            className={`navLink ${isActive("/admin/users") ? "active" : ""}`} 
-            href="/admin/users"
-            title="Gerenciar usuários"
-          >
-            <span className="navIcon">⚙️</span>
-            <span className="navText">Usuários</span>
-          </Link>
+          <>
+            <Link 
+              className={`navLink ${isActive("/admin/users") ? "active" : ""}`} 
+              href="/admin/users"
+              title="Gerenciar usuários"
+            >
+              <span className="navIcon">👤</span>
+              <span className="navText">Usuários</span>
+            </Link>
+            <Link 
+              className={`navLink ${isActive("/admin/strategies") ? "active" : ""}`} 
+              href="/admin/strategies"
+              title="Gerenciar estratégias"
+            >
+              <span className="navIcon">⚙️</span>
+              <span className="navText">777 Config</span>
+            </Link>
+          </>
         )}
 
         <button

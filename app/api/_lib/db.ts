@@ -58,6 +58,18 @@ export async function ensureDbInit() {
       );
     }
 
+    // tabela de estratégias
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS strategies (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        nums INTEGER[] NOT NULL,
+        color TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
     globalThis.__dbInited = true;
   } finally {
     client.release();

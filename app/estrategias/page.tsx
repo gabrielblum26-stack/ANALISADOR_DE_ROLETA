@@ -1,10 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { STRATEGIES } from "../lib/strategies";
+import { api } from "../lib/api";
 
 export default function EstrategiasPage() {
   const [history, setHistory] = useState<number[]>([]);
+  const [strategies, setStrategies] = useState<any[]>([]);
+
+  const loadStrategies = async () => {
+    try {
+      const data = await api.listStrategies();
+      setStrategies(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     // Forçar tema escuro
@@ -12,6 +22,8 @@ export default function EstrategiasPage() {
     document.body.classList.add("theme-dark");
     document.body.style.background = "#121212";
     document.body.style.color = "#fff";
+
+    loadStrategies();
 
     // Carregar histórico inicial
     const saved = localStorage.getItem("roulette_history");
@@ -24,14 +36,21 @@ export default function EstrategiasPage() {
         setHistory(event.data.value);
       }
     };
-    return () => bc.close();
+    
+    // Escutar mudanças nas estratégias (opcional, se quiser sync em tempo real sem refresh)
+    const stratBc = new BroadcastChannel("strategies_sync");
+    stratBc.onmessage = () => loadStrategies();
+
+    return () => {
+      bc.close();
+      stratBc.close();
+    };
   }, []);
 
   const onMarkStrategy = (nums: number[], idx: number) => {
     const bc = new BroadcastChannel("roulette_keyboard");
     // Se for o Padrão de Saída Órfã (índice 3), usamos a cor 6 (ciano) para evitar o vermelho (índice 3)
     const colorIndex = idx === 3 ? 6 : idx % 10;
-    // Enviar o colorIndex para que o toggle funcione com a cor correta da estratégia
     bc.postMessage({ type: "MARK_STRATEGY", value: nums, colorIndex });
     bc.close();
   };
@@ -54,8 +73,8 @@ export default function EstrategiasPage() {
       </div>
 
       <div className="strategy-list" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        {STRATEGIES.map((strat, sIdx) => (
-          <div key={sIdx} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        {strategies.map((strat, sIdx) => (
+          <div key={strat.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div style={{ width: "120px", fontSize: "11px", fontWeight: "bold", color: strat.color || "#3b82f6", textTransform: "uppercase" }}>
               {strat.name}
             </div>

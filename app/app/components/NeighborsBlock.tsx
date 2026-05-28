@@ -1,9 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
-import { STRATEGIES } from "../lib/strategies";
-import { type SelState, SEL_ORDER, getNumberColors } from "../lib/selection";
+import { useMemo, useEffect, useState } from "react";
+import { type SelState, SEL_ORDER } from "../lib/selection";
 import { colorOf } from "../lib/roulette";
+import { api } from "../../lib/api";
+
+type Strategy = {
+  id: number;
+  name: string;
+  nums: number[];
+  color?: string;
+};
 
 type Props = {
   history: number[];
@@ -24,18 +31,32 @@ export default function NeighborsBlock({
   onToggle, 
   strategyMode
 }: Props) {
+  const [strategies, setStrategies] = useState<Strategy[]>([]);
+
+  const loadStrategies = async () => {
+    try {
+      const data = await api.listStrategies();
+      setStrategies(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    loadStrategies();
+    const bc = new BroadcastChannel("strategies_sync");
+    bc.onmessage = () => loadStrategies();
+    return () => bc.close();
+  }, []);
   
   // 1. Lógica de Sincronização (Intersecção entre estratégias ativas)
   const syncData = useMemo(() => {
-    const activeStrategies = STRATEGIES.map((s, i) => {
+    const activeStrategies = strategies.map((s, i) => {
       const colorIdx = i === 3 ? 6 : i % 10;
       const colorKey = SEL_ORDER[colorIdx];
-      // Verifica se a estratégia está marcada no estado sel
       const isActive = s.nums.length > 0 && sel.sets[colorKey]?.has(s.nums[0]);
       return { ...s, isActive, colorIdx };
     }).filter(s => s.isActive);
-
-    const onlyIntersections = strategyMode === "intersection";
 
     const counts: Record<number, number> = {};
     activeStrategies.forEach(s => {
@@ -44,27 +65,22 @@ export default function NeighborsBlock({
       });
     });
 
-    // Identifica quais estratégias têm números que se cruzam com outras ativas
     const syncedIndices = new Set<number>();
-    STRATEGIES.forEach((s, i) => {
+    strategies.forEach((s, i) => {
       if (s.nums.some(n => counts[n] > 1)) {
         syncedIndices.add(i);
       }
     });
 
     return syncedIndices;
-  }, [sel, STRATEGIES]);
+  }, [sel, strategies]);
 
-  // 2. Lógica de Padrão Repetitivo (Ex: 3 Verdes + 1 Preto)
+  // 2. Lógica de Padrão Repetitivo
   const patternAlert = useMemo(() => {
-    if (history.length < 4) return null;
+    if (history.length < 4 || strategies.length === 0) return null;
     
-    // Pega os últimos 4 resultados e converte para cores/padrão
     const last4 = history.slice(0, 4).map(n => colorOf(n));
     const currentPattern = last4.join("-");
-
-    // Procura no histórico mais antigo se esse padrão já ocorreu
-    // E se após esse padrão, alguma estratégia deu "HIT"
     const alerts = new Set<number>();
     
     for (let i = 4; i < history.length - 1; i++) {
@@ -72,10 +88,9 @@ export default function NeighborsBlock({
       const pastPattern = past4.join("-");
       
       if (currentPattern === pastPattern) {
-        // O padrão se repetiu! Vamos ver o que veio DEPOIS (o hit)
-        const nextNum = history[i - 1]; // O número que veio logo após o padrão no passado
+        const nextNum = history[i - 1];
         if (nextNum !== undefined) {
-          STRATEGIES.forEach((s, idx) => {
+          strategies.forEach((s, idx) => {
             if (s.nums.includes(nextNum)) {
               alerts.add(idx);
             }
@@ -84,7 +99,7 @@ export default function NeighborsBlock({
       }
     }
     return alerts;
-  }, [history]);
+  }, [history, strategies]);
 
   const handleMarkStrategy = (nums: number[], strategyIdx: number) => {
     const colorIndex = strategyIdx === 3 ? 6 : strategyIdx % 10;
@@ -124,7 +139,7 @@ export default function NeighborsBlock({
           )}
           
           <div className="strategiesList">
-            {STRATEGIES.map((strategy, idx) => {
+            {strategies.map((strategy, idx) => {
               const colorIdx = idx === 3 ? 6 : idx % 10;
               const colorKey = SEL_ORDER[colorIdx];
               const isActive = strategy.nums.length > 0 && sel.sets[colorKey]?.has(strategy.nums[0]);
@@ -136,7 +151,7 @@ export default function NeighborsBlock({
               
               return (
                 <div 
-                  key={idx} 
+                  key={strategy.id} 
                   className={`strategyRow ${showAlert ? "synced-alert" : ""}`} 
                   style={{ 
                     borderLeft: `4px solid ${colorVar}`,

@@ -1,13 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import RaceTrack from "../components/RaceTrack";
 import TableMap from "../components/TableMap";
 import { initSel } from "../lib/selection";
-import { STRATEGIES } from "../lib/strategies";
+import { api } from "../lib/api";
 
 export default function KeyboardPage() {
   const sel = initSel();
+  const [strategies, setStrategies] = useState<any[]>([]);
+
+  const loadStrategies = async () => {
+    try {
+      const data = await api.listStrategies();
+      setStrategies(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     document.documentElement.classList.add("theme-dark");
@@ -15,6 +25,7 @@ export default function KeyboardPage() {
     document.body.style.background = "#121212";
     document.body.style.color = "#fff";
     document.body.style.overflowY = "auto";
+    loadStrategies();
   }, []);
 
   const onPick = (n: number) => {
@@ -81,11 +92,11 @@ export default function KeyboardPage() {
           ))}
           
           {/* Estratégias Principais */}
-          {STRATEGIES.map((strat, i) => {
+          {strategies.map((strat, i) => {
             const colorIdx = i === 3 ? 6 : i % 10;
             return (
               <button 
-                key={i} 
+                key={strat.id} 
                 onClick={() => onMarkStrategy(strat.nums, colorIdx)}
                 className="strat-btn"
                 style={{ background: "#262626", color: strat.color || "#fff" }}
