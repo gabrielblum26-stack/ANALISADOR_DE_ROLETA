@@ -205,6 +205,10 @@ export default function Page() {
     setIsConfigModalOpen(true);
   };
 
+  const openUtilidades = () => {
+    router.push("/utilidades");
+  };
+
   const handleConfigPasswordSubmit = () => {
     if (configPassword === "6431") {
       setConfigPasswordError("");
@@ -491,6 +495,9 @@ export default function Page() {
             </button>
             <button className="btn btn-config" onClick={open777Config} style={{ background: "#f97316", color: "#fff" }}>
               ⚙️ CONFIG
+            </button>
+            <button className="btn btn-utilidades" onClick={openUtilidades} style={{ background: "#ec4899", color: "#fff" }}>
+              🛠️ UTILIDADES
             </button>
           </div>
         </div>
