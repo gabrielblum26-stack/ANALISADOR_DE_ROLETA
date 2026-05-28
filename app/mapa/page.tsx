@@ -73,7 +73,7 @@ export default function MapaPage() {
   };
 
   return (
-    <div style={{ padding: "20px", height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+    <div style={{ padding: "20px", minHeight: "auto", display: "flex", flexDirection: "column" }}>
       <div className="sectionTitle" style={{ marginBottom: "20px", fontSize: "18px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>MAPA DA MESA</div>
       <TableMap 
         sel={sel} 
