@@ -487,12 +487,6 @@ export default function Page() {
           {/* GRUPO 3: FERRAMENTAS */}
           <div style={{ display: 'flex', gap: '8px', paddingLeft: '15px' }}>
             <button className="btn btn-reset" onClick={onResetAll}>RESET TOTAL</button>
-            <button className="btn btn-keyboard" onClick={openKeyboard} style={{ background: "#9333ea", color: "#fff" }}>
-              KEYBOARD
-            </button>
-            <button className="btn btn-colors" onClick={openStrategies} style={{ background: "#22c55e", color: "#fff" }}>
-              ESTRATEGIAS
-            </button>
             <button className="btn btn-config" onClick={open777Config} style={{ background: "#f97316", color: "#fff" }}>
               ⚙️ CONFIG
             </button>
