@@ -53,6 +53,9 @@ export default function Page() {
   const [isAutoModalOpen, setIsAutoModalOpen] = useState(false);
   const [automationId, setAutomationId] = useState("");
   const [isAutoActive, setIsAutoActive] = useState(false);
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [configPassword, setConfigPassword] = useState("");
+  const [configPasswordError, setConfigPasswordError] = useState("");
 
   useEffect(() => {
     const savedId = localStorage.getItem("automation_id");
@@ -199,7 +202,19 @@ export default function Page() {
   };
 
   const open777Config = () => {
-    window.location.href = "/admin/strategies";
+    setIsConfigModalOpen(true);
+  };
+
+  const handleConfigPasswordSubmit = () => {
+    if (configPassword === "6431") {
+      setConfigPasswordError("");
+      setConfigPassword("");
+      setIsConfigModalOpen(false);
+      window.location.href = "/admin/strategies";
+    } else {
+      setConfigPasswordError("Senha incorreta!");
+      setConfigPassword("");
+    }
   };
 
   const longGridItems = useMemo(() => {
@@ -474,11 +489,9 @@ export default function Page() {
             <button className="btn btn-colors" onClick={openStrategies} style={{ background: "#22c55e", color: "#fff" }}>
               ESTRATEGIAS
             </button>
-            {user?.role === "admin" && (
-              <button className="btn btn-config" onClick={open777Config} style={{ background: "#f97316", color: "#fff" }}>
-                ⚙️ CONFIG
-              </button>
-            )}
+            <button className="btn btn-config" onClick={open777Config} style={{ background: "#f97316", color: "#fff" }}>
+              ⚙️ CONFIG
+            </button>
           </div>
         </div>
 
@@ -704,6 +717,96 @@ export default function Page() {
         currentId={automationId}
         isAutoActive={isAutoActive}
       />
+
+      {isConfigModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            background: '#1a1a1a',
+            border: '2px solid #ffd000',
+            borderRadius: '8px',
+            padding: '30px',
+            maxWidth: '400px',
+            width: '90%',
+            boxShadow: '0 0 30px rgba(255, 208, 0, 0.3)'
+          }}>
+            <h2 style={{ color: '#ffd000', marginBottom: '20px', textAlign: 'center', fontSize: '24px' }}>777 CONFIG</h2>
+            <p style={{ color: '#ccc', marginBottom: '20px', textAlign: 'center' }}>Digite a senha para acessar as estratégias:</p>
+            <input
+              type="password"
+              placeholder="Senha"
+              value={configPassword}
+              onChange={(e) => setConfigPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleConfigPasswordSubmit();
+                }
+              }}
+              style={{
+                width: '100%',
+                padding: '12px',
+                marginBottom: '15px',
+                background: '#222',
+                border: '1px solid #ffd000',
+                color: '#ffd000',
+                borderRadius: '4px',
+                fontSize: '16px',
+                boxSizing: 'border-box'
+              }}
+              autoFocus
+            />
+            {configPasswordError && (
+              <p style={{ color: '#ff4444', marginBottom: '15px', textAlign: 'center', fontSize: '14px' }}>{configPasswordError}</p>
+            )}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button
+                onClick={handleConfigPasswordSubmit}
+                style={{
+                  padding: '10px 20px',
+                  background: '#ffd000',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '14px'
+                }}
+              >
+                ENTRAR
+              </button>
+              <button
+                onClick={() => {
+                  setIsConfigModalOpen(false);
+                  setConfigPassword("");
+                  setConfigPasswordError("");
+                }}
+                style={{
+                  padding: '10px 20px',
+                  background: '#333',
+                  color: '#ccc',
+                  border: '1px solid #555',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '14px'
+                }}
+              >
+                CANCELAR
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
