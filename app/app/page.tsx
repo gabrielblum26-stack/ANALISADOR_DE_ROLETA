@@ -188,18 +188,22 @@ export default function Page() {
     );
   };
 
-  const openStrategies = () => {
-    const width = 600;
-    const height = 700;
-    const left = 50;
-    const top = 100;
-    
+  const openPopup = (url: string, title: string, w = 600, h = 700) => {
+    const left = (window.screen.width / 2) - (w / 2);
+    const top = (window.screen.height / 2) - (h / 2);
     window.open(
-      "/estrategias",
-      "RouletteStrategies",
-      `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes`
+      url,
+      title,
+      `width=${w},height=${h},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes`
     );
   };
+
+  const openStrategies = () => openPopup("/estrategias", "RouletteStrategies");
+  const openHistoryPopup = () => openPopup("/historico", "RouletteHistory", 800, 800);
+  const openDeslocamentoPopup = () => openPopup("/deslocamento", "RouletteMovement", 600, 800);
+  const openMapaPopup = () => openPopup("/mapa", "RouletteMap", 900, 600);
+  const openRacetrackPopup = () => openPopup("/racetrack", "RouletteRacetrack", 1000, 500);
+  const openTecladoPopup = () => openPopup("/teclado_full", "RouletteKeyboard", 800, 400);
 
   const open777Config = () => {
     setIsConfigModalOpen(true);
@@ -593,7 +597,16 @@ export default function Page() {
       <div className="main">
         <div className={`panel left ${minimized.history ? "minimized" : ""}`}>
           <div className="panelHeader">
-            <div className="sectionTitle">Histórico (80)</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div className="sectionTitle">Histórico (80)</div>
+              <button 
+                onClick={openHistoryPopup}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+                title="Expandir Histórico"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+              </button>
+            </div>
             <button className="btn-min" onClick={() => toggleMin("history")}>{minimized.history ? "+" : "−"}</button>
           </div>
           {!minimized.history && (
@@ -626,7 +639,14 @@ export default function Page() {
         </div>
 
         <div className="middleCols">
-          <div className="strategiesWrap">
+          <div className="strategiesWrap" style={{ position: 'relative' }}>
+            <button 
+              onClick={openStrategies}
+              style={{ position: 'absolute', top: '10px', right: '40px', zIndex: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+              title="Expandir Estratégias"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </button>
             <NeighborsBlock 
               history={lastTen} 
               sel={sel} 
@@ -637,7 +657,14 @@ export default function Page() {
               onToggle={() => toggleMin("neighbors")}
             />
           </div>
-          <div className="movementWrap">
+          <div className="movementWrap" style={{ position: 'relative' }}>
+            <button 
+              onClick={openDeslocamentoPopup}
+              style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+              title="Expandir Deslocamento"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </button>
             <MovementPanel 
               history={history} 
               selectedX={selectedX} 
@@ -662,7 +689,16 @@ export default function Page() {
         <div className="right">
           <div className={`panel-wrap ${minimized.trackMap ? "minimized" : ""}`}>
             <div className="panelHeader">
-              <div className="sectionTitle">Mapa da Mesa</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="sectionTitle">Mapa da Mesa</div>
+                <button 
+                  onClick={openMapaPopup}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+                  title="Expandir Mapa"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                </button>
+              </div>
               <button className="btn-min" onClick={() => toggleMin("trackMap")}>{minimized.trackMap ? "+" : "−"}</button>
             </div>
             {!minimized.trackMap && (
@@ -674,37 +710,58 @@ export default function Page() {
 
           <div className={`panel-wrap ${minimized.raceDist ? "minimized" : ""}`}>
             <div className="panelHeader">
-              <div className="sectionTitle">RaceTrack</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="sectionTitle">RaceTrack</div>
+                <button 
+                  onClick={openRacetrackPopup}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+                  title="Expandir Racetrack"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                </button>
+              </div>
               <button className="btn-min" onClick={() => toggleMin("raceDist")}>{minimized.raceDist ? "+" : "−"}</button>
             </div>
             {!minimized.raceDist && (
-              <>
-                <RaceTrack 
-                  sel={sel} 
-                  onPick={onSelect} 
-                  getCellStyles={getEnhancedCellStyles}
-                  strategyMode={strategyMode}
-                />
-                
-                <div className="quickKeyboard">
-                  <div className="keyboardRow">
-                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
-                      <button key={n} className={`keyBtn ${colorOf(n)}`} onClick={() => addNumber(n)}>{n}</button>
-                    ))}
-                  </div>
-                  <div className="keyboardRow">
-                    {[13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(n => (
-                      <button key={n} className={`keyBtn ${colorOf(n)}`} onClick={() => addNumber(n)}>{n}</button>
-                    ))}
-                  </div>
-                  <div className="keyboardRow">
-                    {[25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36].map(n => (
-                      <button key={n} className={`keyBtn ${colorOf(n)}`} onClick={() => addNumber(n)}>{n}</button>
-                    ))}
-                  </div>
-                </div>
-              </>
+              <RaceTrack 
+                sel={sel} 
+                onPick={onSelect} 
+                getCellStyles={getEnhancedCellStyles}
+                strategyMode={strategyMode}
+              />
             )}
+          </div>
+
+          <div className="panel-wrap">
+            <div className="panelHeader">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="sectionTitle">Teclado</div>
+                <button 
+                  onClick={openTecladoPopup}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+                  title="Expandir Teclado"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                </button>
+              </div>
+            </div>
+            <div className="quickKeyboard">
+              <div className="keyboardRow">
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
+                  <button key={n} className={`keyBtn ${colorOf(n)}`} onClick={() => addNumber(n)}>{n}</button>
+                ))}
+              </div>
+              <div className="keyboardRow">
+                {[13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(n => (
+                  <button key={n} className={`keyBtn ${colorOf(n)}`} onClick={() => addNumber(n)}>{n}</button>
+                ))}
+              </div>
+              <div className="keyboardRow">
+                {[25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36].map(n => (
+                  <button key={n} className={`keyBtn ${colorOf(n)}`} onClick={() => addNumber(n)}>{n}</button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
