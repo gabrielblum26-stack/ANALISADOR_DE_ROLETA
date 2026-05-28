@@ -109,12 +109,20 @@ export default function StrategiesAdmin() {
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <h1>Gerenciar Estratégias</h1>
-          <button 
-            onClick={() => { setEditing({ name: "", nums: [], color: "#3b82f6" }); setShowModal(true); }}
-            style={{ padding: "10px 20px", background: "#22c55e", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}
-          >
-            + NOVA ESTRATÉGIA
-          </button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button 
+              onClick={() => router.push("/app")}
+              style={{ padding: "10px 20px", background: "#333", color: "#fff", border: "1px solid #555", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              ⬅️ VOLTAR AO APP
+            </button>
+            <button 
+              onClick={() => { setEditing({ name: "", nums: [], color: "#3b82f6" }); setShowModal(true); }}
+              style={{ padding: "10px 20px", background: "#22c55e", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}
+            >
+              + NOVA ESTRATÉGIA
+            </button>
+          </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
