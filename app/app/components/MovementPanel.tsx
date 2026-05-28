@@ -210,13 +210,14 @@ export default function MovementPanel({
       </div>
 
       <style jsx>{`
-        .movementPanel.compact { padding: 8px; display: flex; flex-direction: column; height: 100%; }
+        .movementPanel.compact { padding: 8px; display: flex; flex-direction: column; height: auto; }
         .movementTitle { font-size: 11px; font-weight: 900; color: #888; }
         .movementHeader {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 8px;
+          padding-right: 30px;
         }
         .movementControls {
           display: flex;

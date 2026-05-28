@@ -71,7 +71,7 @@ export default function RacetrackPage() {
   };
 
   return (
-    <div style={{ padding: "20px", minHeight: "auto", display: "flex", flexDirection: "column" }}>
+    <div style={{ padding: "20px", width: "100%", display: "flex", flexDirection: "column" }}>
       <div className="sectionTitle" style={{ marginBottom: "20px", fontSize: "18px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>RACETRACK</div>
       <RaceTrack 
         sel={sel} 

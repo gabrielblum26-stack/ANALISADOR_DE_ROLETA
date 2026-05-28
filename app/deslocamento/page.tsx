@@ -30,7 +30,7 @@ export default function DeslocamentoPage() {
   };
 
   return (
-    <div style={{ padding: "20px", minHeight: "auto", overflowY: "auto" }}>
+    <div style={{ padding: "20px", width: "100%", display: "flex", flexDirection: "column" }}>
       <MovementPanel 
         history={history} 
         selectedX={selectedX} 

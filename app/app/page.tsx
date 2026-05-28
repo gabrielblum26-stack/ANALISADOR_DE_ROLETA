@@ -657,10 +657,10 @@ export default function Page() {
               onToggle={() => toggleMin("neighbors")}
             />
           </div>
-          <div className="movementWrap" style={{ position: 'relative' }}>
+          <div className="movementWrap" style={{ position: 'relative', paddingRight: '30px' }}>
             <button 
               onClick={openDeslocamentoPopup}
-              style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+              style={{ position: 'absolute', top: '15px', right: '5px', zIndex: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
               title="Expandir Deslocamento"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>

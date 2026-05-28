@@ -18,7 +18,7 @@ export default function TecladoFullPage() {
   };
 
   return (
-    <div style={{ padding: "20px", minHeight: "auto", display: "flex", flexDirection: "column" }}>
+    <div style={{ padding: "20px", width: "100%", display: "flex", flexDirection: "column" }}>
       <div className="sectionTitle" style={{ marginBottom: "20px", fontSize: "18px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>TECLADO</div>
       <div className="quickKeyboard" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <div className="keyboardRow" style={{ display: "grid", gridTemplateColumns: "repeat(13, 1fr)", gap: "5px" }}>
