@@ -217,7 +217,6 @@ export default function MovementPanel({
           justify-content: space-between;
           align-items: center;
           margin-bottom: 8px;
-          padding-right: 30px;
         }
         .movementControls {
           display: flex;
