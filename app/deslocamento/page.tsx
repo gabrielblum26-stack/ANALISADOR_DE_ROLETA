@@ -31,6 +31,9 @@ export default function DeslocamentoPage() {
 
   return (
     <div style={{ padding: "20px", width: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ background: "rgba(255, 208, 0, 0.1)", border: "1px solid rgba(255, 208, 0, 0.3)", borderRadius: "4px", padding: "10px", marginBottom: "15px", fontSize: "12px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>
+        PARA FIXAR CTRL + WIN + T
+      </div>
       <MovementPanel 
         history={history} 
         selectedX={selectedX} 
