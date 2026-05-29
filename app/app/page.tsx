@@ -52,6 +52,21 @@ export default function Page() {
   // Sincronizar TODAS as marcações com janelas expandidas
   useEffect(() => {
     const bc = new BroadcastChannel('roulette_selections');
+    
+    const handleMessage = (event) => {
+      if (event.data.type === 'REQUEST_SELECTIONS') {
+        bc.postMessage({ 
+          type: 'UPDATE_SELECTIONS', 
+          sel, 
+          selectedX, 
+          selMode,
+          markingMode 
+        });
+      }
+    };
+    
+    bc.onmessage = handleMessage;
+    
     bc.postMessage({ 
       type: 'UPDATE_SELECTIONS', 
       sel, 

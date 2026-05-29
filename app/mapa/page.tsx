@@ -5,17 +5,10 @@ import TableMap from "../app/components/TableMap";
 import { initSel, getNumberColors } from "../app/lib/selection";
 import { wheelStepEU } from "../app/lib/roulette";
 
-interface SelectionState {
-  sel: any;
-  selectedX: number[];
-  selMode: string;
-  markingMode: string;
-}
-
 export default function MapaPage() {
-  const [history, setHistory] = useState<number[]>([]);
   const [sel, setSel] = useState(initSel());
   const [selectedX, setSelectedX] = useState<number[]>([]);
+  const [history, setHistory] = useState<number[]>([]);
 
   useEffect(() => {
     document.documentElement.classList.add("theme-dark");
@@ -23,18 +16,11 @@ export default function MapaPage() {
     document.body.style.background = "#121212";
     document.body.style.color = "#fff";
 
-    const savedHistory = localStorage.getItem("roulette_history");
-    if (savedHistory) setHistory(JSON.parse(savedHistory));
-
-    const bc = new BroadcastChannel("roulette_history_sync");
-    bc.onmessage = (event) => {
-      if (event.data.type === "UPDATE_HISTORY") {
-        setHistory(event.data.value);
-      }
-    };
-
-    // Sincronizar marcações da tela principal
+    // Pedir sincronização inicial
     const bcSelections = new BroadcastChannel("roulette_selections");
+    bcSelections.postMessage({ type: 'REQUEST_SELECTIONS' });
+
+    // Receber sincronização
     bcSelections.onmessage = (event) => {
       if (event.data.type === "UPDATE_SELECTIONS") {
         setSel(event.data.sel);
@@ -42,17 +28,22 @@ export default function MapaPage() {
       }
     };
 
+    // Sincronizar histórico
+    const savedHistory = localStorage.getItem("roulette_history");
+    if (savedHistory) setHistory(JSON.parse(savedHistory));
+
+    const bcHistory = new BroadcastChannel("roulette_history_sync");
+    bcHistory.onmessage = (event) => {
+      if (event.data.type === "UPDATE_HISTORY") {
+        setHistory(event.data.value);
+      }
+    };
+
     return () => {
-      bc.close();
       bcSelections.close();
+      bcHistory.close();
     };
   }, []);
-
-  const onPick = (n: number) => {
-    const bc = new BroadcastChannel("roulette_keyboard");
-    bc.postMessage({ type: "ADD_NUMBER", value: n });
-    bc.close();
-  };
 
   const X_COLORS = [
     "#3b82f6", "#ef4444", "#22c55e", "#eab308", "#a855f7", "#ec4899", 
@@ -95,7 +86,7 @@ export default function MapaPage() {
       <div className="sectionTitle" style={{ marginBottom: "20px", fontSize: "18px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>MAPA DA MESA</div>
       <TableMap 
         sel={sel} 
-        onPick={onPick} 
+        onPick={() => {}} 
         repHighlights={new Set()} 
         getCellStyles={getCellStyles} 
       />
