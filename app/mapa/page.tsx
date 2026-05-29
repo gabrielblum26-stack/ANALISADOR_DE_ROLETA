@@ -5,6 +5,13 @@ import TableMap from "../app/components/TableMap";
 import { initSel, getNumberColors } from "../app/lib/selection";
 import { wheelStepEU } from "../app/lib/roulette";
 
+interface SelectionState {
+  sel: any;
+  selectedX: number[];
+  selMode: string;
+  markingMode: string;
+}
+
 export default function MapaPage() {
   const [history, setHistory] = useState<number[]>([]);
   const [sel, setSel] = useState(initSel());
@@ -25,7 +32,20 @@ export default function MapaPage() {
         setHistory(event.data.value);
       }
     };
-    return () => bc.close();
+
+    // Sincronizar marcações da tela principal
+    const bcSelections = new BroadcastChannel("roulette_selections");
+    bcSelections.onmessage = (event) => {
+      if (event.data.type === "UPDATE_SELECTIONS") {
+        setSel(event.data.sel);
+        setSelectedX(event.data.selectedX);
+      }
+    };
+
+    return () => {
+      bc.close();
+      bcSelections.close();
+    };
   }, []);
 
   const onPick = (n: number) => {
@@ -41,10 +61,8 @@ export default function MapaPage() {
   ];
 
   const getCellStyles = (n: number) => {
-    // Lógica simplificada de estilos para o mapa standalone
     const colors = getNumberColors(sel, n);
     
-    // Verificar se é um número destacado por X (opcional, para manter paridade com a principal)
     if (history.length > 0 && selectedX.length > 0) {
         const lastNum = history[0];
         for (const x of selectedX) {

@@ -5,6 +5,13 @@ import RaceTrack from "../app/components/RaceTrack";
 import { initSel, getNumberColors } from "../app/lib/selection";
 import { wheelStepEU } from "../app/lib/roulette";
 
+interface SelectionState {
+  sel: any;
+  selectedX: number[];
+  selMode: string;
+  markingMode: string;
+}
+
 export default function RacetrackPage() {
   const [history, setHistory] = useState<number[]>([]);
   const [sel, setSel] = useState(initSel());
@@ -25,7 +32,20 @@ export default function RacetrackPage() {
         setHistory(event.data.value);
       }
     };
-    return () => bc.close();
+
+    // Sincronizar marcações da tela principal
+    const bcSelections = new BroadcastChannel("roulette_selections");
+    bcSelections.onmessage = (event) => {
+      if (event.data.type === "UPDATE_SELECTIONS") {
+        setSel(event.data.sel);
+        setSelectedX(event.data.selectedX);
+      }
+    };
+
+    return () => {
+      bc.close();
+      bcSelections.close();
+    };
   }, []);
 
   const onPick = (n: number) => {

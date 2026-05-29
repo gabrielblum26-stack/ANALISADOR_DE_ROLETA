@@ -49,6 +49,19 @@ export default function Page() {
   const [pickingFor, setPickingFor] = useState<"n1" | "n2" | null>(null);
   const [selectedX, setSelectedX] = useState<number[]>([]);
 
+  // Sincronizar TODAS as marcações com janelas expandidas
+  useEffect(() => {
+    const bc = new BroadcastChannel('roulette_selections');
+    bc.postMessage({ 
+      type: 'UPDATE_SELECTIONS', 
+      sel, 
+      selectedX, 
+      selMode,
+      markingMode 
+    });
+    return () => bc.close();
+  }, [sel, selectedX, selMode, markingMode]);
+
   // Estados para Automação
   const [isAutoModalOpen, setIsAutoModalOpen] = useState(false);
   const [automationId, setAutomationId] = useState("");
