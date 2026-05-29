@@ -53,7 +53,7 @@ export default function Page() {
   useEffect(() => {
     const bc = new BroadcastChannel('roulette_selections');
     
-    const handleMessage = (event) => {
+    const handleMessage = (event: MessageEvent) => {
       if (event.data.type === 'REQUEST_SELECTIONS') {
         bc.postMessage({ 
           type: 'UPDATE_SELECTIONS', 
