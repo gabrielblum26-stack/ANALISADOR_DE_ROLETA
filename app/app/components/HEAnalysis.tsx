@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { colorOf, parseInput, wheelStepEU } from "../lib/roulette";
 
 type Props = {
@@ -68,6 +68,17 @@ export default function HEAnalysis({ history, onPick, onToggleHighlight }: Props
   }, [autoSource, manualAuxHistory, manualTypedNumbers, mode, useHistoryCount]);
 
   const analysis = useMemo(() => calculateHEMode2Pure(sourceNumbers), [sourceNumbers]);
+
+  useEffect(() => {
+    if (isHighlightActive) {
+      if (analysis) {
+        const numbers = [...analysis.source, ...analysis.displayTrios, ...analysis.allApoios, ...analysis.final];
+        onToggleHighlight(true, numbers);
+      } else {
+        onToggleHighlight(true, []);
+      }
+    }
+  }, [analysis, isHighlightActive, onToggleHighlight]);
 
   const numberFieldValue = mode === "AUTO"
     ? autoSource.slice(0, 3).join(", ")
