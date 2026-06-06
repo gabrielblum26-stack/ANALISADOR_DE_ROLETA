@@ -222,25 +222,3 @@ const highlightButtonStyles = `
   opacity: 0.9;
 }
 `;
-
-// Injetar os estilos no componente (apenas para demonstração, em um projeto real seria em um CSS global)
-// useEffect(() => {
-//   const styleElement = document.createElement("style");
-//   styleElement.innerHTML = highlightButtonStyles;
-//   document.head.appendChild(styleElement);
-//   return () => {
-//     document.head.removeChild(styleElement);
-//   };
-// }, []);
-
-            </div>
-          ) : (
-            <div className="heMode2Empty">
-              {mode === "AUTO" ? "Aguardando pelo menos 3 números no histórico." : "Digite 3 números ou informe o histórico auxiliar manual."}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
