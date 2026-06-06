@@ -72,13 +72,15 @@ type Props = {
   onPick: (n: number) => void;
   getCellStyles: (n: number) => React.CSSProperties;
   strategyMode?: "total" | "intersection";
+  highlightedNumbers: number[];
 };
 
 export default function RaceTrack({
   sel,
   onPick,
   getCellStyles,
-  strategyMode
+  strategyMode,
+  highlightedNumbers
 }: Props) {
   const pts = buildTrackPoints();
   const viewW = 1100;
@@ -161,9 +163,12 @@ export default function RaceTrack({
                 cy={p.y}
                 r="22"
                 fill={fill}
-                stroke={customStyles?.border ? "#fff" : "rgba(255,255,255,0.2)"}
-                strokeWidth={customStyles?.border ? "3" : "1"}
-                style={{ filter: customStyles?.boxShadow ? `drop-shadow(0 0 8px ${customStyles.backgroundColor})` : 'none' }}
+                stroke={highlightedNumbers.includes(n) ? "#fff" : (customStyles?.border ? "#fff" : "rgba(255,255,255,0.2)")}
+                strokeWidth={highlightedNumbers.includes(n) ? "3" : (customStyles?.border ? "3" : "1")}
+                style={{ 
+                  filter: highlightedNumbers.includes(n) ? "drop-shadow(0 0 8px #fff)" : (customStyles?.boxShadow ? `drop-shadow(0 0 8px ${customStyles.backgroundColor})` : 'none'),
+                  transition: "all 0.2s ease-in-out"
+                }}
                 className="raceCell"
               />
               <text 

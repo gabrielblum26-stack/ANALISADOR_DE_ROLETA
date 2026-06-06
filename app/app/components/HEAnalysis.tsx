@@ -6,6 +6,7 @@ import { colorOf, parseInput, wheelStepEU } from "../lib/roulette";
 type Props = {
   history: number[];
   onPick: (n: number) => void;
+  onToggleHighlight: (isActive: boolean, numbersToHighlight: number[]) => void;
 };
 
 type AnalysisItem = {
@@ -49,7 +50,8 @@ const calculateHEMode2Pure = (source: number[]): AnalysisResult | null => {
   };
 };
 
-export default function HEAnalysis({ history, onPick }: Props) {
+export default function HEAnalysis({ history, onPick, onToggleHighlight }: Props) {
+  const [isHighlightActive, setIsHighlightActive] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [mode, setMode] = useState<"AUTO" | "MANUAL">("AUTO");
   const [useHistoryCount, setUseHistoryCount] = useState(3);
@@ -79,7 +81,7 @@ export default function HEAnalysis({ history, onPick }: Props) {
   return (
     <div className={`panel heMode2Panel ${isMinimized ? "minimized" : ""}`}>
       <div className="panelHeader heMode2Header">
-        <div className="sectionTitle heMode2Title">H+E MODO 2 PURO</div>
+        <div className="sectionTitle heMode2Title">MARCAÇÃO FIFA COPA</div>
         <button className="btn-min" onClick={() => setIsMinimized(!isMinimized)}>{isMinimized ? "+" : "−"}</button>
       </div>
 
@@ -114,6 +116,25 @@ export default function HEAnalysis({ history, onPick }: Props) {
                 <option value={14}>ÚLTIMOS 14</option>
               </select>
             </label>
+
+            <div className="heMode2Field heMode2HighlightField">
+              <button
+                type="button"
+                className={`btn btn-highlight ${isHighlightActive ? "active" : ""}`}
+                onClick={() => {
+                  const newState = !isHighlightActive;
+                  setIsHighlightActive(newState);
+                  if (analysis) {
+                    const numbers = [...analysis.source, ...analysis.displayTrios, ...analysis.allApoios, ...analysis.final];
+                    onToggleHighlight(newState, numbers);
+                  } else {
+                    onToggleHighlight(newState, []);
+                  }
+                }}
+              >
+                DESTACAR NA RACE {isHighlightActive ? "🟢" : "⚪"}
+              </button>
+            </div>
           </div>
 
           {mode === "MANUAL" && (
@@ -160,6 +181,58 @@ export default function HEAnalysis({ history, onPick }: Props) {
                 <span><i className="apoio" />Apoios</span>
                 <span><i className="final" />Alvo Final</span>
               </div>
+            </div>
+          ) : (
+            <div className="heMode2Empty">
+              {mode === "AUTO" ? "Aguardando pelo menos 3 números no histórico." : "Digite 3 números ou informe o histórico auxiliar manual."}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Adicionar estilos para o botão de destaque
+const highlightButtonStyles = `
+.btn-highlight {
+  background: #5a5a5a;
+  color: #fff;
+  border: 1px solid #777;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: bold;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-highlight.active {
+  background: #ffd000;
+  color: #000;
+  border-color: #fff;
+  box-shadow: 0 0 10px rgba(255, 208, 0, 0.5);
+}
+
+.btn-highlight:hover {
+  opacity: 0.9;
+}
+`;
+
+// Injetar os estilos no componente (apenas para demonstração, em um projeto real seria em um CSS global)
+// useEffect(() => {
+//   const styleElement = document.createElement("style");
+//   styleElement.innerHTML = highlightButtonStyles;
+//   document.head.appendChild(styleElement);
+//   return () => {
+//     document.head.removeChild(styleElement);
+//   };
+// }, []);
+
             </div>
           ) : (
             <div className="heMode2Empty">

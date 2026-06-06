@@ -43,6 +43,7 @@ export default function Page() {
   const [markingMode, setMarkingMode] = useState<"unique" | "cumulative">("cumulative");
   const [showEaster99, setShowEaster99] = useState(false);
   const [strategyMode, setStrategyMode] = useState<"total" | "intersection">("total");
+  const [highlightedNumbers, setHighlightedNumbers] = useState<number[]>([]);
 
   // Estados para o Calculador de Distância
   const [distN1, setDistN1] = useState<number | null>(null);
@@ -687,7 +688,13 @@ export default function Page() {
                 onToggle={() => toggleMin("neighbors")}
               />
             </div>
-            <HEAnalysis history={history} onPick={onSelect} />
+            <HEAnalysis 
+              history={history} 
+              onPick={onSelect} 
+              onToggleHighlight={(isActive, numbers) => {
+                setHighlightedNumbers(isActive ? numbers : []);
+              }}
+            />
           </div>
           <div className="movementWrap" style={{ position: 'relative' }}>
             <button 
@@ -760,6 +767,7 @@ export default function Page() {
                 onPick={onSelect} 
                 getCellStyles={getEnhancedCellStyles}
                 strategyMode={strategyMode}
+                highlightedNumbers={highlightedNumbers}
               />
             )}
           </div>
