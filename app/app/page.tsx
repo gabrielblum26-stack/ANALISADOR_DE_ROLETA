@@ -14,6 +14,7 @@ import { TerminalCard } from "./components/TerminalCard";
 import { Metric } from "./components/Metric";
 import MovementPanel from "./components/MovementPanel";
 import AutomationModal from "./components/AutomationModal";
+import HEAnalysis from "./components/HEAnalysis";
 
 const SHORT_N = 20;
 const LONG_N = 200;
@@ -684,6 +685,7 @@ export default function Page() {
               isMinimized={minimized.neighbors}
               onToggle={() => toggleMin("neighbors")}
             />
+            <HEAnalysis history={history} onPick={onSelect} />
           </div>
           <div className="movementWrap" style={{ position: 'relative' }}>
             <button 
