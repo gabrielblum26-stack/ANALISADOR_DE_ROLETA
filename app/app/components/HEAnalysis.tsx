@@ -65,7 +65,7 @@ export default function HEAnalysis({ history, onPick }: Props) {
   if (history.length === 0) return null;
 
   return (
-    <div className={`panel ${isMinimized ? "minimized" : ""}`} style={{ marginTop: '10px', border: '1px solid rgba(255, 208, 0, 0.3)' }}>
+    <div className={`panel ${isMinimized ? "minimized" : ""}`} style={{ border: '1px solid rgba(255, 208, 0, 0.3)' }}>
       <div className="panelHeader" style={{ padding: '10px 15px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div className="sectionTitle" style={{ color: '#ffd000', fontSize: '14px' }}>H+E Modo 2 Puro</div>

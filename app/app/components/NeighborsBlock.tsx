@@ -111,7 +111,7 @@ export default function NeighborsBlock({
   };
 
   return (
-    <div className={`panel neighborsPanel ${isMinimized ? "minimized" : ""}`} aria-label="Estratégias personalizadas">
+    <div className={`neighborsPanel ${isMinimized ? "minimized" : ""}`} aria-label="Estratégias personalizadas" style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}>
       <div className="panelHeader">
         <div className="neighborsTitle">ESTRATÉGIAS</div>
         {onToggle && <button className="btn-min" onClick={onToggle}>{isMinimized ? "+" : "−"}</button>}
