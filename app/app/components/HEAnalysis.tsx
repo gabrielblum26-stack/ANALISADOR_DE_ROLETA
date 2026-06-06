@@ -98,10 +98,14 @@ export default function HEAnalysis({ history, onPick, onToggleHighlight }: Props
           type="button"
           className={`btn btn-highlight ${isHighlightActive ? "active" : ""}`}
           style={{ 
-            padding: '4px 8px', 
-            fontSize: '11px', 
+            padding: '2px 6px', 
+            fontSize: '10px', 
             borderRadius: '4px',
-            height: '24px',
+            width: 'auto',
+            minWidth: 'fit-content',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             whiteSpace: 'nowrap'
           }}
           onClick={() => {
