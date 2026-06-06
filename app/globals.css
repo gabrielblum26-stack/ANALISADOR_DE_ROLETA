@@ -1478,3 +1478,209 @@ input[type="text"]{
 .keyBtn.green { background: #0f7a3a; border-color: #16a34a; }
 .keyBtn.red { background: #c82d2d; border-color: #ef4444; }
 .keyBtn.black { background: #1c1c1c; border-color: #444; }
+
+/* H+E MODO 2 PURO - réplica compacta */
+.heMode2Panel{
+  border: 1px solid rgba(255, 208, 0, 0.35);
+  background: linear-gradient(180deg, #1e1e1f 0%, #141414 100%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), 0 10px 26px rgba(0,0,0,0.28);
+}
+
+.heMode2Header{
+  padding: 8px 12px 6px;
+  min-height: 28px;
+}
+
+.heMode2Title{
+  color: #ffd000;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.heMode2Body{
+  padding: 6px 12px 12px;
+}
+
+.heMode2Controls{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 94px 116px;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 10px;
+}
+
+.heMode2Field{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.heMode2Field span{
+  color: #8f949d;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.heMode2Field input,
+.heMode2Field select,
+.heMode2Field textarea{
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  background: #020202;
+  color: #fff;
+  font-weight: 900;
+  outline: none;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.015);
+}
+
+.heMode2Field input,
+.heMode2Field select{
+  height: 32px;
+  padding: 0 11px;
+  font-size: 12px;
+}
+
+.heMode2Field select{
+  cursor: pointer;
+  appearance: auto;
+  text-align: center;
+}
+
+.heMode2UseHistoryField select{
+  border-color: rgba(255,255,255,0.78);
+}
+
+.heMode2ManualBox{
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+
+.heMode2AuxField textarea{
+  min-height: 54px;
+  resize: vertical;
+  padding: 9px 10px;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.heMode2ManualActions{
+  display: flex;
+  gap: 8px;
+}
+
+.heMode2ManualActions button{
+  border: none;
+  border-radius: 7px;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, #2790ff, #096ce4);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.heMode2ManualActions button:last-child{
+  background: linear-gradient(180deg, #343434, #151515);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.heMode2ResultBox{
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(8,8,8,0.52);
+  padding: 10px;
+}
+
+.heMode2Formula{
+  color: #b7bec9;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+
+.heMode2Chips{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+}
+
+.heMode2Chip{
+  width: 36px;
+  height: 34px;
+  min-width: 36px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.heMode2Chip.typed{
+  border: 1.5px solid #ff4b4b;
+}
+
+.heMode2Chip.trio{
+  border: 1.5px solid #3ba1ff;
+}
+
+.heMode2Chip.apoio{
+  border: 1.5px solid #35e177;
+}
+
+.heMode2Chip.final{
+  border: 1.5px solid #ff8a1f;
+  box-shadow: 0 0 10px rgba(255,138,31,.45), inset 0 0 0 1px rgba(255,255,255,.04);
+}
+
+.heMode2Legend{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 10px;
+  color: #e6e6e6;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.heMode2Legend span{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.heMode2Legend i{
+  width: 7px;
+  height: 7px;
+  display: inline-block;
+  border-radius: 1px;
+}
+
+.heMode2Legend i.typed{ background:#ff4b4b; }
+.heMode2Legend i.trio{ background:#3ba1ff; }
+.heMode2Legend i.apoio{ background:#35e177; }
+.heMode2Legend i.final{ background:#ff8a1f; }
+
+.heMode2Empty{
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(0,0,0,0.35);
+  padding: 12px;
+  color: #888;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+@media (max-width: 760px){
+  .heMode2Controls{
+    grid-template-columns: 1fr;
+  }
+}

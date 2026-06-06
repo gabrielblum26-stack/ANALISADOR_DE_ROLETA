@@ -1,143 +1,169 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { colorOf, neighborsEU, wheelStepEU } from "../lib/roulette";
+import { colorOf, parseInput, wheelStepEU } from "../lib/roulette";
 
 type Props = {
   history: number[];
   onPick: (n: number) => void;
 };
 
+type AnalysisItem = {
+  val: number;
+  trio: [number, number, number];
+  apoio: number;
+};
+
+type AnalysisResult = {
+  source: number[];
+  n1: AnalysisItem;
+  n2: AnalysisItem;
+  n3: AnalysisItem;
+  final: [number, number, number];
+  allApoios: number[];
+  displayTrios: number[];
+};
+
+const makeHEItem = (n: number): AnalysisItem => ({
+  val: n,
+  trio: [n, wheelStepEU(n, 18), wheelStepEU(n, 1)],
+  apoio: wheelStepEU(n, 12),
+});
+
+const calculateHEMode2Pure = (source: number[]): AnalysisResult | null => {
+  const base = source.slice(0, 3);
+  if (base.length < 3) return null;
+
+  const n1 = makeHEItem(base[0]);
+  const n2 = makeHEItem(base[1]);
+  const n3 = makeHEItem(base[2]);
+
+  return {
+    source: base,
+    n1,
+    n2,
+    n3,
+    final: [n1.trio[1], n2.trio[1], n3.trio[1]],
+    allApoios: [n1.apoio, n2.apoio, n3.apoio],
+    displayTrios: n1.trio,
+  };
+};
+
 export default function HEAnalysis({ history, onPick }: Props) {
   const [isMinimized, setIsMinimized] = useState(false);
+  const [mode, setMode] = useState<"AUTO" | "MANUAL">("AUTO");
   const [useHistoryCount, setUseHistoryCount] = useState(3);
+  const [manualNumbers, setManualNumbers] = useState("");
+  const [manualHistory, setManualHistory] = useState("");
 
-  // Lógica do Modo 2 Puro baseada na imagem enviada pelo usuário
-  const analysis = useMemo(() => {
-    if (history.length < 3) return null;
+  const autoSource = useMemo(() => history.slice(0, useHistoryCount), [history, useHistoryCount]);
+  const manualTypedNumbers = useMemo(() => parseInput(manualNumbers), [manualNumbers]);
+  const manualAuxHistory = useMemo(() => parseInput(manualHistory), [manualHistory]);
 
-    const last3 = history.slice(0, 3);
-    const n1 = last3[0];
-    const n2 = last3[1];
-    const n3 = last3[2];
+  const sourceNumbers = useMemo(() => {
+    if (mode === "AUTO") return autoSource;
+    return manualTypedNumbers.length >= 3 ? manualTypedNumbers : manualAuxHistory.slice(0, useHistoryCount);
+  }, [autoSource, manualAuxHistory, manualTypedNumbers, mode, useHistoryCount]);
 
-    // Cálculo de Trios e Apoios (Simulação da lógica HE baseada na imagem)
-    // Na imagem: 1 -> trio 1-27-3 | apoio 21
-    // 3 -> trio 3-27-1 | apoio 23
-    // 5 -> trio 5-25-7 | apoio 32
-    
-    // Função auxiliar para gerar trios e apoios baseados em vizinhos e deslocamentos
-    const getTrioAndApoio = (n: number) => {
-      const { prev, next } = neighborsEU(n);
-      // Simulação de lógica: trio é [n, vizinho_oposto_na_roda, outro_vizinho]
-      // Apoio é um número deslocado
-      const opposite = wheelStepEU(n, 18);
-      const support = wheelStepEU(n, 12); // Exemplo de deslocamento para apoio
-      return {
-        trio: [n, opposite, next],
-        apoio: support
-      };
-    };
+  const analysis = useMemo(() => calculateHEMode2Pure(sourceNumbers), [sourceNumbers]);
 
-    const res1 = getTrioAndApoio(n1);
-    const res2 = getTrioAndApoio(n2);
-    const res3 = getTrioAndApoio(n3);
+  const numberFieldValue = mode === "AUTO"
+    ? autoSource.slice(0, 3).join(", ")
+    : manualNumbers;
 
-    // Identificar convergência (números que aparecem em mais de um trio/apoio)
-    const allNums = [...res1.trio, res1.apoio, ...res2.trio, res2.apoio, ...res3.trio, res3.apoio];
-    const counts: Record<number, number> = {};
-    allNums.forEach(n => counts[n] = (counts[n] || 0) + 1);
-    
-    const convergence = Object.entries(counts)
-      .filter(([_, count]) => count > 1)
-      .map(([n, _]) => parseInt(n));
-
-    return {
-      n1: { val: n1, trio: res1.trio, apoio: res1.apoio },
-      n2: { val: n2, trio: res2.trio, apoio: res2.apoio },
-      n3: { val: n3, trio: res3.trio, apoio: res3.apoio },
-      final: convergence.length > 0 ? convergence : [res1.trio[1], res2.trio[1], res3.trio[1]],
-      allApoios: [res1.apoio, res2.apoio, res3.apoio],
-      allTrios: [...res1.trio, ...res2.trio, ...res3.trio]
-    };
-  }, [history]);
-
-  if (history.length === 0) return null;
+  const fillManualHistory = () => {
+    setManualHistory(history.slice(0, 14).join(", "));
+    if (!manualNumbers.trim()) setManualNumbers(history.slice(0, 3).join(", "));
+  };
 
   return (
-    <div className={`panel ${isMinimized ? "minimized" : ""}`} style={{ border: '1px solid rgba(255, 208, 0, 0.3)' }}>
-      <div className="panelHeader" style={{ padding: '10px 15px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div className="sectionTitle" style={{ color: '#ffd000', fontSize: '14px' }}>H+E Modo 2 Puro</div>
-        </div>
+    <div className={`panel heMode2Panel ${isMinimized ? "minimized" : ""}`}>
+      <div className="panelHeader heMode2Header">
+        <div className="sectionTitle heMode2Title">H+E MODO 2 PURO</div>
         <button className="btn-min" onClick={() => setIsMinimized(!isMinimized)}>{isMinimized ? "+" : "−"}</button>
       </div>
 
       {!isMinimized && (
-        <div style={{ padding: '0 15px 15px' }}>
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '10px', color: '#888', display: 'block', marginBottom: '4px' }}>NÚMEROS</label>
-              <div style={{ background: '#000', padding: '8px', borderRadius: '8px', color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>
-                {history.slice(0, 3).join(', ')}
-              </div>
-            </div>
-            <div style={{ width: '100px' }}>
-              <label style={{ fontSize: '10px', color: '#888', display: 'block', marginBottom: '4px' }}>MODO</label>
-              <div style={{ background: '#000', padding: '8px', borderRadius: '8px', color: '#fff', fontSize: '12px', textAlign: 'center' }}>AUTO</div>
-            </div>
-            <div style={{ width: '120px' }}>
-              <label style={{ fontSize: '10px', color: '#888', display: 'block', marginBottom: '4px' }}>USAR HISTÓRICO</label>
-              <select 
-                value={useHistoryCount} 
-                onChange={(e) => setUseHistoryCount(Number(e.target.value))}
-                style={{ width: '100%', background: '#000', border: 'none', padding: '8px', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
-              >
+        <div className="heMode2Body">
+          <div className="heMode2Controls">
+            <label className="heMode2Field heMode2NumbersField">
+              <span>NÚMEROS</span>
+              <input
+                value={numberFieldValue}
+                readOnly={mode === "AUTO"}
+                onChange={(event) => setManualNumbers(event.target.value)}
+                placeholder="Ex: 11, 10, 9"
+              />
+            </label>
+
+            <label className="heMode2Field heMode2ModeField">
+              <span>MODO</span>
+              <select value={mode} onChange={(event) => setMode(event.target.value as "AUTO" | "MANUAL")}>
+                <option value="AUTO">AUTO</option>
+                <option value="MANUAL">MANUAL</option>
+              </select>
+            </label>
+
+            <label className="heMode2Field heMode2UseHistoryField">
+              <span>USAR HISTÓRICO</span>
+              <select value={useHistoryCount} onChange={(event) => setUseHistoryCount(Number(event.target.value))}>
+                <option value={2}>ÚLTIMOS 2</option>
                 <option value={3}>ÚLTIMOS 3</option>
                 <option value={5}>ÚLTIMOS 5</option>
                 <option value={8}>ÚLTIMOS 8</option>
+                <option value={14}>ÚLTIMOS 14</option>
               </select>
-            </div>
+            </label>
           </div>
 
+          {mode === "MANUAL" && (
+            <div className="heMode2ManualBox">
+              <label className="heMode2Field heMode2AuxField">
+                <span>HISTÓRICO AUXILIAR SEPARADO</span>
+                <textarea
+                  value={manualHistory}
+                  onChange={(event) => setManualHistory(event.target.value)}
+                  placeholder="Ex: 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11"
+                />
+              </label>
+              <div className="heMode2ManualActions">
+                <button type="button" onClick={fillManualHistory}>PREENCHER HISTÓRICO</button>
+                <button type="button" onClick={() => { setManualNumbers(""); setManualHistory(""); }}>LIMPAR</button>
+              </div>
+            </div>
+          )}
+
           {analysis ? (
-            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ fontSize: '11px', color: '#aaa', marginBottom: '10px', fontFamily: 'monospace', lineHeight: '1.4' }}>
-                PLANILHA HE PURA | N1: trio {analysis.n1.trio.join('-')} | apoio {analysis.n1.apoio} || 
-                N2: trio {analysis.n2.trio.join('-')} | apoio {analysis.n2.apoio} || 
-                N3: trio {analysis.n3.trio.join('-')} | apoio {analysis.n3.apoio} || 
-                Final: {analysis.final.join(', ')}
+            <div className="heMode2ResultBox">
+              <div className="heMode2Formula">
+                PLANILHA HE PURA | N1: trio {analysis.n1.trio.join("-")} | apoio {analysis.n1.apoio} || N2: trio {analysis.n2.trio.join("-")} | apoio {analysis.n2.apoio} || N3: trio {analysis.n3.trio.join("-")} | apoio {analysis.n3.apoio} || Final: {analysis.final.join(", ")}
               </div>
 
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
-                {/* Digitados */}
-                {history.slice(0, 3).map(n => (
-                  <div key={`dig-${n}`} className={`chip ${colorOf(n)}`} style={{ border: '2px solid #ef4444', width: '35px', height: '35px', fontSize: '13px' }} onClick={() => onPick(n)}>{n}</div>
+              <div className="heMode2Chips">
+                {analysis.source.map((n, index) => (
+                  <button key={`typed-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip typed`} onClick={() => onPick(n)}>{n}</button>
                 ))}
-                {/* Trios */}
-                {analysis.allTrios.slice(0, 3).map((n, i) => (
-                  <div key={`trio-${i}`} className={`chip ${colorOf(n)}`} style={{ border: '2px solid #3b82f6', width: '35px', height: '35px', fontSize: '13px' }} onClick={() => onPick(n)}>{n}</div>
+                {analysis.displayTrios.map((n, index) => (
+                  <button key={`trio-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip trio`} onClick={() => onPick(n)}>{n}</button>
                 ))}
-                {/* Apoios */}
-                {analysis.allApoios.map((n, i) => (
-                  <div key={`apoio-${i}`} className={`chip ${colorOf(n)}`} style={{ border: '2px solid #22c55e', width: '35px', height: '35px', fontSize: '13px' }} onClick={() => onPick(n)}>{n}</div>
+                {analysis.allApoios.map((n, index) => (
+                  <button key={`apoio-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip apoio`} onClick={() => onPick(n)}>{n}</button>
                 ))}
-                {/* Final */}
-                {analysis.final.map((n, i) => (
-                  <div key={`final-${i}`} className={`chip ${colorOf(n)}`} style={{ border: '2px solid #f97316', boxShadow: '0 0 10px rgba(249, 115, 22, 0.5)', width: '35px', height: '35px', fontSize: '13px' }} onClick={() => onPick(n)}>{n}</div>
+                {analysis.final.map((n, index) => (
+                  <button key={`final-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip final`} onClick={() => onPick(n)}>{n}</button>
                 ))}
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '15px', fontSize: '9px', fontWeight: 'bold' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '8px', height: '8px', background: '#ef4444' }}></div> Digitados</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '8px', height: '8px', background: '#3b82f6' }}></div> Trios</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '8px', height: '8px', background: '#22c55e' }}></div> Apoios</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '8px', height: '8px', background: '#f97316' }}></div> Alvo Final</div>
+              <div className="heMode2Legend">
+                <span><i className="typed" />Digitados</span>
+                <span><i className="trio" />Trios</span>
+                <span><i className="apoio" />Apoios</span>
+                <span><i className="final" />Alvo Final</span>
               </div>
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '20px', color: '#666', fontSize: '12px' }}>
-              Aguardando histórico suficiente para análise...
+            <div className="heMode2Empty">
+              {mode === "AUTO" ? "Aguardando pelo menos 3 números no histórico." : "Digite 3 números ou informe o histórico auxiliar manual."}
             </div>
           )}
         </div>
