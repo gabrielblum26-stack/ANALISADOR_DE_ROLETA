@@ -669,7 +669,7 @@ export default function Page() {
 
         <div className="middleCols">
           <div className="strategiesWrap" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div className="panel" style={{ position: 'relative' }}>
+            <div className="panel strategiesPanel" style={{ position: 'relative' }}>
               <button 
                 onClick={openStrategies}
                 style={{ position: 'absolute', top: '10px', right: '40px', zIndex: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}

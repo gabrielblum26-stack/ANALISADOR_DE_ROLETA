@@ -700,6 +700,25 @@ input[type="text"]{
 /* VIZINHOS */
 .neighborsPanel{ padding:10px; overflow:hidden; height: 100%; }
 
+.strategiesPanel{
+  height: auto;
+  flex: 0 0 auto;
+  align-self: stretch;
+}
+
+.strategiesPanel .neighborsPanel{
+  height: auto;
+  padding-bottom: 8px;
+}
+
+.strategiesPanel .panelHeader{
+  margin-bottom: 6px;
+}
+
+.strategiesPanel .strategiesList{
+  max-height: none;
+}
+
 .strategiesList{
   display: flex;
   flex-direction: column;
@@ -727,7 +746,7 @@ input[type="text"]{
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px;
+  padding: 7px 8px;
   border-radius: 8px;
   background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,255,255,0.05);
