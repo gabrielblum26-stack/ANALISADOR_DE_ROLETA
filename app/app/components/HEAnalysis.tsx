@@ -91,8 +91,33 @@ export default function HEAnalysis({ history, onPick, onToggleHighlight }: Props
 
   return (
     <div className={`panel heMode2Panel ${isMinimized ? "minimized" : ""}`}>
-      <div className="panelHeader heMode2Header">
-        <div className="sectionTitle heMode2Title">MARCAÇÃO FIFA COPA</div>
+      <div className="panelHeader heMode2Header" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="sectionTitle heMode2Title" style={{ marginRight: 'auto' }}>MARCAÇÃO FIFA COPA</div>
+        
+        <button
+          type="button"
+          className={`btn btn-highlight ${isHighlightActive ? "active" : ""}`}
+          style={{ 
+            padding: '4px 8px', 
+            fontSize: '11px', 
+            borderRadius: '4px',
+            height: '24px',
+            whiteSpace: 'nowrap'
+          }}
+          onClick={() => {
+            const newState = !isHighlightActive;
+            setIsHighlightActive(newState);
+            if (analysis) {
+              const numbers = [...analysis.source, ...analysis.displayTrios, ...analysis.allApoios, ...analysis.final];
+              onToggleHighlight(newState, numbers);
+            } else {
+              onToggleHighlight(newState, []);
+            }
+          }}
+        >
+          DESTACAR NA RACE {isHighlightActive ? "🟢" : "⚪"}
+        </button>
+
         <button className="btn-min" onClick={() => setIsMinimized(!isMinimized)}>{isMinimized ? "+" : "−"}</button>
       </div>
 
@@ -128,24 +153,7 @@ export default function HEAnalysis({ history, onPick, onToggleHighlight }: Props
               </select>
             </label>
 
-            <div className="heMode2Field heMode2HighlightField">
-              <button
-                type="button"
-                className={`btn btn-highlight ${isHighlightActive ? "active" : ""}`}
-                onClick={() => {
-                  const newState = !isHighlightActive;
-                  setIsHighlightActive(newState);
-                  if (analysis) {
-                    const numbers = [...analysis.source, ...analysis.displayTrios, ...analysis.allApoios, ...analysis.final];
-                    onToggleHighlight(newState, numbers);
-                  } else {
-                    onToggleHighlight(newState, []);
-                  }
-                }}
-              >
-                DESTACAR NA RACE {isHighlightActive ? "🟢" : "⚪"}
-              </button>
-            </div>
+
           </div>
 
           {mode === "MANUAL" && (
