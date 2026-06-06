@@ -438,11 +438,23 @@ export default function Page() {
 	    return "#fff";
 	  };
 
-	  const getEnhancedCellStyles = (n: number) => {
-	    const xStyle = xHighlightStyles[n];
-	    if (xStyle) return xStyle;
-	    return getCellStyles(n);
-	  };
+  const getEnhancedCellStyles = (n: number) => {
+    const xStyle = xHighlightStyles[n];
+    if (xStyle) return xStyle;
+    
+    // Adicionar destaque da HEAnalysis (Marcação FIFA COPA)
+    if (highlightedNumbers.includes(n)) {
+      return {
+        backgroundColor: "#ffd000",
+        boxShadow: "0 0 15px #ffd000",
+        color: "#000",
+        border: "2px solid #fff",
+        zIndex: 10
+      };
+    }
+    
+    return getCellStyles(n);
+  };
 
   const topZonePattern = useMemo(() => {
     if (history.length === 0) return null;
