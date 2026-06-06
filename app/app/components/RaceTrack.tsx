@@ -72,7 +72,7 @@ type Props = {
   onPick: (n: number) => void;
   getCellStyles: (n: number) => React.CSSProperties;
   strategyMode?: "total" | "intersection";
-  highlightedNumbers: number[];
+  highlightedNumbers?: number[];
 };
 
 export default function RaceTrack({
@@ -80,7 +80,7 @@ export default function RaceTrack({
   onPick,
   getCellStyles,
   strategyMode,
-  highlightedNumbers
+  highlightedNumbers = []
 }: Props) {
   const pts = buildTrackPoints();
   const viewW = 1100;
