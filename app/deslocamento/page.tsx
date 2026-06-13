@@ -6,6 +6,7 @@ import MovementPanel from "../app/components/MovementPanel";
 export default function DeslocamentoPage() {
   const [history, setHistory] = useState<number[]>([]);
   const [selectedX, setSelectedX] = useState<number[]>([]);
+  const [selectedY, setSelectedY] = useState<string | null>(null);
 
   useEffect(() => {
     document.documentElement.classList.add("theme-dark");
@@ -29,12 +30,18 @@ export default function DeslocamentoPage() {
     setSelectedX(newX);
   };
 
+  const handleYChange = (newY: string | null) => {
+    setSelectedY(newY);
+  };
+
   return (
     <div style={{ padding: "20px", width: "100%", display: "flex", flexDirection: "column" }}>
       <MovementPanel 
         history={history} 
         selectedX={selectedX} 
-        onXChange={handleXChange} 
+        onXChange={handleXChange}
+        selectedY={selectedY}
+        onYChange={handleYChange}
       />
     </div>
   );
