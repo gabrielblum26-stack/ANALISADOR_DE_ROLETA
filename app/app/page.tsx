@@ -50,6 +50,7 @@ export default function Page() {
   const [distN2, setDistN2] = useState<number | null>(null);
   const [pickingFor, setPickingFor] = useState<"n1" | "n2" | null>(null);
   const [selectedX, setSelectedX] = useState<number[]>([]);
+  const [selectedY, setSelectedY] = useState<string | null>(null);
 
   // Sincronizar TODAS as marcações com janelas expandidas
   useEffect(() => {
@@ -61,6 +62,7 @@ export default function Page() {
           type: 'UPDATE_SELECTIONS', 
           sel, 
           selectedX, 
+          selectedY,
           selMode,
           markingMode 
         });
@@ -73,6 +75,7 @@ export default function Page() {
       type: 'UPDATE_SELECTIONS', 
       sel, 
       selectedX, 
+      selectedY,
       selMode,
       markingMode 
     });
@@ -441,6 +444,28 @@ export default function Page() {
   const getEnhancedCellStyles = (n: number) => {
     const xStyle = xHighlightStyles[n];
     if (xStyle) return xStyle;
+
+    // Lógica para VALORES Y SELECIONADOS
+    if (selectedY && history.length > 0) {
+      const lastNum = history[0];
+      const [start, end] = selectedY.split('-').map(Number);
+      let yColor = "#ffd000"; // Default amarelo
+      if (selectedY === '6-12') yColor = "#ef4444";
+      if (selectedY === '13-18') yColor = "#22c55e";
+
+      for (let y = start; y <= end; y++) {
+        const steps = y + 1;
+        if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps)) {
+          return {
+            backgroundColor: yColor,
+            boxShadow: `0 0 15px ${yColor}`,
+            color: yColor === "#ffd000" ? "#000" : "#fff",
+            border: "2px solid #fff",
+            zIndex: 10
+          };
+        }
+      }
+    }
     
     // Adicionar destaque da HEAnalysis (Marcação FIFA COPA)
     if (highlightedNumbers.includes(n)) {
@@ -719,7 +744,9 @@ export default function Page() {
             <MovementPanel 
               history={history} 
               selectedX={selectedX} 
-              onXChange={setSelectedX} 
+              onXChange={setSelectedX}
+              selectedY={selectedY}
+              onYChange={setSelectedY}
             />
             <div className={`panel distCalcInside ${pickingFor ? 'isPicking' : ''}`}>
               <div className="distCalcTitle">CALCULADORA DE CASAS</div>

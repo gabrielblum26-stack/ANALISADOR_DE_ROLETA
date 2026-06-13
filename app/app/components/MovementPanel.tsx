@@ -32,10 +32,14 @@ export default function MovementPanel({
   history,
   selectedX,
   onXChange,
+  selectedY,
+  onYChange,
 }: {
   history: number[];
   selectedX: number[];
   onXChange: (val: number[]) => void;
+  selectedY: string | null;
+  onYChange: (val: string | null) => void;
 }) {
   const [mode, setMode] = useState<DistanceMode>("shortest");
   const [activeMarkColor, setActiveMarkColor] = useState<number>(0);
@@ -158,6 +162,58 @@ export default function MovementPanel({
               </button>
             );
           })}
+        </div>
+
+        <div className="calcLabel" style={{ marginBottom: '6px' }}>VALORES Y SELECIONADOS: </div>
+        <div className="yButtonsGrid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '10px' }}>
+          <button 
+            className={`yBtn ${selectedY === '1-5' ? 'active' : ''}`}
+            style={{ 
+              backgroundColor: selectedY === '1-5' ? '#ffd000' : 'rgba(255,208,0,0.1)', 
+              color: selectedY === '1-5' ? '#000' : '#ffd000',
+              border: '1px solid #ffd000',
+              padding: '8px 0',
+              borderRadius: '4px',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+            onClick={() => onYChange(selectedY === '1-5' ? null : '1-5')}
+          >
+            1 a 5 AMARELO
+          </button>
+          <button 
+            className={`yBtn ${selectedY === '6-12' ? 'active' : ''}`}
+            style={{ 
+              backgroundColor: selectedY === '6-12' ? '#ef4444' : 'rgba(239,68,68,0.1)', 
+              color: selectedY === '6-12' ? '#fff' : '#ef4444',
+              border: '1px solid #ef4444',
+              padding: '8px 0',
+              borderRadius: '4px',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+            onClick={() => onYChange(selectedY === '6-12' ? null : '6-12')}
+          >
+            6 a 12 VERMELHO
+          </button>
+          <button 
+            className={`yBtn ${selectedY === '13-18' ? 'active' : ''}`}
+            style={{ 
+              backgroundColor: selectedY === '13-18' ? '#22c55e' : 'rgba(34,197,94,0.1)', 
+              color: selectedY === '13-18' ? '#fff' : '#22c55e',
+              border: '1px solid #22c55e',
+              padding: '8px 0',
+              borderRadius: '4px',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+            onClick={() => onYChange(selectedY === '13-18' ? null : '13-18')}
+          >
+            13 a 18 VERDE
+          </button>
         </div>
 
         {allCalcResults.length > 0 && (
