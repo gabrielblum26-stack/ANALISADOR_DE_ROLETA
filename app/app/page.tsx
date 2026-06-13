@@ -66,6 +66,8 @@ export default function Page() {
           selMode,
           markingMode 
         });
+      } else if (event.data.type === 'UPDATE_HIGHLIGHTS') {
+        setHighlightedNumbers(event.data.isActive ? event.data.numbers : []);
       }
     };
     
@@ -237,6 +239,7 @@ export default function Page() {
   const openMapaPopup = () => openPopup("/mapa", "RouletteMap", 900, 600);
   const openRacetrackPopup = () => openPopup("/racetrack", "RouletteRacetrack", 1000, 500);
   const openTecladoPopup = () => openPopup("/teclado_full", "RouletteKeyboard", 800, 400);
+  const openFifaCopaPopup = () => openPopup("/fifa-copa", "RouletteFifaCopa", 600, 700);
 
   const open777Config = () => {
     setIsConfigModalOpen(true);

@@ -92,8 +92,22 @@ export default function HEAnalysis({ history, onPick, onToggleHighlight }: Props
   return (
     <div className={`panel heMode2Panel ${isMinimized ? "minimized" : ""}`}>
       <div className="panelHeader heMode2Header" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div className="sectionTitle heMode2Title" style={{ marginRight: 'auto' }}>MARCAÇÃO FIFA COPA</div>
+        <div className="sectionTitle heMode2Title">MARCAÇÃO FIFA COPA</div>
         
+        <button 
+          onClick={() => {
+            const w = 600;
+            const h = 700;
+            const left = (window.screen.width / 2) - (w / 2);
+            const top = (window.screen.height / 2) - (h / 2);
+            window.open('/fifa-copa', 'FifaCopaPopup', `width=${w},height=${h},left=${left},top=${top}`);
+          }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', marginRight: 'auto' }}
+          title="Expandir Marcação"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+        </button>
+
         <button
           type="button"
           className={`btn btn-highlight ${isHighlightActive ? "active" : ""}`}
