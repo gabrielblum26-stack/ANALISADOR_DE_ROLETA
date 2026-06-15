@@ -66,6 +66,19 @@ export default function MapaPage() {
     "#d946ef", "#6366f1", "#0ea5e9", "#facc15", "#fb7185", "#2dd4bf"
   ];
 
+  // Sincronizar cliques com a janela principal
+  const onPick = (n: number) => {
+    const bc = new BroadcastChannel('roulette_selections');
+    bc.postMessage({ 
+      type: 'MAPA_CLICK', 
+      number: n,
+      sel,
+      selectedX,
+      selectedY
+    });
+    bc.close();
+  };
+
   const getCellStyles = (n: number) => {
     // Destaque da Marcação FIFA
     if (highlightedNumbers.includes(n)) {
@@ -148,7 +161,7 @@ export default function MapaPage() {
       <div className="sectionTitle" style={{ marginBottom: "20px", fontSize: "18px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>MAPA DA MESA</div>
       <TableMap 
         sel={sel} 
-        onPick={() => {}} 
+        onPick={onPick}
         repHighlights={new Set()} 
         getCellStyles={getCellStyles} 
       />
