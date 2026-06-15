@@ -82,7 +82,7 @@ export default function Page() {
       markingMode 
     });
     return () => bc.close();
-  }, [sel, selectedX, selMode, markingMode]);
+  }, [sel, selectedX, selectedY, selMode, markingMode]);
 
   // Estados para Automação
   const [isAutoModalOpen, setIsAutoModalOpen] = useState(false);
@@ -451,21 +451,35 @@ export default function Page() {
     // Lógica para VALORES Y SELECIONADOS
     if (selectedY && history.length > 0) {
       const lastNum = history[0];
-      const [start, end] = selectedY.split('-').map(Number);
-      let yColor = "#ffd000"; // Default amarelo
-      if (selectedY === '6-12') yColor = "#ef4444";
-      if (selectedY === '13-18') yColor = "#22c55e";
-
-      for (let y = start; y <= end; y++) {
-        const steps = y + 1;
-        if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps)) {
+      
+      if (selectedY === 'atual-vizinhos') {
+        const { prev, next } = neighborsEU(lastNum);
+        if (n === lastNum || n === prev || n === next) {
           return {
-            backgroundColor: yColor,
-            boxShadow: `0 0 15px ${yColor}`,
-            color: yColor === "#ffd000" ? "#000" : "#fff",
+            backgroundColor: "#3b82f6",
+            boxShadow: `0 0 15px #3b82f6`,
+            color: "#fff",
             border: "2px solid #fff",
             zIndex: 10
           };
+        }
+      } else {
+        const [start, end] = selectedY.split('-').map(Number);
+        let yColor = "#ffd000"; // Default amarelo
+        if (selectedY === '6-12') yColor = "#ef4444";
+        if (selectedY === '13-18') yColor = "#22c55e";
+
+        for (let y = start; y <= end; y++) {
+          const steps = y + 1;
+          if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps)) {
+            return {
+              backgroundColor: yColor,
+              boxShadow: `0 0 15px ${yColor}`,
+              color: yColor === "#ffd000" ? "#000" : "#fff",
+              border: "2px solid #fff",
+              zIndex: 10
+            };
+          }
         }
       }
     }

@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import RaceTrack from "../app/components/RaceTrack";
 import { initSel, getNumberColors } from "../app/lib/selection";
-import { wheelStepEU } from "../app/lib/roulette";
+import { wheelStepEU, neighborsEU } from "../app/lib/roulette";
 
 export default function RacetrackPage() {
   const [sel, setSel] = useState(initSel());
   const [selectedX, setSelectedX] = useState<number[]>([]);
+  const [selectedY, setSelectedY] = useState<string | null>(null);
   const [history, setHistory] = useState<number[]>([]);
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function RacetrackPage() {
       if (event.data.type === "UPDATE_SELECTIONS") {
         setSel(event.data.sel);
         setSelectedX(event.data.selectedX);
+        setSelectedY(event.data.selectedY);
       }
     };
 
@@ -69,6 +71,42 @@ export default function RacetrackPage() {
                 };
             }
         }
+    }
+
+    // Lógica para VALORES Y SELECIONADOS
+    if (selectedY && history.length > 0) {
+      const lastNum = history[0];
+      
+      if (selectedY === 'atual-vizinhos') {
+        const { prev, next } = neighborsEU(lastNum);
+        if (n === lastNum || n === prev || n === next) {
+          return {
+            backgroundColor: "#3b82f6",
+            boxShadow: `0 0 15px #3b82f6`,
+            color: "#fff",
+            border: "2px solid #fff",
+            zIndex: 10
+          };
+        }
+      } else {
+        const [start, end] = selectedY.split('-').map(Number);
+        let yColor = "#ffd000"; // Default amarelo
+        if (selectedY === '6-12') yColor = "#ef4444";
+        if (selectedY === '13-18') yColor = "#22c55e";
+
+        for (let y = start; y <= end; y++) {
+          const steps = y + 1;
+          if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps)) {
+            return {
+              backgroundColor: yColor,
+              boxShadow: `0 0 15px ${yColor}`,
+              color: yColor === "#ffd000" ? "#000" : "#fff",
+              border: "2px solid #fff",
+              zIndex: 10
+            };
+          }
+        }
+      }
     }
 
     if (colors.length === 0) return {};
