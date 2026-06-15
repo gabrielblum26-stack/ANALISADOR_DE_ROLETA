@@ -1624,19 +1624,19 @@ input[type="text"]{
 }
 
 .heMode2Chip.typed{
-  border: 1.5px solid #ff4b4b;
+  border: 3px solid #ff4b4b;
 }
 
 .heMode2Chip.trio{
-  border: 1.5px solid #3ba1ff;
+  border: 3px solid #3ba1ff;
 }
 
 .heMode2Chip.apoio{
-  border: 1.5px solid #35e177;
+  border: 3px solid #35e177;
 }
 
 .heMode2Chip.final{
-  border: 1.5px solid #ff8a1f;
+  border: 3px solid #ff8a1f;
   box-shadow: 0 0 10px rgba(255,138,31,.45), inset 0 0 0 1px rgba(255,255,255,.04);
 }
 
@@ -1663,10 +1663,37 @@ input[type="text"]{
   border-radius: 1px;
 }
 
-.heMode2Legend i.typed{ background:#ff4b4b; }
-.heMode2Legend i.trio{ background:#3ba1ff; }
-.heMode2Legend i.apoio{ background:#35e177; }
-.heMode2Legend i.final{ background:#ff8a1f; }
+.heMode2Legend i.typed{ background:#ff4b4b; border: 2px solid #ff4b4b; }
+.heMode2Legend i.trio{ background:#3ba1ff; border: 2px solid #3ba1ff; }
+.heMode2Legend i.apoio{ background:#35e177; border: 2px solid #35e177; }
+.heMode2Legend i.final{ background:#ff8a1f; border: 2px solid #ff8a1f; }
+
+.heMode2ResultGrid{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.heMode2ResultColumn{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.heMode2ColumnTitle{
+  color: #8f949d;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.heMode2ColumnChips{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
 .heMode2Empty{
   border-radius: 8px;

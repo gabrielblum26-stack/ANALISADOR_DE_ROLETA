@@ -193,23 +193,42 @@ export default function HEAnalysis({ history, onPick, onToggleHighlight }: Props
 
           {analysis ? (
             <div className="heMode2ResultBox">
-              <div className="heMode2Formula">
-                PLANILHA HE PURA | N1: trio {analysis.n1.trio.join("-")} | apoio {analysis.n1.apoio} || N2: trio {analysis.n2.trio.join("-")} | apoio {analysis.n2.apoio} || N3: trio {analysis.n3.trio.join("-")} | apoio {analysis.n3.apoio} || Final: {analysis.final.join(", ")}
-              </div>
+              <div className="heMode2ResultGrid">
+                <div className="heMode2ResultColumn">
+                  <div className="heMode2ColumnTitle">Digitados</div>
+                  <div className="heMode2ColumnChips">
+                    {analysis.source.map((n, index) => (
+                      <button key={`typed-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip typed`} onClick={() => onPick(n)}>{n}</button>
+                    ))}
+                  </div>
+                </div>
 
-              <div className="heMode2Chips">
-                {analysis.source.map((n, index) => (
-                  <button key={`typed-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip typed`} onClick={() => onPick(n)}>{n}</button>
-                ))}
-                {analysis.displayTrios.map((n, index) => (
-                  <button key={`trio-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip trio`} onClick={() => onPick(n)}>{n}</button>
-                ))}
-                {analysis.allApoios.map((n, index) => (
-                  <button key={`apoio-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip apoio`} onClick={() => onPick(n)}>{n}</button>
-                ))}
-                {analysis.final.map((n, index) => (
-                  <button key={`final-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip final`} onClick={() => onPick(n)}>{n}</button>
-                ))}
+                <div className="heMode2ResultColumn">
+                  <div className="heMode2ColumnTitle">Trios</div>
+                  <div className="heMode2ColumnChips">
+                    {analysis.displayTrios.map((n, index) => (
+                      <button key={`trio-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip trio`} onClick={() => onPick(n)}>{n}</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="heMode2ResultColumn">
+                  <div className="heMode2ColumnTitle">Apoios</div>
+                  <div className="heMode2ColumnChips">
+                    {analysis.allApoios.map((n, index) => (
+                      <button key={`apoio-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip apoio`} onClick={() => onPick(n)}>{n}</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="heMode2ResultColumn">
+                  <div className="heMode2ColumnTitle">Alvo Final</div>
+                  <div className="heMode2ColumnChips">
+                    {analysis.final.map((n, index) => (
+                      <button key={`final-${index}-${n}`} type="button" className={`chip ${colorOf(n)} heMode2Chip final`} onClick={() => onPick(n)}>{n}</button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="heMode2Legend">
