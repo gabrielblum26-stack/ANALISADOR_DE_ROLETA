@@ -752,7 +752,7 @@ export default function Page() {
               onYChange={setSelectedY}
             />
             <div className={`panel distCalcInside ${pickingFor ? 'isPicking' : ''}`}>
-              <div className="distCalcTitle">CALCULADORA DE CASAS</div>
+              <div className="distCalcTitle">CALCULA FIFA</div>
               <div className="distCalcContent">
                 <div className="distBtnGroup">
                   <button className={`distSelectBtn ${pickingFor === 'n1' ? 'active' : ''}`} onClick={() => setPickingFor(pickingFor === 'n1' ? null : 'n1')}>{distN1 !== null ? `N1: ${distN1}` : 'SEL. N1'}</button>

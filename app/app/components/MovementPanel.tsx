@@ -98,15 +98,18 @@ export default function MovementPanel({
     if (selectedX.includes(val)) {
       onXChange(selectedX.filter(x => x !== val));
     } else {
-      // Removido o limite de 3 números para permitir até 18
       onXChange([...selectedX, val]);
     }
+  };
+
+  const handleYClick = (val: string) => {
+    onYChange(selectedY === val ? null : val);
   };
 
   return (
     <div className="movementPanel compact">
       <div className="movementHeader">
-        <div className="movementTitle">DESLOCAMENTO (H/A)</div>
+        <div className="movementTitle">MOVIMENTO PADRÃO</div>
       </div>
       <div className="movementControls">
         <button className="btn-reset-marks" onClick={() => { setMarks({}); onXChange([]); }}>RESET</button>
@@ -147,10 +150,9 @@ export default function MovementPanel({
         </div>
         
         <div className="xButtonsGrid">
-          {[...Array(18)].map((_, i) => {
-            const val = i + 1;
+          {[0, ...Array.from({ length: 18 }, (_, i) => i + 1)].map((val, i) => {
             const isSelected = selectedX.includes(val);
-            const btnColor = X_COLORS[i % X_COLORS.length];
+            const btnColor = val === 0 ? "#22c55e" : X_COLORS[(val - 1) % X_COLORS.length];
             return (
               <button
                 key={val}
@@ -165,7 +167,7 @@ export default function MovementPanel({
         </div>
 
         <div className="calcLabel" style={{ marginBottom: '6px' }}>VALORES Y SELECIONADOS: </div>
-        <div className="yButtonsGrid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '10px' }}>
+        <div className="yButtonsGrid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '10px' }}>
           <button 
             className={`yBtn ${selectedY === '1-5' ? 'active' : ''}`}
             style={{ 
@@ -178,7 +180,7 @@ export default function MovementPanel({
               fontWeight: 'bold',
               cursor: 'pointer'
             }}
-            onClick={() => onYChange(selectedY === '1-5' ? null : '1-5')}
+            onClick={() => handleYClick('1-5')}
           >
             1 a 5 AMARELO
           </button>
@@ -194,7 +196,7 @@ export default function MovementPanel({
               fontWeight: 'bold',
               cursor: 'pointer'
             }}
-            onClick={() => onYChange(selectedY === '6-12' ? null : '6-12')}
+            onClick={() => handleYClick('6-12')}
           >
             6 a 12 VERMELHO
           </button>
@@ -210,9 +212,25 @@ export default function MovementPanel({
               fontWeight: 'bold',
               cursor: 'pointer'
             }}
-            onClick={() => onYChange(selectedY === '13-18' ? null : '13-18')}
+            onClick={() => handleYClick('13-18')}
           >
             13 a 18 VERDE
+          </button>
+          <button 
+            className={`yBtn ${selectedY === 'atual-vizinhos' ? 'active' : ''}`}
+            style={{ 
+              backgroundColor: selectedY === 'atual-vizinhos' ? '#3b82f6' : 'rgba(59,130,246,0.1)', 
+              color: selectedY === 'atual-vizinhos' ? '#fff' : '#3b82f6',
+              border: '1px solid #3b82f6',
+              padding: '8px 0',
+              borderRadius: '4px',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+            onClick={() => handleYClick('atual-vizinhos')}
+          >
+            ATUAL + VIZINHOS
           </button>
         </div>
 
@@ -310,7 +328,7 @@ export default function MovementPanel({
         
         .xButtonsGrid {
           display: grid;
-          grid-template-columns: repeat(9, 1fr);
+          grid-template-columns: repeat(10, 1fr);
           gap: 4px;
           margin-bottom: 10px;
         }
