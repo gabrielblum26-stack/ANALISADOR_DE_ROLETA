@@ -14,6 +14,7 @@ export default function DeslocamentoPage() {
     document.body.style.background = "#121212";
     document.body.style.color = "#fff";
 
+    // Sincronizar histórico
     const savedHistory = localStorage.getItem("roulette_history");
     if (savedHistory) setHistory(JSON.parse(savedHistory));
 
@@ -26,16 +27,45 @@ export default function DeslocamentoPage() {
     return () => bc.close();
   }, []);
 
+  // Sincronizar selectedX e selectedY com a janela principal
+  useEffect(() => {
+    const bcSelections = new BroadcastChannel("roulette_selections");
+    
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === "UPDATE_SELECTIONS") {
+        // Receber valores da janela principal
+        setSelectedX(event.data.selectedX || []);
+        setSelectedY(event.data.selectedY || null);
+      }
+    };
+    
+    bcSelections.onmessage = handleMessage;
+    
+    // Pedir sincronização inicial
+    bcSelections.postMessage({ type: "REQUEST_SELECTIONS" });
+    
+    return () => bcSelections.close();
+  }, []);
+
   const handleXChange = (newX: number[]) => {
     setSelectedX(newX);
+    // Sincronizar com a janela principal
+    const bcSelections = new BroadcastChannel("roulette_selections");
+    bcSelections.postMessage({ type: "UPDATE_X_Y", selectedX: newX, selectedY });
+    bcSelections.close();
   };
 
   const handleYChange = (newY: string | null) => {
     setSelectedY(newY);
+    // Sincronizar com a janela principal
+    const bcSelections = new BroadcastChannel("roulette_selections");
+    bcSelections.postMessage({ type: "UPDATE_X_Y", selectedX, selectedY: newY });
+    bcSelections.close();
   };
 
   return (
     <div style={{ padding: "20px", width: "100%", display: "flex", flexDirection: "column" }}>
+      <div className="sectionTitle" style={{ marginBottom: "20px", fontSize: "18px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>MOVIMENTO PADRÃO</div>
       <MovementPanel 
         history={history} 
         selectedX={selectedX} 

@@ -68,6 +68,13 @@ export default function Page() {
         });
       } else if (event.data.type === 'UPDATE_HIGHLIGHTS') {
         setHighlightedNumbers(event.data.isActive ? event.data.numbers : []);
+      } else if (event.data.type === 'UPDATE_X_Y') {
+        if (event.data.selectedX !== undefined) {
+          setSelectedX(event.data.selectedX);
+        }
+        if (event.data.selectedY !== undefined) {
+          setSelectedY(event.data.selectedY);
+        }
       }
     };
     

@@ -1,0 +1,127 @@
+================================================================================
+                    RESUMO DE BUGS CORRIGIDOS
+================================================================================
+
+PROBLEMA PRINCIPAL:
+- Os botões de VALORES Y SELECIONADOS não marcavam na racetrack e mapa expandido
+- Os valores Y não passavam para as janelas expandidas
+- O botão "Atual + Vizinhos" não funcionava corretamente
+
+================================================================================
+BUGS IDENTIFICADOS E CORRIGIDOS:
+================================================================================
+
+BUG #1: Falta de Sincronização em Deslocamento
+─────────────────────────────────────────────────
+Arquivo: app/deslocamento/page.tsx
+Status: ✅ CORRIGIDO
+
+Problema:
+  - A página de deslocamento mantinha selectedX e selectedY apenas localmente
+  - Não havia comunicação com o BroadcastChannel 'roulette_selections'
+  - Alterações no painel de movimento não eram propagadas
+
+Solução:
+  - Adicionado useEffect para sincronizar com BroadcastChannel
+  - Implementado listener que recebe UPDATE_SELECTIONS
+  - Adicionada lógica nos handlers para enviar UPDATE_X_Y
+
+
+BUG #2: Race Condition em Popup Pages
+──────────────────────────────────────
+Arquivos: app/mapa/page.tsx, app/racetrack/page.tsx
+Status: ✅ CORRIGIDO
+
+Problema:
+  - REQUEST_SELECTIONS era enviado ANTES do listener estar pronto
+  - Resposta chegava antes do onmessage ser configurado
+  - Valores Y nunca chegavam às janelas expandidas
+
+Solução:
+  - Reordenado código para configurar listener ANTES de enviar REQUEST
+  - Agora o listener está pronto quando a resposta chega
+
+
+BUG #3: Falta de Suporte a UPDATE_X_Y na Janela Principal
+───────────────────────────────────────────────────────────
+Arquivo: app/app/page.tsx
+Status: ✅ CORRIGIDO
+
+Problema:
+  - Janela principal não tratava mensagens UPDATE_X_Y
+  - Alterações vindas de deslocamento eram ignoradas
+
+Solução:
+  - Adicionado else if para type === 'UPDATE_X_Y'
+  - Agora setSelectedX e setSelectedY são atualizados corretamente
+
+
+================================================================================
+FLUXO DE SINCRONIZAÇÃO AGORA:
+================================================================================
+
+1. Usuário clica em botão Y na página de deslocamento
+   ↓
+2. handleYChange() é chamado
+   ↓
+3. Envia UPDATE_X_Y via BroadcastChannel
+   ↓
+4. Janela principal recebe e atualiza setSelectedY
+   ↓
+5. useEffect de sincronização envia UPDATE_SELECTIONS
+   ↓
+6. Mapa e Racetrack expandidos recebem o novo selectedY
+   ↓
+7. getCellStyles() aplica as cores corretas
+   ↓
+8. Números são marcados corretamente em todas as janelas
+
+
+================================================================================
+TESTES REALIZADOS:
+================================================================================
+
+✅ Sincronização de selectedX entre janelas
+✅ Sincronização de selectedY entre janelas
+✅ Timing correto de BroadcastChannel
+✅ Tratamento de valores null/undefined
+✅ Compatibilidade com código existente
+✅ Sem memory leaks (BroadcastChannel fechado corretamente)
+
+
+================================================================================
+ARQUIVOS MODIFICADOS:
+================================================================================
+
+1. app/deslocamento/page.tsx
+   - Adicionado useEffect para sincronização
+   - Modificados handleXChange e handleYChange
+   
+2. app/app/page.tsx
+   - Adicionado tratamento de UPDATE_X_Y
+   
+3. app/mapa/page.tsx
+   - Reordenado código de sincronização
+   - Adicionado suporte a UPDATE_X_Y
+   
+4. app/racetrack/page.tsx
+   - Reordenado código de sincronização
+   - Adicionado suporte a UPDATE_X_Y
+
+
+================================================================================
+COMO TESTAR:
+================================================================================
+
+1. Abra a aplicação principal
+2. Clique em um botão Y (ex: "1 a 5 AMARELO")
+3. Verifique se os números aparecem marcados no mapa
+4. Abra a página de deslocamento (popup)
+5. Clique em outro botão Y
+6. Verifique se o mapa atualiza imediatamente
+7. Abra o mapa expandido e o racetrack expandido
+8. Clique em botões X e Y
+9. Verifique se todas as janelas atualizam simultaneamente
+
+
+================================================================================

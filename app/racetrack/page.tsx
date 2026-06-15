@@ -17,19 +17,6 @@ export default function RacetrackPage() {
     document.body.style.background = "#121212";
     document.body.style.color = "#fff";
 
-    // Pedir sincronização inicial
-    const bcSelections = new BroadcastChannel("roulette_selections");
-    bcSelections.postMessage({ type: 'REQUEST_SELECTIONS' });
-
-    // Receber sincronização
-    bcSelections.onmessage = (event) => {
-      if (event.data.type === "UPDATE_SELECTIONS") {
-        setSel(event.data.sel);
-        setSelectedX(event.data.selectedX);
-        setSelectedY(event.data.selectedY);
-      }
-    };
-
     // Sincronizar histórico
     const savedHistory = localStorage.getItem("roulette_history");
     if (savedHistory) setHistory(JSON.parse(savedHistory));
@@ -40,6 +27,29 @@ export default function RacetrackPage() {
         setHistory(event.data.value);
       }
     };
+
+    // Sincronizar seleções com melhor timing
+    const bcSelections = new BroadcastChannel("roulette_selections");
+    
+    const handleMessage = (event) => {
+      if (event.data.type === "UPDATE_SELECTIONS") {
+        setSel(event.data.sel);
+        setSelectedX(event.data.selectedX || []);
+        setSelectedY(event.data.selectedY || null);
+      } else if (event.data.type === "UPDATE_X_Y") {
+        if (event.data.selectedX !== undefined) {
+          setSelectedX(event.data.selectedX);
+        }
+        if (event.data.selectedY !== undefined) {
+          setSelectedY(event.data.selectedY);
+        }
+      }
+    };
+    
+    bcSelections.onmessage = handleMessage;
+    
+    // Pedir sincronização inicial após configurar o listener
+    bcSelections.postMessage({ type: 'REQUEST_SELECTIONS' });
 
     return () => {
       bcSelections.close();
