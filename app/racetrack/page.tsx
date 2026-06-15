@@ -67,6 +67,17 @@ export default function RacetrackPage() {
   ];
 
   const getCellStyles = (n: number) => {
+    // Destaque da Marcação FIFA COPA (DESTACAR NA RACE)
+    if (highlightedNumbers.includes(n)) {
+      return {
+        border: "3px solid #fff",
+        boxShadow: "0 0 15px #fff, inset 0 0 10px rgba(255,255,255,0.5)",
+        zIndex: 20,
+        transform: "scale(1.05)",
+        transition: "all 0.2s ease"
+      };
+    }
+
     const colors = getNumberColors(sel, n);
     
     if (history.length > 0 && selectedX.length > 0) {
