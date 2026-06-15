@@ -66,18 +66,20 @@ export default function RacetrackPage() {
     "#d946ef", "#6366f1", "#0ea5e9", "#facc15", "#fb7185", "#2dd4bf"
   ];
 
-  const getCellStyles = (n: number) => {
-    // Destaque da Marcação FIFA COPA (DESTACAR NA RACE)
-    if (highlightedNumbers.includes(n)) {
-      return {
-        border: "3px solid #fff",
-        boxShadow: "0 0 15px #fff, inset 0 0 10px rgba(255,255,255,0.5)",
-        zIndex: 20,
-        transform: "scale(1.05)",
-        transition: "all 0.2s ease"
-      };
-    }
+  // Sincronizar cliques com a janela principal
+  const onPick = (n: number) => {
+    const bc = new BroadcastChannel('roulette_selections');
+    bc.postMessage({ 
+      type: 'RACETRACK_CLICK', 
+      number: n,
+      sel,
+      selectedX,
+      selectedY
+    });
+    bc.close();
+  };
 
+  const getCellStyles = (n: number) => {
     const colors = getNumberColors(sel, n);
     
     if (history.length > 0 && selectedX.length > 0) {
@@ -148,7 +150,7 @@ export default function RacetrackPage() {
       <div className="sectionTitle" style={{ marginBottom: "20px", fontSize: "18px", color: "#ffd000", fontWeight: "bold", textAlign: "center" }}>RACETRACK</div>
       <RaceTrack 
         sel={sel} 
-        onPick={() => {}} 
+        onPick={onPick}
         getCellStyles={getCellStyles} 
         highlightedNumbers={highlightedNumbers}
       />
