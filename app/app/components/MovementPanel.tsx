@@ -169,10 +169,10 @@ export default function MovementPanel({
         <div className="calcLabel" style={{ marginBottom: '6px' }}>VALORES Y SELECIONADOS: </div>
         <div className="yButtonsGrid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '10px' }}>
           <button 
-            className={`yBtn ${selectedY === '1-5' ? 'active' : ''}`}
+            className={`yBtn ${selectedY === '0-5' ? 'active' : ''}`}
             style={{ 
-              backgroundColor: selectedY === '1-5' ? '#ffd000' : 'rgba(255,208,0,0.1)', 
-              color: selectedY === '1-5' ? '#000' : '#ffd000',
+              backgroundColor: selectedY === '0-5' ? '#ffd000' : 'rgba(255,208,0,0.1)', 
+              color: selectedY === '0-5' ? '#000' : '#ffd000',
               border: '1px solid #ffd000',
               padding: '8px 0',
               borderRadius: '4px',
@@ -180,9 +180,9 @@ export default function MovementPanel({
               fontWeight: 'bold',
               cursor: 'pointer'
             }}
-            onClick={() => handleYClick('1-5')}
+            onClick={() => handleYClick('0-5')}
           >
-            1 a 5 AMARELO
+            0 a 5 AMARELO
           </button>
           <button 
             className={`yBtn ${selectedY === '6-12' ? 'active' : ''}`}

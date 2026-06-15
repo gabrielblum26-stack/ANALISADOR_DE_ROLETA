@@ -478,7 +478,7 @@ export default function Page() {
 
         for (let y = start; y <= end; y++) {
           const steps = y + 1;
-          if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps)) {
+          if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps) || (y === 0 && n === lastNum)) {
             return {
               backgroundColor: yColor,
               boxShadow: `0 0 15px ${yColor}`,

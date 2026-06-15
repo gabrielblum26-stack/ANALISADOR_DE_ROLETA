@@ -10,6 +10,7 @@ export default function MapaPage() {
   const [selectedX, setSelectedX] = useState<number[]>([]);
   const [selectedY, setSelectedY] = useState<string | null>(null);
   const [history, setHistory] = useState<number[]>([]);
+  const [highlightedNumbers, setHighlightedNumbers] = useState<number[]>([]);
 
   useEffect(() => {
     document.documentElement.classList.add("theme-dark");
@@ -43,6 +44,8 @@ export default function MapaPage() {
         if (event.data.selectedY !== undefined) {
           setSelectedY(event.data.selectedY);
         }
+      } else if (event.data.type === 'UPDATE_HIGHLIGHTS') {
+        setHighlightedNumbers(event.data.isActive ? event.data.numbers : []);
       }
     };
     
@@ -64,6 +67,17 @@ export default function MapaPage() {
   ];
 
   const getCellStyles = (n: number) => {
+    // Destaque da Marcação FIFA
+    if (highlightedNumbers.includes(n)) {
+      return {
+        border: "3px solid #fff",
+        boxShadow: "0 0 15px #fff, inset 0 0 10px rgba(255,255,255,0.5)",
+        zIndex: 20,
+        transform: "scale(1.05)",
+        transition: "all 0.2s ease"
+      };
+    }
+
     const colors = getNumberColors(sel, n);
     
     if (history.length > 0 && selectedX.length > 0) {
@@ -106,7 +120,7 @@ export default function MapaPage() {
 
         for (let y = start; y <= end; y++) {
           const steps = y + 1;
-          if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps)) {
+          if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps) || (y === 0 && n === lastNum)) {
             return {
               backgroundColor: yColor,
               boxShadow: `0 0 15px ${yColor}`,

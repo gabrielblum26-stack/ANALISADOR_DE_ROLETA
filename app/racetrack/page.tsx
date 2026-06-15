@@ -10,6 +10,7 @@ export default function RacetrackPage() {
   const [selectedX, setSelectedX] = useState<number[]>([]);
   const [selectedY, setSelectedY] = useState<string | null>(null);
   const [history, setHistory] = useState<number[]>([]);
+  const [highlightedNumbers, setHighlightedNumbers] = useState<number[]>([]);
 
   useEffect(() => {
     document.documentElement.classList.add("theme-dark");
@@ -43,6 +44,8 @@ export default function RacetrackPage() {
         if (event.data.selectedY !== undefined) {
           setSelectedY(event.data.selectedY);
         }
+      } else if (event.data.type === 'UPDATE_HIGHLIGHTS') {
+        setHighlightedNumbers(event.data.isActive ? event.data.numbers : []);
       }
     };
     
@@ -106,7 +109,7 @@ export default function RacetrackPage() {
 
         for (let y = start; y <= end; y++) {
           const steps = y + 1;
-          if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps)) {
+          if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps) || (y === 0 && n === lastNum)) {
             return {
               backgroundColor: yColor,
               boxShadow: `0 0 15px ${yColor}`,
@@ -136,6 +139,7 @@ export default function RacetrackPage() {
         sel={sel} 
         onPick={() => {}} 
         getCellStyles={getCellStyles} 
+        highlightedNumbers={highlightedNumbers}
       />
     </div>
   );
