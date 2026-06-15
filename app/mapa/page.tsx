@@ -31,7 +31,7 @@ export default function MapaPage() {
     // Sincronizar seleções com melhor timing
     const bcSelections = new BroadcastChannel("roulette_selections");
     
-    const handleMessage = (event) => {
+    const handleMessage = (event: MessageEvent) => {
       if (event.data.type === "UPDATE_SELECTIONS") {
         setSel(event.data.sel);
         setSelectedX(event.data.selectedX || []);
