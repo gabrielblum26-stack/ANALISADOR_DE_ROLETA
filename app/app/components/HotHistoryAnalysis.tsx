@@ -134,7 +134,8 @@ export default function HotHistoryAnalysis({
         <button
           onClick={() => setActiveTab("terminals")}
           style={{
-            padding: "8px 16px",
+            flex: 1,
+            padding: "8px 4px",
             background: activeTab === "terminals" ? "#ff6b6b" : "#333",
             color: "#fff",
             border: "1px solid #555",
@@ -142,7 +143,14 @@ export default function HotHistoryAnalysis({
             cursor: "pointer",
             fontWeight: "bold",
             transition: "all 0.2s",
-            fontSize: "12px"
+            fontSize: "10px",
+            whiteSpace: "normal",
+            lineHeight: "1.2",
+            minHeight: "36px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center"
           }}
         >
           Terminais + Padrão
@@ -150,7 +158,8 @@ export default function HotHistoryAnalysis({
         <button
           onClick={() => setActiveTab("strategies")}
           style={{
-            padding: "8px 16px",
+            flex: 1,
+            padding: "8px 4px",
             background: activeTab === "strategies" ? "#ff6b6b" : "#333",
             color: "#fff",
             border: "1px solid #555",
@@ -158,7 +167,14 @@ export default function HotHistoryAnalysis({
             cursor: "pointer",
             fontWeight: "bold",
             transition: "all 0.2s",
-            fontSize: "12px"
+            fontSize: "10px",
+            whiteSpace: "normal",
+            lineHeight: "1.2",
+            minHeight: "36px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center"
           }}
         >
           Estratégias Simples
@@ -166,7 +182,8 @@ export default function HotHistoryAnalysis({
         <button
           onClick={() => setActiveTab("sectors")}
           style={{
-            padding: "8px 16px",
+            flex: 1,
+            padding: "8px 4px",
             background: activeTab === "sectors" ? "#ff6b6b" : "#333",
             color: "#fff",
             border: "1px solid #555",
@@ -174,7 +191,14 @@ export default function HotHistoryAnalysis({
             cursor: "pointer",
             fontWeight: "bold",
             transition: "all 0.2s",
-            fontSize: "12px"
+            fontSize: "10px",
+            whiteSpace: "normal",
+            lineHeight: "1.2",
+            minHeight: "36px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center"
           }}
         >
           Roda Quente
@@ -205,17 +229,18 @@ export default function HotHistoryAnalysis({
               borderRadius: "6px",
               border: "1px solid #333"
             }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "11px", fontWeight: "bold", color: "#888" }}>
+              <div style={{ width: "100%" }}>
+                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "6px" }}>
                   PADRÃO (últimos N):
-                </span>
-                <div style={{ display: "flex", gap: "5px" }}>
+                </div>
+                <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                     <button
                       key={n}
                       onClick={() => setTerminalPatternLength(n)}
                       style={{
-                        padding: "4px 8px",
+                        flex: "1 0 18%",
+                        padding: "4px 0",
                         background: terminalPatternLength === n ? "#ff6b6b" : "#333",
                         color: "#fff",
                         border: "1px solid #555",
@@ -229,10 +254,10 @@ export default function HotHistoryAnalysis({
                     </button>
                   ))}
                 </div>
-              </label>
+              </div>
 
-              <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "11px", fontWeight: "bold", color: "#888" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                <span style={{ fontSize: "10px", fontWeight: "bold", color: "#888" }}>
                   MÍNIMO REPS:
                 </span>
                 <input
@@ -241,13 +266,13 @@ export default function HotHistoryAnalysis({
                   value={terminalMinReps}
                   onChange={(e) => setTerminalMinReps(Math.max(1, Number(e.target.value)))}
                   style={{
-                    width: "50px",
-                    padding: "4px 6px",
+                    width: "40px",
+                    padding: "2px 4px",
                     background: "#111",
                     color: "#fff",
                     border: "1px solid #555",
                     borderRadius: "4px",
-                    fontSize: "11px"
+                    fontSize: "10px"
                   }}
                 />
               </label>
@@ -593,17 +618,18 @@ export default function HotHistoryAnalysis({
               borderRadius: "6px",
               border: "1px solid #333"
             }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "11px", fontWeight: "bold", color: "#888" }}>
+              <div style={{ width: "100%" }}>
+                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "6px" }}>
                   PADRÃO (últimos N):
-                </span>
-                <div style={{ display: "flex", gap: "5px" }}>
+                </div>
+                <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                     <button
                       key={n}
                       onClick={() => setSectorPatternLength(n)}
                       style={{
-                        padding: "4px 8px",
+                        flex: "1 0 18%",
+                        padding: "4px 0",
                         background: sectorPatternLength === n ? "#ff6b6b" : "#333",
                         color: "#fff",
                         border: "1px solid #555",
@@ -617,10 +643,10 @@ export default function HotHistoryAnalysis({
                     </button>
                   ))}
                 </div>
-              </label>
+              </div>
 
-              <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "11px", fontWeight: "bold", color: "#888" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                <span style={{ fontSize: "10px", fontWeight: "bold", color: "#888" }}>
                   MÍNIMO REPS:
                 </span>
                 <input
@@ -629,13 +655,13 @@ export default function HotHistoryAnalysis({
                   value={sectorMinReps}
                   onChange={(e) => setSectorMinReps(Math.max(1, Number(e.target.value)))}
                   style={{
-                    width: "50px",
-                    padding: "4px 6px",
+                    width: "40px",
+                    padding: "2px 4px",
                     background: "#111",
                     color: "#fff",
                     border: "1px solid #555",
                     borderRadius: "4px",
-                    fontSize: "11px"
+                    fontSize: "10px"
                   }}
                 />
               </label>
