@@ -49,7 +49,7 @@ export default function HotHistoryAnalysis({
 
   // ============ TAB 1: TERMINALS ============
   const [terminalPatternLength, setTerminalPatternLength] = useState(1);
-  const [terminalMinReps, setTerminalMinReps] = useState(1);
+  const [terminalMinReps, setTerminalMinReps] = useState(6);
 
   const terminalAnalysis = useMemo(() => {
     return analyzeTerminalPatterns(history, terminalPatternLength, terminalMinReps);
@@ -90,7 +90,7 @@ export default function HotHistoryAnalysis({
 
   // ============ TAB 3: SECTORS ============
   const [sectorPatternLength, setSectorPatternLength] = useState(1);
-  const [sectorMinReps, setSectorMinReps] = useState(1);
+  const [sectorMinReps, setSectorMinReps] = useState(6);
 
   const sectorAnalysis = useMemo(() => {
     return analyzeSectorPatterns(history, sectorPatternLength, sectorMinReps);
@@ -256,26 +256,65 @@ export default function HotHistoryAnalysis({
                 </div>
               </div>
 
-              <label style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
                 <span style={{ fontSize: "10px", fontWeight: "bold", color: "#888" }}>
                   MÍNIMO REPS:
                 </span>
-                <input
-                  type="number"
-                  min="1"
-                  value={terminalMinReps}
-                  onChange={(e) => setTerminalMinReps(Math.max(1, Number(e.target.value)))}
-                  style={{
-                    width: "40px",
-                    padding: "2px 4px",
-                    background: "#111",
-                    color: "#fff",
-                    border: "1px solid #555",
-                    borderRadius: "4px",
-                    fontSize: "10px"
-                  }}
-                />
-              </label>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <button
+                    onClick={() => setTerminalMinReps(Math.max(1, terminalMinReps - 1))}
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      background: "#333",
+                      border: "1px solid #555",
+                      borderRadius: "4px",
+                      color: "#fff",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    value={terminalMinReps}
+                    onChange={(e) => setTerminalMinReps(Math.max(1, Number(e.target.value)))}
+                    style={{
+                      width: "35px",
+                      padding: "2px 4px",
+                      background: "#111",
+                      color: "#fff",
+                      border: "1px solid #555",
+                      borderRadius: "4px",
+                      fontSize: "10px",
+                      textAlign: "center"
+                    }}
+                  />
+                  <button
+                    onClick={() => setTerminalMinReps(terminalMinReps + 1)}
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      background: "#333",
+                      border: "1px solid #555",
+                      borderRadius: "4px",
+                      color: "#fff",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* TERMINAL STATS - RANKING */}
@@ -645,26 +684,65 @@ export default function HotHistoryAnalysis({
                 </div>
               </div>
 
-              <label style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
                 <span style={{ fontSize: "10px", fontWeight: "bold", color: "#888" }}>
                   MÍNIMO REPS:
                 </span>
-                <input
-                  type="number"
-                  min="1"
-                  value={sectorMinReps}
-                  onChange={(e) => setSectorMinReps(Math.max(1, Number(e.target.value)))}
-                  style={{
-                    width: "40px",
-                    padding: "2px 4px",
-                    background: "#111",
-                    color: "#fff",
-                    border: "1px solid #555",
-                    borderRadius: "4px",
-                    fontSize: "10px"
-                  }}
-                />
-              </label>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <button
+                    onClick={() => setSectorMinReps(Math.max(1, sectorMinReps - 1))}
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      background: "#333",
+                      border: "1px solid #555",
+                      borderRadius: "4px",
+                      color: "#fff",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    value={sectorMinReps}
+                    onChange={(e) => setSectorMinReps(Math.max(1, Number(e.target.value)))}
+                    style={{
+                      width: "35px",
+                      padding: "2px 4px",
+                      background: "#111",
+                      color: "#fff",
+                      border: "1px solid #555",
+                      borderRadius: "4px",
+                      fontSize: "10px",
+                      textAlign: "center"
+                    }}
+                  />
+                  <button
+                    onClick={() => setSectorMinReps(sectorMinReps + 1)}
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      background: "#333",
+                      border: "1px solid #555",
+                      borderRadius: "4px",
+                      color: "#fff",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* SECTOR STATS - RANKING */}
