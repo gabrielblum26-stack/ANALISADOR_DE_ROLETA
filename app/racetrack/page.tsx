@@ -51,12 +51,23 @@ export default function RacetrackPage() {
     
     bcSelections.onmessage = handleMessage;
     
+    // Sincronizar destaque da Marcação FIFA Copa
+    const bcRacetrackHighlight = new BroadcastChannel('racetrack-highlight');
+    bcRacetrackHighlight.onmessage = (event) => {
+      if (event.data.active) {
+        setHighlightedNumbers(event.data.numbers || []);
+      } else {
+        setHighlightedNumbers([]);
+      }
+    };
+    
     // Pedir sincronização inicial após configurar o listener
     bcSelections.postMessage({ type: 'REQUEST_SELECTIONS' });
 
     return () => {
       bcSelections.close();
       bcHistory.close();
+      bcRacetrackHighlight.close();
     };
   }, []);
 

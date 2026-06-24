@@ -128,8 +128,23 @@ export default function HEAnalysis({ history, onPick, onToggleHighlight }: Props
             if (analysis) {
               const numbers = [...analysis.source, ...analysis.displayTrios, ...analysis.allApoios, ...analysis.final];
               onToggleHighlight(newState, numbers);
+              // Enviar sinal via BroadcastChannel para a racetrack expandida
+              try {
+                const bc = new BroadcastChannel('racetrack-highlight');
+                bc.postMessage({ active: newState, numbers });
+                bc.close();
+              } catch (e) {
+                console.log('BroadcastChannel não disponível');
+              }
             } else {
               onToggleHighlight(newState, []);
+              try {
+                const bc = new BroadcastChannel('racetrack-highlight');
+                bc.postMessage({ active: newState, numbers: [] });
+                bc.close();
+              } catch (e) {
+                console.log('BroadcastChannel não disponível');
+              }
             }
           }}
         >

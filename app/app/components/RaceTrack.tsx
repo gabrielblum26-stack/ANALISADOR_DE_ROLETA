@@ -143,10 +143,16 @@ export default function RaceTrack({
 
         {pts.map((p) => {
           const n = p.n;
+          const isHighlighted = highlightedNumbers.includes(n);
           const base = colorOf(n);
           const customStyles = getCellStyles(n);
           const override = selectionFill(sel, n, customStyles);
-          const fill = override ?? `var(--${base})`;
+          let fill = override ?? `var(--${base})`;
+          
+          // Se está destacado, usar amarelo
+          if (isHighlighted) {
+            fill = "#ffd000";
+          }
           
           const styles = getCellStyles(n);
           const opacity = styles.opacity !== undefined ? styles.opacity : 1;
@@ -163,10 +169,10 @@ export default function RaceTrack({
                 cy={p.y}
                 r="22"
                 fill={fill}
-                stroke={highlightedNumbers.includes(n) ? "#fff" : (customStyles?.border ? "#fff" : "rgba(255,255,255,0.2)")}
-                strokeWidth={highlightedNumbers.includes(n) ? "3" : (customStyles?.border ? "3" : "1")}
+                stroke={isHighlighted ? "#fff" : (customStyles?.border ? "#fff" : "rgba(255,255,255,0.2)")}
+                strokeWidth={isHighlighted ? "3" : (customStyles?.border ? "3" : "1")}
                 style={{ 
-                  filter: highlightedNumbers.includes(n) ? "drop-shadow(0 0 8px #fff)" : (customStyles?.boxShadow ? `drop-shadow(0 0 8px ${customStyles.backgroundColor})` : 'none'),
+                  filter: isHighlighted ? "drop-shadow(0 0 8px #ffd000)" : (customStyles?.boxShadow ? `drop-shadow(0 0 8px ${customStyles.backgroundColor})` : 'none'),
                   transition: "all 0.2s ease-in-out"
                 }}
                 className="raceCell"
@@ -177,7 +183,7 @@ export default function RaceTrack({
                 textAnchor="middle" 
                 fontSize="17" 
                 fontWeight="bold" 
-                fill={getTextColor(n)}
+                fill={isHighlighted ? "#000" : getTextColor(n)}
                 style={{ userSelect: 'none' }}
               >
                 {n}
