@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { colorOf } from "../lib/roulette";
 import {
   analyzeTerminalPatterns,
@@ -17,6 +17,7 @@ type Props = {
   history: number[];
   onMarkNumbers: (nums: number[]) => void;
   onColorChange: (index: number) => void;
+  onHighlightPattern: (pattern: number[]) => void;
 };
 
 // Função auxiliar para determinar emoji de temperatura
@@ -50,6 +51,50 @@ export default function HotHistoryAnalysis({
   // ============ TAB 1: TERMINALS ============
   const [terminalPatternLength, setTerminalPatternLength] = useState(1);
   const [terminalMinReps, setTerminalMinReps] = useState(6);
+  const lastSpokenPattern = useRef<string>("");
+
+  // Efeito para Alerta de Voz
+  useEffect(() => {
+    if (history.length < 2) return;
+
+    // Verificar se o final do histórico corresponde ao início de algum padrão conhecido
+    terminalAnalysis.patterns.forEach(p => {
+      if (p.pattern.length > 0) {
+        const historyEnd = history.slice(-p.pattern.length);
+        if (historyEnd.every((v, i) => v === p.pattern[i])) {
+          const patternKey = `terminal-${p.pattern.join(",")}-${p.nextTerminal}`;
+          if (lastSpokenPattern.current !== patternKey) {
+            const msg = new SpeechSynthesisUtterance(`Atenção! Possível sequência para o Terminal ${p.nextTerminal}`);
+            msg.lang = 'pt-BR';
+            window.speechSynthesis.speak(msg);
+            lastSpokenPattern.current = patternKey;
+          }
+        }
+      }
+    });
+
+    // Alerta para Setores
+    sectorAnalysis.patterns.forEach(p => {
+      if (p.pattern.length > 0) {
+        const historyEnd = history.slice(-p.pattern.length);
+        if (historyEnd.every((v, i) => v === p.pattern[i])) {
+          const patternKey = `sector-${p.pattern.join(",")}-${p.nextSector}`;
+          if (lastSpokenPattern.current !== patternKey) {
+            const sectorNames: Record<string, string> = {
+              voisins: "Vizinhos do Zero",
+              tier: "Terço do Cilindro",
+              orphelins: "Órfãos",
+              zero_game: "Zero Game"
+            };
+            const msg = new SpeechSynthesisUtterance(`Atenção! Possível entrada no setor ${sectorNames[p.nextSector] || p.nextSector}`);
+            msg.lang = 'pt-BR';
+            window.speechSynthesis.speak(msg);
+            lastSpokenPattern.current = patternKey;
+          }
+        }
+      }
+    });
+  }, [history, terminalAnalysis.patterns, sectorAnalysis.patterns]);
 
   const terminalAnalysis = useMemo(() => {
     return analyzeTerminalPatterns(history, terminalPatternLength, terminalMinReps);
@@ -382,22 +427,40 @@ export default function HotHistoryAnalysis({
                           Temperatura: <strong>{getTemperatureEmoji(temp)} {Math.round(temp)}/100</strong>
                         </div>
                       </div>
-                      <button
-                        onClick={() => handleMarkTerminal(pattern.nextTerminal)}
-                        style={{
-                          padding: "6px 12px",
-                          background: "#ff6b6b",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "10px",
-                          whiteSpace: "nowrap"
-                        }}
-                      >
-                        Marcar
-                      </button>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <button
+                          onClick={() => handleMarkTerminal(pattern.nextTerminal)}
+                          style={{
+                            padding: "4px 8px",
+                            background: "#ff6b6b",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            fontSize: "9px",
+                            whiteSpace: "nowrap"
+                          }}
+                        >
+                          Marcar Race
+                        </button>
+                        <button
+                          onClick={() => onHighlightPattern(pattern.pattern)}
+                          style={{
+                            padding: "4px 8px",
+                            background: "#4a90e2",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            fontSize: "9px",
+                            whiteSpace: "nowrap"
+                          }}
+                        >
+                          Circular Hist.
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -850,22 +913,40 @@ export default function HotHistoryAnalysis({
                           Temperatura: <strong>{getTemperatureEmoji(temp)} {Math.round(temp)}/100</strong>
                         </div>
                       </div>
-                      <button
-                        onClick={() => handleMarkSector(pattern.nextSector)}
-                        style={{
-                          padding: "6px 12px",
-                          background: "#ff6b6b",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "10px",
-                          whiteSpace: "nowrap"
-                        }}
-                      >
-                        Marcar
-                      </button>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <button
+                          onClick={() => handleMarkSector(pattern.nextSector)}
+                          style={{
+                            padding: "4px 8px",
+                            background: "#ff6b6b",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            fontSize: "9px",
+                            whiteSpace: "nowrap"
+                          }}
+                        >
+                          Marcar Race
+                        </button>
+                        <button
+                          onClick={() => onHighlightPattern(pattern.pattern)}
+                          style={{
+                            padding: "4px 8px",
+                            background: "#4a90e2",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            fontSize: "9px",
+                            whiteSpace: "nowrap"
+                          }}
+                        >
+                          Circular Hist.
+                        </button>
+                      </div>
                     </div>
                   );
                 })}

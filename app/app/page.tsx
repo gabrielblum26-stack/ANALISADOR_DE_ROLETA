@@ -47,6 +47,7 @@ export default function Page() {
   const [strategyMode, setStrategyMode] = useState<"total" | "intersection">("total");
   const [highlightedNumbers, setHighlightedNumbers] = useState<number[]>([]);
   const [historyTab, setHistoryTab] = useState<'tradicional' | 'quente'>('tradicional');
+  const [highlightedHistoryIndices, setHighlightedHistoryIndices] = useState<Set<number>>(new Set());
 
   // Estados para o Calculador de Distância
   const [distN1, setDistN1] = useState<number | null>(null);
@@ -764,7 +765,7 @@ export default function Page() {
                       return (
                         <div
                           key={idx}
-                          className={`longCell ${colorOf(n)} ${disguisedPairIdx.has(idx) ? "historyPair" : ""}`}
+                          className={`longCell ${colorOf(n)} ${disguisedPairIdx.has(idx) ? "historyPair" : ""} ${highlightedHistoryIndices.has(idx) ? "highlightedPattern" : ""}`}
                           style={{
                             ...getCellStyles(n),
                             color: getTextColor(n, getCellStyles(n))
@@ -791,6 +792,20 @@ export default function Page() {
                     history={history}
                     onMarkNumbers={(nums) => onMarkStrategy(nums)}
                     onColorChange={onColorChange}
+                    onHighlightPattern={(pattern) => {
+                      const indices = new Set<number>();
+                      // Procurar a sequência no histórico
+                      for (let i = 0; i <= history.length - pattern.length; i++) {
+                        const slice = history.slice(i, i + pattern.length);
+                        if (slice.every((val, index) => val === pattern[index])) {
+                          for (let j = 0; j < pattern.length; j++) indices.add(i + j);
+                        }
+                      }
+                      setHighlightedHistoryIndices(indices);
+                      setHistoryTab('tradicional'); // Volta para o histórico para mostrar o destaque
+                      // Limpar destaque após 3 segundos
+                      setTimeout(() => setHighlightedHistoryIndices(new Set()), 3000);
+                    }}
                   />
                 </div>
               )}
