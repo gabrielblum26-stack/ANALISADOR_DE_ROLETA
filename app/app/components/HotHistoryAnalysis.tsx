@@ -54,6 +54,7 @@ export default function HotHistoryAnalysis({
     type: "terminal" | "sector";
     numbers: number[];
     label: string;
+    sequence: number[];
   } | null>(null);
 
   // Carregar preferência de alertas
@@ -148,7 +149,8 @@ export default function HotHistoryAnalysis({
               message, 
               type: "terminal", 
               numbers: TERMINAL_NUMBERS[p.nextTerminal],
-              label: `T${p.nextTerminal}`
+              label: `T${p.nextTerminal}`,
+              sequence: p.pattern
             });
             lastSpokenPattern.current = patternKey;
           }
@@ -184,7 +186,8 @@ export default function HotHistoryAnalysis({
               message, 
               type: "sector", 
               numbers: SECTORS[p.nextSector],
-              label: sectorName
+              label: sectorName,
+              sequence: p.pattern
             });
             lastSpokenPattern.current = patternKey;
           }
@@ -362,10 +365,10 @@ export default function HotHistoryAnalysis({
           `}</style>
           
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ fontSize: "18px" }}>🔔</span>
+            <span style={{ fontSize: "20px" }}>🔔</span>
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: "10px", opacity: 0.9, textTransform: "uppercase" }}>Entrada Detectada</span>
-              <span>{alert.message}</span>
+              <span style={{ fontSize: "10px", opacity: 0.9, textTransform: "uppercase" }}>Padrão Detectado: {alert.sequence.join(" → ")}</span>
+              <span style={{ fontSize: "15px" }}>{alert.message}</span>
             </div>
           </div>
 
