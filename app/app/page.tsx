@@ -16,6 +16,7 @@ import { Metric } from "./components/Metric";
 import MovementPanel from "./components/MovementPanel";
 import AutomationModal from "./components/AutomationModal";
 import HEAnalysis from "./components/HEAnalysis";
+import HotHistoryAnalysis from "./components/HotHistoryAnalysis";
 
 const SHORT_N = 20;
 const LONG_N = 200;
@@ -764,6 +765,11 @@ export default function Page() {
               onToggleHighlight={(isActive, numbers) => {
                 setHighlightedNumbers(isActive ? numbers : []);
               }}
+            />
+            <HotHistoryAnalysis
+              history={history}
+              onMarkNumbers={(nums) => onMarkStrategy(nums)}
+              onColorChange={onColorChange}
             />
           </div>
           <div className="movementWrap" style={{ position: 'relative' }}>
