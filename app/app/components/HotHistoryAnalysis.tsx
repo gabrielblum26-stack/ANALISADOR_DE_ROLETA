@@ -49,13 +49,16 @@ export default function HotHistoryAnalysis({
     "terminals"
   );
   const [alertsEnabled, setAlertsEnabled] = useState<boolean>(true);
-  const [alert, setAlert] = useState<{ 
+  type AlertData = {
+    id: string;
     message: string; 
     type: "terminal" | "sector";
     numbers: number[];
     label: string;
     sequence: number[];
-  } | null>(null);
+  };
+
+  const [alerts, setAlerts] = useState<AlertData[]>([]);
 
   // Carregar preferência de alertas
   useEffect(() => {
@@ -70,13 +73,19 @@ export default function HotHistoryAnalysis({
     localStorage.setItem("roulette_alerts_enabled", String(alertsEnabled));
   }, [alertsEnabled]);
 
-  // Limpar alerta após 5 segundos
+  // Limpar alertas quando o histórico mudar (nova rodada)
   useEffect(() => {
-    if (alert) {
-      const timer = setTimeout(() => setAlert(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [alert]);
+    setAlerts([]);
+  }, [history.length]);
+
+  const addAlert = (newAlert: Omit<AlertData, "id">) => {
+    const id = `${newAlert.type}-${newAlert.label}-${Date.now()}`;
+    setAlerts(prev => {
+      // Evitar alertas duplicados idênticos ativos
+      if (prev.some(a => a.message === newAlert.message)) return prev;
+      return [...prev, { ...newAlert, id }];
+    });
+  };
 
   // ============ TAB 1: TERMINALS ============
   const [terminalPatternLength, setTerminalPatternLength] = useState(1);
@@ -145,7 +154,7 @@ export default function HotHistoryAnalysis({
             window.speechSynthesis.speak(msg);
             
             // Alerta Visual
-            setAlert({ 
+            addAlert({ 
               message, 
               type: "terminal", 
               numbers: TERMINAL_NUMBERS[p.nextTerminal],
@@ -182,7 +191,7 @@ export default function HotHistoryAnalysis({
             window.speechSynthesis.speak(msg);
 
             // Alerta Visual
-            setAlert({ 
+            addAlert({ 
               message, 
               type: "sector", 
               numbers: SECTORS[p.nextSector],
@@ -335,68 +344,70 @@ export default function HotHistoryAnalysis({
         </button>
       </div>
 
-      {/* ALERT BANNER */}
-      {alert && (
-        <div style={{
-          background: alert.type === "terminal" ? "linear-gradient(90deg, #ff6b6b, #ee5253)" : "linear-gradient(90deg, #4a90e2, #357abd)",
-          color: "#fff",
-          padding: "12px 15px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          fontWeight: "bold",
-          fontSize: "13px",
-          animation: "slideDown 0.3s ease-out, pulse 2s infinite",
-          borderBottom: "2px solid rgba(255,255,255,0.3)",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-          zIndex: 100,
-          position: "relative"
-        }}>
-          <style>{`
-            @keyframes pulse {
-              0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
-              70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
-              100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-            }
-            @keyframes slideDown {
-              from { transform: translateY(-100%); }
-              to { transform: translateY(0); }
-            }
-          `}</style>
-          
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ fontSize: "20px" }}>🔔</span>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: "10px", opacity: 0.9, textTransform: "uppercase" }}>Padrão Detectado: {alert.sequence.join(" → ")}</span>
-              <span style={{ fontSize: "15px" }}>{alert.message}</span>
+      {/* ALERT BANNERS LIST */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        {alerts.map((a) => (
+          <div key={a.id} style={{
+            background: a.type === "terminal" ? "linear-gradient(90deg, #ff6b6b, #ee5253)" : "linear-gradient(90deg, #4a90e2, #357abd)",
+            color: "#fff",
+            padding: "12px 15px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            fontWeight: "bold",
+            fontSize: "13px",
+            animation: "slideDown 0.3s ease-out, pulse 2s infinite",
+            borderBottom: "2px solid rgba(255,255,255,0.3)",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+            zIndex: 100,
+            position: "relative"
+          }}>
+            <style>{`
+              @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+                70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+              }
+              @keyframes slideDown {
+                from { transform: translateY(-100%); }
+                to { transform: translateY(0); }
+              }
+            `}</style>
+            
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "20px" }}>🔔</span>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: "10px", opacity: 0.9, textTransform: "uppercase" }}>Padrão Detectado: {a.sequence.join(" → ")}</span>
+                <span style={{ fontSize: "15px" }}>{a.message}</span>
+              </div>
             </div>
-          </div>
 
-          <button
-            onClick={() => {
-              onMarkNumbers(alert.numbers);
-              setAlert(null);
-            }}
-            style={{
-              background: "#fff",
-              color: alert.type === "terminal" ? "#ff6b6b" : "#4a90e2",
-              border: "none",
-              padding: "8px 12px",
-              borderRadius: "6px",
-              fontWeight: "900",
-              fontSize: "11px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-              transition: "transform 0.1s active"
-            }}
-          >
-            MARCAR {alert.label.toUpperCase()}
-          </button>
-        </div>
-      )}
+            <button
+              onClick={() => {
+                onMarkNumbers(a.numbers);
+                setAlerts(prev => prev.filter(item => item.id !== a.id));
+              }}
+              style={{
+                background: "#fff",
+                color: a.type === "terminal" ? "#ff6b6b" : "#4a90e2",
+                border: "none",
+                padding: "8px 12px",
+                borderRadius: "6px",
+                fontWeight: "900",
+                fontSize: "11px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                transition: "transform 0.1s active"
+              }}
+            >
+              MARCAR {a.label.toUpperCase()}
+            </button>
+          </div>
+        ))}
+      </div>
 
       {/* TAB CONTENT - SCROLLABLE */}
       <div style={{
