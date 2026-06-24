@@ -29,7 +29,7 @@ function getTemperatureEmoji(temp: number): string {
 
 // Função auxiliar para calcular temperatura baseada em percentual
 function calculateTemperature(percentage: number): number {
-  return Math.min(100, Math.max(0, percentage * 2));
+  return Math.min(100, Math.max(0, percentage * 10));
 }
 
 // Função auxiliar para formatar percentual com segurança
