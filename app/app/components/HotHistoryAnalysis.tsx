@@ -53,6 +53,48 @@ export default function HotHistoryAnalysis({
   const [terminalMinReps, setTerminalMinReps] = useState(6);
   const lastSpokenPattern = useRef<string>("");
 
+  const terminalAnalysis = useMemo(() => {
+    return analyzeTerminalPatterns(history, terminalPatternLength, terminalMinReps);
+  }, [history, terminalPatternLength, terminalMinReps]);
+
+  const handleMarkTerminal = (terminal: number) => {
+    const nums = TERMINAL_NUMBERS[terminal];
+    onMarkNumbers(nums);
+  };
+
+  // ============ TAB 2: STRATEGIES ============
+  const [selectedStrategies, setSelectedStrategies] = useState<StrategyClassification>({});
+
+  const strategyAnalysis = useMemo(() => {
+    return analyzeStrategy(history, selectedStrategies);
+  }, [history, selectedStrategies]);
+
+  const handleToggleStrategy = (key: keyof StrategyClassification, value: any) => {
+    setSelectedStrategies((prev) => {
+      const newStrategies = { ...prev };
+      if (newStrategies[key] === value) {
+        delete newStrategies[key];
+      } else {
+        newStrategies[key] = value;
+      }
+      return newStrategies;
+    });
+  };
+
+  const handleMarkStrategy = () => {
+    if (strategyAnalysis) {
+      onMarkNumbers(strategyAnalysis.intersectionNumbers);
+    }
+  };
+
+  // ============ TAB 3: SECTORS ============
+  const [sectorPatternLength, setSectorPatternLength] = useState(1);
+  const [sectorMinReps, setSectorMinReps] = useState(6);
+
+  const sectorAnalysis = useMemo(() => {
+    return analyzeSectorPatterns(history, sectorPatternLength, sectorMinReps);
+  }, [history, sectorPatternLength, sectorMinReps]);
+
   // Efeito para Alerta de Voz
   useEffect(() => {
     if (history.length < 2) return;
@@ -95,48 +137,6 @@ export default function HotHistoryAnalysis({
       }
     });
   }, [history, terminalAnalysis.patterns, sectorAnalysis.patterns]);
-
-  const terminalAnalysis = useMemo(() => {
-    return analyzeTerminalPatterns(history, terminalPatternLength, terminalMinReps);
-  }, [history, terminalPatternLength, terminalMinReps]);
-
-  const handleMarkTerminal = (terminal: number) => {
-    const nums = TERMINAL_NUMBERS[terminal];
-    onMarkNumbers(nums);
-  };
-
-  // ============ TAB 2: STRATEGIES ============
-  const [selectedStrategies, setSelectedStrategies] = useState<StrategyClassification>({});
-
-  const strategyAnalysis = useMemo(() => {
-    return analyzeStrategy(history, selectedStrategies);
-  }, [history, selectedStrategies]);
-
-  const handleToggleStrategy = (key: keyof StrategyClassification, value: any) => {
-    setSelectedStrategies((prev) => {
-      const newStrategies = { ...prev };
-      if (newStrategies[key] === value) {
-        delete newStrategies[key];
-      } else {
-        newStrategies[key] = value;
-      }
-      return newStrategies;
-    });
-  };
-
-  const handleMarkStrategy = () => {
-    if (strategyAnalysis) {
-      onMarkNumbers(strategyAnalysis.intersectionNumbers);
-    }
-  };
-
-  // ============ TAB 3: SECTORS ============
-  const [sectorPatternLength, setSectorPatternLength] = useState(1);
-  const [sectorMinReps, setSectorMinReps] = useState(6);
-
-  const sectorAnalysis = useMemo(() => {
-    return analyzeSectorPatterns(history, sectorPatternLength, sectorMinReps);
-  }, [history, sectorPatternLength, sectorMinReps]);
 
   const handleMarkSector = (sector: SectorName) => {
     const nums = SECTORS[sector];
