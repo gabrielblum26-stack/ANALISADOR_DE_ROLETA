@@ -48,12 +48,26 @@ export default function HotHistoryAnalysis({
   const [activeTab, setActiveTab] = useState<"terminals" | "strategies" | "sectors">(
     "terminals"
   );
+  const [alertsEnabled, setAlertsEnabled] = useState<boolean>(true);
   const [alert, setAlert] = useState<{ 
     message: string; 
     type: "terminal" | "sector";
     numbers: number[];
     label: string;
   } | null>(null);
+
+  // Carregar preferência de alertas
+  useEffect(() => {
+    const saved = localStorage.getItem("roulette_alerts_enabled");
+    if (saved !== null) {
+      setAlertsEnabled(saved === "true");
+    }
+  }, []);
+
+  // Salvar preferência de alertas
+  useEffect(() => {
+    localStorage.setItem("roulette_alerts_enabled", String(alertsEnabled));
+  }, [alertsEnabled]);
 
   // Limpar alerta após 5 segundos
   useEffect(() => {
@@ -112,7 +126,7 @@ export default function HotHistoryAnalysis({
 
   // Efeito para Alerta de Voz e Visual
   useEffect(() => {
-    if (history.length < 1) return;
+    if (!alertsEnabled || history.length < 1) return;
 
     // Verificar padrões de Terminais
     terminalAnalysis.patterns.forEach(p => {
@@ -143,6 +157,7 @@ export default function HotHistoryAnalysis({
     });
 
     // Alerta para Setores
+    if (!alertsEnabled) return;
     sectorAnalysis.patterns.forEach(p => {
       if (p.pattern.length > 0) {
         const historyEnd = history.slice(-p.pattern.length);
@@ -284,6 +299,36 @@ export default function HotHistoryAnalysis({
           }}
         >
           Roda Quente
+        </button>
+      </div>
+
+      {/* ALERT TOGGLE CONTROL */}
+      <div style={{
+        padding: "0 12px 10px 12px",
+        background: "#0f0f0f",
+        borderBottom: "1px solid #333"
+      }}>
+        <button
+          onClick={() => setAlertsEnabled(!alertsEnabled)}
+          style={{
+            width: "100%",
+            padding: "8px",
+            background: alertsEnabled ? "#2ecc71" : "#e74c3c",
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            fontSize: "11px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            transition: "all 0.3s ease"
+          }}
+        >
+          <span style={{ fontSize: "14px" }}>{alertsEnabled ? "🔊" : "🔇"}</span>
+          {alertsEnabled ? "ALERTAS ATIVADOS" : "ALERTAS DESATIVADOS"}
         </button>
       </div>
 
