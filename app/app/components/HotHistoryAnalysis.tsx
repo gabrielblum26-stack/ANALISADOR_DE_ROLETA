@@ -346,7 +346,9 @@ export default function HotHistoryAnalysis({
 
       {/* ALERT BANNERS LIST */}
       <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-        {alerts.map((a) => (
+        {alerts
+          .filter(a => (activeTab === "terminals" && a.type === "terminal") || (activeTab === "sectors" && a.type === "sector"))
+          .map((a) => (
           <div key={a.id} style={{
             background: a.type === "terminal" ? "linear-gradient(90deg, #ff6b6b, #ee5253)" : "linear-gradient(90deg, #4a90e2, #357abd)",
             color: "#fff",
