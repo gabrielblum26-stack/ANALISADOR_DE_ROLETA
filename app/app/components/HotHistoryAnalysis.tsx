@@ -48,7 +48,12 @@ export default function HotHistoryAnalysis({
   const [activeTab, setActiveTab] = useState<"terminals" | "strategies" | "sectors">(
     "terminals"
   );
-  const [alert, setAlert] = useState<{ message: string; type: "terminal" | "sector" } | null>(null);
+  const [alert, setAlert] = useState<{ 
+    message: string; 
+    type: "terminal" | "sector";
+    numbers: number[];
+    label: string;
+  } | null>(null);
 
   // Limpar alerta após 5 segundos
   useEffect(() => {
@@ -125,7 +130,12 @@ export default function HotHistoryAnalysis({
             window.speechSynthesis.speak(msg);
             
             // Alerta Visual
-            setAlert({ message, type: "terminal" });
+            setAlert({ 
+              message, 
+              type: "terminal", 
+              numbers: TERMINAL_NUMBERS[p.nextTerminal],
+              label: `T${p.nextTerminal}`
+            });
             lastSpokenPattern.current = patternKey;
           }
         }
@@ -155,7 +165,12 @@ export default function HotHistoryAnalysis({
             window.speechSynthesis.speak(msg);
 
             // Alerta Visual
-            setAlert({ message, type: "sector" });
+            setAlert({ 
+              message, 
+              type: "sector", 
+              numbers: SECTORS[p.nextSector],
+              label: sectorName
+            });
             lastSpokenPattern.current = patternKey;
           }
         }
@@ -275,29 +290,63 @@ export default function HotHistoryAnalysis({
       {/* ALERT BANNER */}
       {alert && (
         <div style={{
-          background: alert.type === "terminal" ? "#ff6b6b" : "#4a90e2",
+          background: alert.type === "terminal" ? "linear-gradient(90deg, #ff6b6b, #ee5253)" : "linear-gradient(90deg, #4a90e2, #357abd)",
           color: "#fff",
-          padding: "10px",
-          textAlign: "center",
-          fontWeight: "bold",
-          fontSize: "14px",
-          animation: "pulse 1.5s infinite",
-          borderBottom: "2px solid rgba(255,255,255,0.2)",
+          padding: "12px 15px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
-          gap: "10px"
+          justifyContent: "space-between",
+          fontWeight: "bold",
+          fontSize: "13px",
+          animation: "slideDown 0.3s ease-out, pulse 2s infinite",
+          borderBottom: "2px solid rgba(255,255,255,0.3)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+          zIndex: 100,
+          position: "relative"
         }}>
           <style>{`
             @keyframes pulse {
-              0% { opacity: 1; }
-              50% { opacity: 0.7; }
-              100% { opacity: 1; }
+              0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+              70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+              100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+            }
+            @keyframes slideDown {
+              from { transform: translateY(-100%); }
+              to { transform: translateY(0); }
             }
           `}</style>
-          <span>🔔</span>
-          {alert.message}
-          <span>🔔</span>
+          
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "18px" }}>🔔</span>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontSize: "10px", opacity: 0.9, textTransform: "uppercase" }}>Entrada Detectada</span>
+              <span>{alert.message}</span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              onMarkNumbers(alert.numbers);
+              setAlert(null);
+            }}
+            style={{
+              background: "#fff",
+              color: alert.type === "terminal" ? "#ff6b6b" : "#4a90e2",
+              border: "none",
+              padding: "8px 12px",
+              borderRadius: "6px",
+              fontWeight: "900",
+              fontSize: "11px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+              transition: "transform 0.1s active"
+            }}
+          >
+            MARCAR {alert.label.toUpperCase()}
+          </button>
         </div>
       )}
 
