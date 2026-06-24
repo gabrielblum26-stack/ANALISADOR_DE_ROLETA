@@ -111,8 +111,6 @@ export default function MapaPage() {
       };
     }
 
-    const colors = getNumberColors(sel, n);
-    
     if (history.length > 0 && selectedX.length > 0) {
         const lastNum = history[0];
         for (const x of selectedX) {
