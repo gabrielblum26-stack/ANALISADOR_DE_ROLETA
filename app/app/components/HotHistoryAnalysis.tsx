@@ -42,7 +42,8 @@ function formatPercentage(value: number): string {
 export default function HotHistoryAnalysis({
   history,
   onMarkNumbers,
-  onColorChange
+  onColorChange,
+  onHighlightPattern
 }: Props) {
   const [activeTab, setActiveTab] = useState<"terminals" | "strategies" | "sectors">(
     "terminals"
