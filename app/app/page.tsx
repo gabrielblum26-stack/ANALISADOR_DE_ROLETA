@@ -64,7 +64,8 @@ export default function Page() {
           selectedX, 
           selectedY,
           selMode,
-          markingMode 
+          markingMode,
+          strategyMode
         });
       } else if (event.data.type === 'UPDATE_HIGHLIGHTS') {
         setHighlightedNumbers(event.data.isActive ? event.data.numbers : []);
@@ -92,10 +93,11 @@ export default function Page() {
       selectedX, 
       selectedY,
       selMode,
-      markingMode 
+      markingMode,
+      strategyMode
     });
     return () => bc.close();
-  }, [sel, selectedX, selectedY, selMode, markingMode]);
+  }, [sel, selectedX, selectedY, selMode, markingMode, strategyMode]);
 
   // Estados para Automação
   const [isAutoModalOpen, setIsAutoModalOpen] = useState(false);

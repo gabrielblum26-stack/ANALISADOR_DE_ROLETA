@@ -11,6 +11,7 @@ export default function RacetrackPage() {
   const [selectedY, setSelectedY] = useState<string | null>(null);
   const [history, setHistory] = useState<number[]>([]);
   const [highlightedNumbers, setHighlightedNumbers] = useState<number[]>([]);
+  const [strategyMode, setStrategyMode] = useState<"total" | "intersection">("total");
 
   useEffect(() => {
     document.documentElement.classList.add("theme-dark");
@@ -37,6 +38,7 @@ export default function RacetrackPage() {
         setSel(event.data.sel);
         setSelectedX(event.data.selectedX || []);
         setSelectedY(event.data.selectedY || null);
+        if (event.data.strategyMode) setStrategyMode(event.data.strategyMode);
       } else if (event.data.type === "UPDATE_X_Y") {
         if (event.data.selectedX !== undefined) {
           setSelectedX(event.data.selectedX);
@@ -93,6 +95,22 @@ export default function RacetrackPage() {
   const getCellStyles = (n: number) => {
     const colors = getNumberColors(sel, n);
     
+    // Lógica de Intersecção para esmaecer números não selecionados
+    if (strategyMode === "intersection") {
+      const counts: Record<number, number> = {};
+      let maxCount = 0;
+      for (let i = 0; i <= 36; i++) {
+        const c = getNumberColors(sel, i).length;
+        if (c > 0) {
+          counts[i] = c;
+          if (c > maxCount) maxCount = c;
+        }
+      }
+      if (maxCount > 1 && colors.length < maxCount) {
+        return { opacity: 0.1, pointerEvents: 'none' as const, transition: 'all 0.3s' };
+      }
+    }
+
     if (history.length > 0 && selectedX.length > 0) {
         const lastNum = history[0];
         for (const x of selectedX) {
@@ -164,6 +182,7 @@ export default function RacetrackPage() {
         onPick={onPick}
         getCellStyles={getCellStyles} 
         highlightedNumbers={highlightedNumbers}
+        strategyMode={strategyMode}
       />
     </div>
   );
