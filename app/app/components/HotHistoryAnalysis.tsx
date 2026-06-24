@@ -64,9 +64,6 @@ export default function HotHistoryAnalysis({
   const [selectedStrategies, setSelectedStrategies] = useState<StrategyClassification>({});
 
   const strategyAnalysis = useMemo(() => {
-    if (Object.keys(selectedStrategies).length === 0) {
-      return null;
-    }
     return analyzeStrategy(history, selectedStrategies);
   }, [history, selectedStrategies]);
 
@@ -427,32 +424,42 @@ export default function HotHistoryAnalysis({
                   <button
                     onClick={() => handleToggleStrategy("color", "red")}
                     style={{
-                      padding: "6px 12px",
+                      flex: 1,
+                      padding: "6px 4px",
                       background: selectedStrategies.color === "red" ? "#ff6b6b" : "#333",
                       color: "#fff",
                       border: "1px solid #555",
                       borderRadius: "4px",
                       cursor: "pointer",
                       fontWeight: "bold",
-                      fontSize: "11px"
+                      fontSize: "10px",
+                      textAlign: "center"
                     }}
                   >
                     Vermelho
+                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
+                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.colors.red / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.colors.red || 0) / Math.max(1, history.length) * 100)}
+                    </div>
                   </button>
                   <button
                     onClick={() => handleToggleStrategy("color", "black")}
                     style={{
-                      padding: "6px 12px",
+                      flex: 1,
+                      padding: "6px 4px",
                       background: selectedStrategies.color === "black" ? "#ff6b6b" : "#333",
                       color: "#fff",
                       border: "1px solid #555",
                       borderRadius: "4px",
                       cursor: "pointer",
                       fontWeight: "bold",
-                      fontSize: "11px"
+                      fontSize: "10px",
+                      textAlign: "center"
                     }}
                   >
                     Preto
+                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
+                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.colors.black / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.colors.black || 0) / Math.max(1, history.length) * 100)}
+                    </div>
                   </button>
                 </div>
               </div>
@@ -466,32 +473,42 @@ export default function HotHistoryAnalysis({
                   <button
                     onClick={() => handleToggleStrategy("parity", "even")}
                     style={{
-                      padding: "6px 12px",
+                      flex: 1,
+                      padding: "6px 4px",
                       background: selectedStrategies.parity === "even" ? "#ff6b6b" : "#333",
                       color: "#fff",
                       border: "1px solid #555",
                       borderRadius: "4px",
                       cursor: "pointer",
                       fontWeight: "bold",
-                      fontSize: "11px"
+                      fontSize: "10px",
+                      textAlign: "center"
                     }}
                   >
                     Par
+                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
+                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.parities.even / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.parities.even || 0) / Math.max(1, history.length) * 100)}
+                    </div>
                   </button>
                   <button
                     onClick={() => handleToggleStrategy("parity", "odd")}
                     style={{
-                      padding: "6px 12px",
+                      flex: 1,
+                      padding: "6px 4px",
                       background: selectedStrategies.parity === "odd" ? "#ff6b6b" : "#333",
                       color: "#fff",
                       border: "1px solid #555",
                       borderRadius: "4px",
                       cursor: "pointer",
                       fontWeight: "bold",
-                      fontSize: "11px"
+                      fontSize: "10px",
+                      textAlign: "center"
                     }}
                   >
                     Ímpar
+                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
+                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.parities.odd / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.parities.odd || 0) / Math.max(1, history.length) * 100)}
+                    </div>
                   </button>
                 </div>
               </div>
@@ -505,32 +522,42 @@ export default function HotHistoryAnalysis({
                   <button
                     onClick={() => handleToggleStrategy("half", "low")}
                     style={{
-                      padding: "6px 12px",
+                      flex: 1,
+                      padding: "6px 4px",
                       background: selectedStrategies.half === "low" ? "#ff6b6b" : "#333",
                       color: "#fff",
                       border: "1px solid #555",
                       borderRadius: "4px",
                       cursor: "pointer",
                       fontWeight: "bold",
-                      fontSize: "11px"
+                      fontSize: "10px",
+                      textAlign: "center"
                     }}
                   >
                     1–18
+                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
+                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.halves.low / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.halves.low || 0) / Math.max(1, history.length) * 100)}
+                    </div>
                   </button>
                   <button
                     onClick={() => handleToggleStrategy("half", "high")}
                     style={{
-                      padding: "6px 12px",
+                      flex: 1,
+                      padding: "6px 4px",
                       background: selectedStrategies.half === "high" ? "#ff6b6b" : "#333",
                       color: "#fff",
                       border: "1px solid #555",
                       borderRadius: "4px",
                       cursor: "pointer",
                       fontWeight: "bold",
-                      fontSize: "11px"
+                      fontSize: "10px",
+                      textAlign: "center"
                     }}
                   >
                     19–36
+                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
+                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.halves.high / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.halves.high || 0) / Math.max(1, history.length) * 100)}
+                    </div>
                   </button>
                 </div>
               </div>
@@ -546,17 +573,22 @@ export default function HotHistoryAnalysis({
                       key={d}
                       onClick={() => handleToggleStrategy("dozen", d as 1 | 2 | 3)}
                       style={{
-                        padding: "6px 12px",
+                        flex: 1,
+                        padding: "6px 4px",
                         background: selectedStrategies.dozen === d ? "#ff6b6b" : "#333",
                         color: "#fff",
                         border: "1px solid #555",
                         borderRadius: "4px",
                         cursor: "pointer",
                         fontWeight: "bold",
-                        fontSize: "11px"
+                        fontSize: "10px",
+                        textAlign: "center"
                       }}
                     >
                       {d}ª
+                      <div style={{ fontSize: "9px", color: "#ffd000" }}>
+                        {strategyAnalysis ? getTemperatureEmoji(calculateTemperature(((strategyAnalysis.dozens[d as 1|2|3] || 0) / Math.max(1, history.length)) * 100)) : ""} {formatPercentage(((strategyAnalysis?.dozens[d as 1|2|3] || 0) / Math.max(1, history.length)) * 100)}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -573,17 +605,22 @@ export default function HotHistoryAnalysis({
                       key={c}
                       onClick={() => handleToggleStrategy("column", c as 1 | 2 | 3)}
                       style={{
-                        padding: "6px 12px",
+                        flex: 1,
+                        padding: "6px 4px",
                         background: selectedStrategies.column === c ? "#ff6b6b" : "#333",
                         color: "#fff",
                         border: "1px solid #555",
                         borderRadius: "4px",
                         cursor: "pointer",
                         fontWeight: "bold",
-                        fontSize: "11px"
+                        fontSize: "10px",
+                        textAlign: "center"
                       }}
                     >
                       C{c}
+                      <div style={{ fontSize: "9px", color: "#ffd000" }}>
+                        {strategyAnalysis ? getTemperatureEmoji(calculateTemperature(((strategyAnalysis.columns[c as 1|2|3] || 0) / Math.max(1, history.length)) * 100)) : ""} {formatPercentage(((strategyAnalysis?.columns[c as 1|2|3] || 0) / Math.max(1, history.length)) * 100)}
+                      </div>
                     </button>
                   ))}
                 </div>
