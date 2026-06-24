@@ -48,6 +48,15 @@ export default function HotHistoryAnalysis({
   const [activeTab, setActiveTab] = useState<"terminals" | "strategies" | "sectors">(
     "terminals"
   );
+  const [alert, setAlert] = useState<{ message: string; type: "terminal" | "sector" } | null>(null);
+
+  // Limpar alerta após 5 segundos
+  useEffect(() => {
+    if (alert) {
+      const timer = setTimeout(() => setAlert(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
 
   // ============ TAB 1: TERMINALS ============
   const [terminalPatternLength, setTerminalPatternLength] = useState(1);
@@ -96,20 +105,27 @@ export default function HotHistoryAnalysis({
     return analyzeSectorPatterns(history, sectorPatternLength, sectorMinReps);
   }, [history, sectorPatternLength, sectorMinReps]);
 
-  // Efeito para Alerta de Voz
+  // Efeito para Alerta de Voz e Visual
   useEffect(() => {
-    if (history.length < 2) return;
+    if (history.length < 1) return;
 
-    // Verificar se o final do histórico corresponde ao início de algum padrão conhecido
+    // Verificar padrões de Terminais
     terminalAnalysis.patterns.forEach(p => {
       if (p.pattern.length > 0) {
         const historyEnd = history.slice(-p.pattern.length);
         if (historyEnd.every((v, i) => v === p.pattern[i])) {
-          const patternKey = `terminal-${p.pattern.join(",")}-${p.nextTerminal}`;
+          const patternKey = `terminal-${p.pattern.join(",")}-${p.nextTerminal}-${history.length}`;
           if (lastSpokenPattern.current !== patternKey) {
-            const msg = new SpeechSynthesisUtterance(`Atenção! Possível sequência para o Terminal ${p.nextTerminal}`);
+            const message = `Possível Terminal ${p.nextTerminal}`;
+            
+            // Alerta de Voz
+            const msg = new SpeechSynthesisUtterance(`Atenção! ${message}`);
             msg.lang = 'pt-BR';
+            msg.rate = 1.1;
             window.speechSynthesis.speak(msg);
+            
+            // Alerta Visual
+            setAlert({ message, type: "terminal" });
             lastSpokenPattern.current = patternKey;
           }
         }
@@ -121,7 +137,7 @@ export default function HotHistoryAnalysis({
       if (p.pattern.length > 0) {
         const historyEnd = history.slice(-p.pattern.length);
         if (historyEnd.every((v, i) => v === p.pattern[i])) {
-          const patternKey = `sector-${p.pattern.join(",")}-${p.nextSector}`;
+          const patternKey = `sector-${p.pattern.join(",")}-${p.nextSector}-${history.length}`;
           if (lastSpokenPattern.current !== patternKey) {
             const sectorNames: Record<string, string> = {
               voisins: "Vizinhos do Zero",
@@ -129,15 +145,23 @@ export default function HotHistoryAnalysis({
               orphelins: "Órfãos",
               zero_game: "Zero Game"
             };
-            const msg = new SpeechSynthesisUtterance(`Atenção! Possível entrada no setor ${sectorNames[p.nextSector] || p.nextSector}`);
+            const sectorName = sectorNames[p.nextSector] || p.nextSector;
+            const message = `Possível entrada: ${sectorName}`;
+
+            // Alerta de Voz
+            const msg = new SpeechSynthesisUtterance(`Atenção! ${message}`);
             msg.lang = 'pt-BR';
+            msg.rate = 1.1;
             window.speechSynthesis.speak(msg);
+
+            // Alerta Visual
+            setAlert({ message, type: "sector" });
             lastSpokenPattern.current = patternKey;
           }
         }
       }
     });
-  }, [history, terminalAnalysis.patterns, sectorAnalysis.patterns]);
+  }, [history.length, terminalAnalysis.patterns, sectorAnalysis.patterns]);
 
   const handleMarkSector = (sector: SectorName) => {
     const nums = SECTORS[sector];
@@ -247,6 +271,35 @@ export default function HotHistoryAnalysis({
           Roda Quente
         </button>
       </div>
+
+      {/* ALERT BANNER */}
+      {alert && (
+        <div style={{
+          background: alert.type === "terminal" ? "#ff6b6b" : "#4a90e2",
+          color: "#fff",
+          padding: "10px",
+          textAlign: "center",
+          fontWeight: "bold",
+          fontSize: "14px",
+          animation: "pulse 1.5s infinite",
+          borderBottom: "2px solid rgba(255,255,255,0.2)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "10px"
+        }}>
+          <style>{`
+            @keyframes pulse {
+              0% { opacity: 1; }
+              50% { opacity: 0.7; }
+              100% { opacity: 1; }
+            }
+          `}</style>
+          <span>🔔</span>
+          {alert.message}
+          <span>🔔</span>
+        </div>
+      )}
 
       {/* TAB CONTENT - SCROLLABLE */}
       <div style={{
