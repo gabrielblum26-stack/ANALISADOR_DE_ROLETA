@@ -43,7 +43,7 @@ export function analyzeTerminalPatterns(
     .filter(([_, data]) => data.count >= minRepetitions)
     .map(([patternStr, data]) => {
       const pattern = patternStr.split(",").map(Number);
-      const strength = (data.count / (history.length - patternLength)) * 100;
+      const strength = (history.length - patternLength > 0 ? (data.count / (history.length - patternLength)) * 100 : 0);
       return {
         pattern,
         nextTerminal: data.nextTerminal,
@@ -66,7 +66,7 @@ export function analyzeTerminalPatterns(
 
   const totalCount = history.length;
   for (let i = 0; i <= 9; i++) {
-    terminalStats[i].percentage = (terminalStats[i].count / totalCount) * 100;
+    terminalStats[i].percentage = (totalCount > 0 ? (terminalStats[i].count / totalCount) * 100 : 0);
   }
 
   return { patterns, terminalStats };
@@ -233,7 +233,7 @@ export function analyzeSectorPatterns(
     .filter(([_, data]) => data.count >= minRepetitions)
     .map(([patternStr, data]) => {
       const pattern = patternStr.split(",").map(Number);
-      const strength = (data.count / (history.length - patternLength)) * 100;
+      const strength = (history.length - patternLength > 0 ? (data.count / (history.length - patternLength)) * 100 : 0);
       return {
         pattern,
         nextSector: data.nextSector,
@@ -260,7 +260,7 @@ export function analyzeSectorPatterns(
 
   const totalCount = history.length;
   for (const sector of Object.keys(sectorStats) as SectorName[]) {
-    sectorStats[sector].percentage = (sectorStats[sector].count / totalCount) * 100;
+    sectorStats[sector].percentage = (totalCount > 0 ? (sectorStats[sector].count / totalCount) * 100 : 0);
   }
 
   return { patterns, sectorStats };

@@ -46,6 +46,7 @@ export default function Page() {
   const [showEaster99, setShowEaster99] = useState(false);
   const [strategyMode, setStrategyMode] = useState<"total" | "intersection">("total");
   const [highlightedNumbers, setHighlightedNumbers] = useState<number[]>([]);
+  const [historyTab, setHistoryTab] = useState<'tradicional' | 'quente'>('tradicional');
 
   // Estados para o Calculador de Distância
   const [distN1, setDistN1] = useState<number | null>(null);
@@ -696,7 +697,7 @@ export default function Page() {
       )}
 
       <div className="main">
-        <div className={`panel left ${minimized.history ? "minimized" : ""}`}>
+        <div className={`panel left ${minimized.history ? "minimized" : ""}`} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <div className="panelHeader">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div className="sectionTitle">Histórico (80)</div>
@@ -712,29 +713,87 @@ export default function Page() {
           </div>
           {!minimized.history && (
             <>
-              <div className="longGrid" aria-label="Histórico longo">
-                {longGridItems.map((n, idx) => {
-                  if (n === null) return <div key={idx} className="longCell empty" />;
-                  return (
-	                    <div
-	                      key={idx}
-	                      className={`longCell ${colorOf(n)} ${disguisedPairIdx.has(idx) ? "historyPair" : ""}`}
-	                      style={{
-	                        ...getCellStyles(n),
-	                        color: getTextColor(n, getCellStyles(n))
-	                      }}
-	                      onClick={() => onSelect(n)}
-	                      title="Clique para selecionar (não registra)"
-	                    >
-	                      {n}
-	                    </div>
-                  );
-                })}
+              {/* TAB SELECTOR */}
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                marginBottom: '10px',
+                borderBottom: '1px solid #333',
+                paddingBottom: '8px'
+              }}>
+                <button
+                  onClick={() => setHistoryTab('tradicional')}
+                  style={{
+                    padding: '6px 12px',
+                    background: historyTab === 'tradicional' ? '#ff6b6b' : '#333',
+                    color: '#fff',
+                    border: '1px solid #555',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '11px',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Histórico
+                </button>
+                <button
+                  onClick={() => setHistoryTab('quente')}
+                  style={{
+                    padding: '6px 12px',
+                    background: historyTab === 'quente' ? '#ff6b6b' : '#333',
+                    color: '#fff',
+                    border: '1px solid #555',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '11px',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Histórico Quente
+                </button>
               </div>
-              <div className="hint">
-                Entrada só pelo input. Clique em número seleciona N e vizinhos (ou outro modo) com a cor ativa.
-                A seleção substitui a cor do chip. "RESET DE CORES" limpa as marcações.
-              </div>
+
+              {/* TRADITIONAL HISTORY TAB */}
+              {historyTab === 'tradicional' && (
+                <>
+                  <div className="longGrid" aria-label="Histórico longo">
+                    {longGridItems.map((n, idx) => {
+                      if (n === null) return <div key={idx} className="longCell empty" />;
+                      return (
+                        <div
+                          key={idx}
+                          className={`longCell ${colorOf(n)} ${disguisedPairIdx.has(idx) ? "historyPair" : ""}`}
+                          style={{
+                            ...getCellStyles(n),
+                            color: getTextColor(n, getCellStyles(n))
+                          }}
+                          onClick={() => onSelect(n)}
+                          title="Clique para selecionar (não registra)"
+                        >
+                          {n}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="hint">
+                    Entrada só pelo input. Clique em número seleciona N e vizinhos (ou outro modo) com a cor ativa.
+                    A seleção substitui a cor do chip. "RESET DE CORES" limpa as marcações.
+                  </div>
+                </>
+              )}
+
+              {/* HOT HISTORY TAB */}
+              {historyTab === 'quente' && (
+                <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+                  <HotHistoryAnalysis
+                    history={history}
+                    onMarkNumbers={(nums) => onMarkStrategy(nums)}
+                    onColorChange={onColorChange}
+                  />
+                </div>
+              )}
             </>
           )}
         </div>
@@ -765,11 +824,6 @@ export default function Page() {
               onToggleHighlight={(isActive, numbers) => {
                 setHighlightedNumbers(isActive ? numbers : []);
               }}
-            />
-            <HotHistoryAnalysis
-              history={history}
-              onMarkNumbers={(nums) => onMarkStrategy(nums)}
-              onColorChange={onColorChange}
             />
           </div>
           <div className="movementWrap" style={{ position: 'relative' }}>
