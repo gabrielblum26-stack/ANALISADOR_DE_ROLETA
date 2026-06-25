@@ -1,7 +1,7 @@
 // Build Version: 2.2.1-fix
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../state/AuthProvider";
 import { colorOf, parseInput, neighborsEU, WHEEL_EU, wheelStepEU } from "./lib/roulette";
