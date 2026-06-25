@@ -193,16 +193,37 @@ export default function Page() {
 
   function triggerEaster99() {
     if (typeof window === "undefined") return;
-    // Tocar o áudio da Kombi
-    const audio = new Audio("https://www.myinstants.com/media/sounds/cala-a-boca-e-escuta-o-som-da-minha-kombi-ai-2767.mp3");
-    audio.play().catch(e => console.error("Erro ao tocar áudio da Kombi:", e));
+    
+    // Tentar tocar o áudio usando uma URL alternativa se necessário
+    const audioUrl = "https://www.myinstants.com/media/sounds/cala-a-boca-e-escuta-o-som-da-minha-kombi-ai-2767.mp3";
+    const audio = new Audio(audioUrl);
+    audio.volume = 1.0;
+    
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.error("Erro ao tocar áudio da Kombi:", error);
+        // Fallback: Tentar falar se o áudio falhar
+        const msg = new SpeechSynthesisUtterance("Cala a boca e escuta o som da minha kombi aí");
+        msg.lang = 'pt-BR';
+        window.speechSynthesis.speak(msg);
+      });
+    }
     
     setShowEaster99(true);
-    window.setTimeout(() => setShowEaster99(false), 5000); // Aumentado para o tempo do áudio
+    window.setTimeout(() => setShowEaster99(false), 6000);
   }
 
+  // Reforçar a detecção do 99
+  const lastHistoryLength = useRef(history.length);
   useEffect(() => {
-    if (history.length > 0 && history[0] === 99) triggerEaster99();
+    if (history.length > lastHistoryLength.current) {
+      if (history[0] === 99) {
+        triggerEaster99();
+      }
+    }
+    lastHistoryLength.current = history.length;
+  }, [history]);
     
     // Sincronizar histórico com outras janelas
     localStorage.setItem("roulette_history", JSON.stringify(history));
