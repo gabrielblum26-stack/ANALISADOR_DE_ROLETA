@@ -417,7 +417,7 @@ export default function Page() {
     const styles: Record<number, { backgroundColor: string; boxShadow: string; color: string; border?: string }> = {};
     if (!selectedY || history.length === 0) return styles;
     const lastNum = history[0];
-    const steps = wheelStepEU(lastNum, selectedY);
+    const steps = wheelStepEU(lastNum, Number(selectedY));
     steps.forEach(s => {
       const target = WHEEL_EU[(WHEEL_EU.indexOf(lastNum) + s + 37) % 37];
       styles[target] = { 
