@@ -293,27 +293,27 @@ export default function HotHistoryAnalysis({
             HISTÓRICO ({history.length})
           </span>
           
-          {/* ALERT MODE SELECTOR */}
-          <div style={{ display: "flex", gap: "10px", marginLeft: "10px" }}>
+          {/* ALERT & SOUND SELECTORS */}
+          <div style={{ display: "flex", gap: "6px", marginLeft: "8px", flexWrap: "nowrap" }}>
             <div style={{ 
               display: "flex", 
               background: "#000", 
-              borderRadius: "6px", 
-              padding: "2px",
+              borderRadius: "5px", 
+              padding: "1px",
               border: "1px solid #333"
             }}>
-              {(["OFF", "FOCO", "GLOBAL"] as AlertMode[]).map((mode) => (
+              {(["OFF", "FOCO", "GLB"] as any[]).map((mode) => (
                 <button
                   key={mode}
-                  onClick={() => setAlertMode(mode)}
+                  onClick={() => setAlertMode(mode === "GLB" ? "GLOBAL" : mode as AlertMode)}
                   style={{
-                    padding: "4px 8px",
-                    fontSize: "9px",
+                    padding: "3px 6px",
+                    fontSize: "8px",
                     fontWeight: "bold",
-                    background: alertMode === mode ? (mode === "OFF" ? "#ff4b4b" : "#4a90e2") : "transparent",
-                    color: alertMode === mode ? "#fff" : "#666",
+                    background: (alertMode === mode || (mode === "GLB" && alertMode === "GLOBAL")) ? (mode === "OFF" ? "#ff4b4b" : "#4a90e2") : "transparent",
+                    color: (alertMode === mode || (mode === "GLB" && alertMode === "GLOBAL")) ? "#fff" : "#555",
                     border: "none",
-                    borderRadius: "4px",
+                    borderRadius: "3px",
                     cursor: "pointer",
                     transition: "all 0.2s"
                   }}
@@ -323,31 +323,30 @@ export default function HotHistoryAnalysis({
               ))}
             </div>
 
-            {/* SOUND MODE SELECTOR */}
             <div style={{ 
               display: "flex", 
               background: "#000", 
-              borderRadius: "6px", 
-              padding: "2px",
+              borderRadius: "5px", 
+              padding: "1px",
               border: "1px solid #333"
             }}>
-              {(["VOZ", "RAPAZ", "FAAAH"] as SoundMode[]).map((mode) => (
+              {(["VOZ", "RPZ", "FAH"] as any[]).map((mode) => (
                 <button
                   key={mode}
-                  onClick={() => setSoundMode(mode)}
+                  onClick={() => setSoundMode(mode === "RPZ" ? "RAPAZ" : mode === "FAH" ? "FAAAH" : "VOZ")}
                   style={{
-                    padding: "4px 8px",
-                    fontSize: "9px",
+                    padding: "3px 6px",
+                    fontSize: "8px",
                     fontWeight: "bold",
-                    background: soundMode === mode ? "#ffd000" : "transparent",
-                    color: soundMode === mode ? "#000" : "#666",
+                    background: (soundMode === (mode === "RPZ" ? "RAPAZ" : mode === "FAH" ? "FAAAH" : "VOZ")) ? "#ffd000" : "transparent",
+                    color: (soundMode === (mode === "RPZ" ? "RAPAZ" : mode === "FAH" ? "FAAAH" : "VOZ")) ? "#000" : "#555",
                     border: "none",
-                    borderRadius: "4px",
+                    borderRadius: "3px",
                     cursor: "pointer",
                     transition: "all 0.2s"
                   }}
                 >
-                  {mode === "RAPAZ" ? "🐀 RAPAZ" : mode === "FAAAH" ? "😮 FAAAH" : "🗣️ VOZ"}
+                  {mode}
                 </button>
               ))}
             </div>
