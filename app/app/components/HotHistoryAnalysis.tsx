@@ -157,10 +157,13 @@ export default function HotHistoryAnalysis({
     const triggerAlert = (msgText: string, alertData: Omit<AlertData, "id">, patternKey: string) => {
       if (lastSpokenPattern.current === patternKey) return;
       
+      // Cancelar falas anteriores para não acumular
+      window.speechSynthesis.cancel();
+      
       // Alerta de Voz
       const msg = new SpeechSynthesisUtterance(`Atenção! ${msgText}`);
       msg.lang = 'pt-BR';
-      msg.rate = 1.1;
+      msg.rate = 1.2; // Um pouco mais rápido para ser ágil
       window.speechSynthesis.speak(msg);
       
       // Alerta Visual
