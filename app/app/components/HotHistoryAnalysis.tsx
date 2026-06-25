@@ -53,6 +53,9 @@ export default function HotHistoryAnalysis({
   
   type AlertMode = "OFF" | "FOCO" | "GLOBAL";
   const [alertMode, setAlertMode] = useState<AlertMode>("FOCO");
+  
+  type SoundMode = "VOZ" | "RAPAZ";
+  const [soundMode, setSoundMode] = useState<SoundMode>("VOZ");
 
   type AlertData = {
     id: string;
@@ -65,18 +68,23 @@ export default function HotHistoryAnalysis({
 
   const [alerts, setAlerts] = useState<AlertData[]>([]);
 
-  // Carregar preferência de alertas
+  // Carregar preferência de alertas e som
   useEffect(() => {
-    const saved = localStorage.getItem("roulette_alert_mode") as AlertMode;
-    if (saved && ["OFF", "FOCO", "GLOBAL"].includes(saved)) {
-      setAlertMode(saved);
+    const savedMode = localStorage.getItem("roulette_alert_mode") as AlertMode;
+    if (savedMode && ["OFF", "FOCO", "GLOBAL"].includes(savedMode)) {
+      setAlertMode(savedMode);
+    }
+    const savedSound = localStorage.getItem("roulette_sound_mode") as SoundMode;
+    if (savedSound && ["VOZ", "RAPAZ"].includes(savedSound)) {
+      setSoundMode(savedSound);
     }
   }, []);
 
-  // Salvar preferência de alertas
+  // Salvar preferência de alertas e som
   useEffect(() => {
     localStorage.setItem("roulette_alert_mode", alertMode);
-  }, [alertMode]);
+    localStorage.setItem("roulette_sound_mode", soundMode);
+  }, [alertMode, soundMode]);
 
   // Limpar alertas quando o histórico mudar (nova rodada)
   useEffect(() => {
@@ -157,14 +165,18 @@ export default function HotHistoryAnalysis({
     const triggerAlert = (msgText: string, alertData: Omit<AlertData, "id">, patternKey: string) => {
       if (lastSpokenPattern.current === patternKey) return;
       
-      // Cancelar falas anteriores para não acumular
-      window.speechSynthesis.cancel();
-      
-      // Alerta de Voz
-      const msg = new SpeechSynthesisUtterance(`Atenção! ${msgText}`);
-      msg.lang = 'pt-BR';
-      msg.rate = 1.2; // Um pouco mais rápido para ser ágil
-      window.speechSynthesis.speak(msg);
+      if (soundMode === "VOZ") {
+        // Cancelar falas anteriores para não acumular
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(`Atenção! ${msgText}`);
+        msg.lang = 'pt-BR';
+        msg.rate = 1.2;
+        window.speechSynthesis.speak(msg);
+      } else {
+        // Modo RAPAZ (Xaropinho)
+        const audio = new Audio("https://www.myinstants.com/media/sounds/xaropinho-rapaz.mp3");
+        audio.play().catch(e => console.error("Erro ao tocar áudio:", e));
+      }
       
       // Alerta Visual
       addAlert(alertData);
@@ -268,33 +280,63 @@ export default function HotHistoryAnalysis({
           </span>
           
           {/* ALERT MODE SELECTOR */}
-          <div style={{ 
-            display: "flex", 
-            background: "#000", 
-            borderRadius: "6px", 
-            padding: "2px",
-            border: "1px solid #333",
-            marginLeft: "10px"
-          }}>
-            {(["OFF", "FOCO", "GLOBAL"] as AlertMode[]).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setAlertMode(mode)}
-                style={{
-                  padding: "4px 8px",
-                  fontSize: "9px",
-                  fontWeight: "bold",
-                  background: alertMode === mode ? (mode === "OFF" ? "#ff4b4b" : "#4a90e2") : "transparent",
-                  color: alertMode === mode ? "#fff" : "#666",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  transition: "all 0.2s"
-                }}
-              >
-                {mode}
-              </button>
-            ))}
+          <div style={{ display: "flex", gap: "10px", marginLeft: "10px" }}>
+            <div style={{ 
+              display: "flex", 
+              background: "#000", 
+              borderRadius: "6px", 
+              padding: "2px",
+              border: "1px solid #333"
+            }}>
+              {(["OFF", "FOCO", "GLOBAL"] as AlertMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setAlertMode(mode)}
+                  style={{
+                    padding: "4px 8px",
+                    fontSize: "9px",
+                    fontWeight: "bold",
+                    background: alertMode === mode ? (mode === "OFF" ? "#ff4b4b" : "#4a90e2") : "transparent",
+                    color: alertMode === mode ? "#fff" : "#666",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+
+            {/* SOUND MODE SELECTOR */}
+            <div style={{ 
+              display: "flex", 
+              background: "#000", 
+              borderRadius: "6px", 
+              padding: "2px",
+              border: "1px solid #333"
+            }}>
+              {(["VOZ", "RAPAZ"] as SoundMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setSoundMode(mode)}
+                  style={{
+                    padding: "4px 8px",
+                    fontSize: "9px",
+                    fontWeight: "bold",
+                    background: soundMode === mode ? "#ffd000" : "transparent",
+                    color: soundMode === mode ? "#000" : "#666",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  {mode === "RAPAZ" ? "🐀 RAPAAAZ" : "🗣️ VOZ"}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
