@@ -193,11 +193,12 @@ export default function Page() {
 
   function triggerEaster99() {
     if (typeof window === "undefined") return;
-    const key = "easter99Seen";
-    if (window.localStorage.getItem(key) === "1") return;
-    window.localStorage.setItem(key, "1");
+    // Tocar o áudio da Kombi
+    const audio = new Audio("https://www.myinstants.com/media/sounds/cala-a-boca-e-escuta-o-som-da-minha-kombi-ai-2767.mp3");
+    audio.play().catch(e => console.error("Erro ao tocar áudio da Kombi:", e));
+    
     setShowEaster99(true);
-    window.setTimeout(() => setShowEaster99(false), 2600);
+    window.setTimeout(() => setShowEaster99(false), 5000); // Aumentado para o tempo do áudio
   }
 
   useEffect(() => {
