@@ -30,7 +30,7 @@ export function parseInput(raw: string): number[] {
     .map(s => s.trim())
     .filter(Boolean)
     .map(s => Number(s))
-    .filter(n => Number.isInteger(n) && n >= 0 && n <= 36);
+    .filter(n => Number.isInteger(n) && n >= 0 && (n <= 36 || n === 99));
 }
 
 export type Classif = {
