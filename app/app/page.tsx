@@ -417,16 +417,15 @@ export default function Page() {
     const styles: Record<number, { backgroundColor: string; boxShadow: string; color: string; border?: string }> = {};
     if (!selectedY || history.length === 0) return styles;
     const lastNum = history[0];
-    const steps = wheelStepEU(lastNum, Number(selectedY));
-    steps.forEach(s => {
-      const target = WHEEL_EU[(WHEEL_EU.indexOf(lastNum) + s + 37) % 37];
-      styles[target] = { 
-        backgroundColor: "#a855f7", 
-        boxShadow: "0 0 20px #a855f7",
-        color: "#fff",
-        border: "2px solid #fff"
-      };
-    });
+    const step = wheelStepEU(lastNum, Number(selectedY));
+    const targetIdx = (WHEEL_EU.indexOf(lastNum) + step + 37) % 37;
+    const target = WHEEL_EU[targetIdx];
+    styles[target] = { 
+      backgroundColor: "#a855f7", 
+      boxShadow: "0 0 20px #a855f7",
+      color: "#fff",
+      border: "2px solid #fff"
+    };
     return styles;
   }, [history, selectedY]);
 
