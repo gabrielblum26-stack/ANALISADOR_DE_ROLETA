@@ -55,7 +55,7 @@ export default function HotHistoryAnalysis({
   const [alertMode, setAlertMode] = useState<AlertMode>("FOCO");
   
   type SoundMode = "VOZ" | "RAPAZ";
-  const [soundMode, setSoundMode] = useState<SoundMode>("VOZ");
+  const [soundMode, setSoundMode] = useState<SoundMode>("RAPAZ");
 
   type AlertData = {
     id: string;
@@ -77,6 +77,8 @@ export default function HotHistoryAnalysis({
     const savedSound = localStorage.getItem("roulette_sound_mode") as SoundMode;
     if (savedSound && ["VOZ", "RAPAZ"].includes(savedSound)) {
       setSoundMode(savedSound);
+    } else {
+      setSoundMode("RAPAZ"); // Padrão é RAPAZ se não houver salvo
     }
   }, []);
 
@@ -108,6 +110,8 @@ export default function HotHistoryAnalysis({
   const terminalAnalysis = useMemo(() => {
     return analyzeTerminalPatterns(history, terminalPatternLength, terminalMinReps);
   }, [history, terminalPatternLength, terminalMinReps]);
+
+  const lastAudioPlayedRound = useRef<number>(-1);
 
   const handleMarkTerminal = (terminal: number) => {
     const nums = TERMINAL_NUMBERS[terminal];
@@ -173,9 +177,12 @@ export default function HotHistoryAnalysis({
         msg.rate = 1.2;
         window.speechSynthesis.speak(msg);
       } else {
-        // Modo RAPAZ (Xaropinho)
-        const audio = new Audio("https://www.myinstants.com/media/sounds/xaropinho-rapaz.mp3");
-        audio.play().catch(e => console.error("Erro ao tocar áudio:", e));
+        // Modo RAPAZ (Xaropinho) - Tocar apenas uma vez por rodada
+        if (lastAudioPlayedRound.current !== history.length) {
+          const audio = new Audio("https://www.myinstants.com/media/sounds/xaropinho-rapaz.mp3");
+          audio.play().catch(e => console.error("Erro ao tocar áudio:", e));
+          lastAudioPlayedRound.current = history.length;
+        }
       }
       
       // Alerta Visual
