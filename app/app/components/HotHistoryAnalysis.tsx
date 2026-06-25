@@ -54,7 +54,7 @@ export default function HotHistoryAnalysis({
   type AlertMode = "OFF" | "FOCO" | "GLOBAL";
   const [alertMode, setAlertMode] = useState<AlertMode>("FOCO");
   
-  type SoundMode = "VOZ" | "RAPAZ";
+  type SoundMode = "VOZ" | "RAPAZ" | "FAAAH";
   const [soundMode, setSoundMode] = useState<SoundMode>("RAPAZ");
 
   type AlertData = {
@@ -75,7 +75,7 @@ export default function HotHistoryAnalysis({
       setAlertMode(savedMode);
     }
     const savedSound = localStorage.getItem("roulette_sound_mode") as SoundMode;
-    if (savedSound && ["VOZ", "RAPAZ"].includes(savedSound)) {
+    if (savedSound && ["VOZ", "RAPAZ", "FAAAH"].includes(savedSound)) {
       setSoundMode(savedSound);
     } else {
       setSoundMode("RAPAZ"); // Padrão é RAPAZ se não houver salvo
@@ -176,10 +176,17 @@ export default function HotHistoryAnalysis({
         msg.lang = 'pt-BR';
         msg.rate = 1.2;
         window.speechSynthesis.speak(msg);
-      } else {
-        // Modo RAPAZ (Xaropinho) - Tocar apenas uma vez por rodada
-        if (lastAudioPlayedRound.current !== history.length) {
-          const audio = new Audio("https://www.myinstants.com/media/sounds/xaropinho-rapaz.mp3");
+      } else if (lastAudioPlayedRound.current !== history.length) {
+        // Tocar apenas uma vez por rodada para efeitos sonoros
+        let audioUrl = "";
+        if (soundMode === "RAPAZ") {
+          audioUrl = "https://www.myinstants.com/media/sounds/xaropinho-rapaz.mp3";
+        } else if (soundMode === "FAAAH") {
+          audioUrl = "https://www.myinstants.com/media/sounds/faaah.mp3";
+        }
+
+        if (audioUrl) {
+          const audio = new Audio(audioUrl);
           audio.play().catch(e => console.error("Erro ao tocar áudio:", e));
           lastAudioPlayedRound.current = history.length;
         }
@@ -324,7 +331,7 @@ export default function HotHistoryAnalysis({
               padding: "2px",
               border: "1px solid #333"
             }}>
-              {(["VOZ", "RAPAZ"] as SoundMode[]).map((mode) => (
+              {(["VOZ", "RAPAZ", "FAAAH"] as SoundMode[]).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setSoundMode(mode)}
@@ -340,7 +347,7 @@ export default function HotHistoryAnalysis({
                     transition: "all 0.2s"
                   }}
                 >
-                  {mode === "RAPAZ" ? "🐀 RAPAAAZ" : "🗣️ VOZ"}
+                  {mode === "RAPAZ" ? "🐀 RAPAZ" : mode === "FAAAH" ? "😮 FAAAH" : "🗣️ VOZ"}
                 </button>
               ))}
             </div>
