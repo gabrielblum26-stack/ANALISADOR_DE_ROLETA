@@ -32,13 +32,6 @@ export default function Page() {
     }
   }, [user, authLoading, router]);
 
-  if (authLoading || !user) {
-    return (
-      <div style={{ background: "#121212", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffd000", fontWeight: "bold" }}>
-        CARREGANDO...
-      </div>
-    );
-  }
   const [history, setHistory] = useState<number[]>([]);
   const [sel, setSel] = useState(initSel());
   const [selMode, setSelMode] = useState<SelMode>("neighbors");
@@ -81,7 +74,6 @@ export default function Page() {
           setSelectedY(event.data.selectedY);
         }
       } else if (event.data.type === 'RACETRACK_CLICK' || event.data.type === 'MAPA_CLICK') {
-        // Processar cliques vindos das páginas expandidas
         const n = event.data.number;
         if (n !== undefined) {
           setSel((prev) => applyClick(prev, n, selMode, markingMode));
@@ -129,9 +121,7 @@ export default function Page() {
             const data = await res.json();
             if (data.numbers && data.numbers.length > 0) {
               const newNumbers = data.numbers.map(Number);
-              // Só atualiza se o número mais recente for diferente do que já temos
               if (history.length === 0 || newNumbers[0] !== history[0]) {
-                // Sincroniza o histórico inteiro (limitado a LONG_N)
                 setHistory(newNumbers.slice(0, LONG_N));
               }
             }
@@ -141,8 +131,8 @@ export default function Page() {
         }
       };
 
-      fetchNumbers(); // Busca imediata
-      interval = setInterval(fetchNumbers, 300); // Polling a cada 300ms
+      fetchNumbers();
+      interval = setInterval(fetchNumbers, 300);
     }
     return () => clearInterval(interval);
   }, [isAutoActive, automationId, history]);
@@ -162,13 +152,9 @@ export default function Page() {
     if (!confirm("Deseja realmente LIMPAR o histórico no sistema e no banco de dados?")) return;
 
     try {
-      // 1. Limpa no Banco de Dados via Backend
       await fetch(`https://padrao-fifa-backend.vercel.app/clear/${automationId}`, { method: 'POST' });
-      
-      // 2. Limpa no Sistema Local
       setHistory([]);
       setIsAutoActive(false);
-      
       alert("Sistema e Banco de Dados limpos com sucesso!");
     } catch (err) {
       console.error("Erro ao limpar:", err);
@@ -176,7 +162,6 @@ export default function Page() {
     }
   };
 
-  // Estados para minimizar blocos
   const [minimized, setMinimized] = useState({
     history: false,
     neighbors: false,
@@ -193,8 +178,6 @@ export default function Page() {
 
   function triggerEaster99() {
     if (typeof window === "undefined") return;
-    
-    // Tentar tocar o áudio usando uma URL alternativa se necessário
     const audioUrl = "https://www.myinstants.com/media/sounds/cala-a-boca-e-escuta-o-som-da-minha-kombi-ai-2767.mp3";
     const audio = new Audio(audioUrl);
     audio.volume = 1.0;
@@ -203,7 +186,6 @@ export default function Page() {
     if (playPromise !== undefined) {
       playPromise.catch(error => {
         console.error("Erro ao tocar áudio da Kombi:", error);
-        // Fallback: Tentar falar se o áudio falhar
         const msg = new SpeechSynthesisUtterance("Cala a boca e escuta o som da minha kombi aí");
         msg.lang = 'pt-BR';
         window.speechSynthesis.speak(msg);
@@ -214,10 +196,7 @@ export default function Page() {
     window.setTimeout(() => setShowEaster99(false), 6000);
   }
 
-  // Reforçar a detecção do 99
-  const lastHistoryLength = useRef(history.length);
   useEffect(() => {
-    // Sincronizar histórico com outras janelas
     localStorage.setItem("roulette_history", JSON.stringify(history));
     const bc = new BroadcastChannel("roulette_history_sync");
     bc.postMessage({ type: "UPDATE_HISTORY", value: history });
@@ -225,7 +204,6 @@ export default function Page() {
   }, [history]);
 
   useEffect(() => {
-    // Escutar comandos vindos das janelas Keyboard ou Estratégias
     const bc = new BroadcastChannel("roulette_keyboard");
     bc.onmessage = (event) => {
       if (event.data.type === "ADD_NUMBER") {
@@ -248,22 +226,13 @@ export default function Page() {
     const height = 600;
     const left = window.screen.width - width - 50;
     const top = 100;
-    
-    window.open(
-      "/keyboard",
-      "RouletteKeyboard",
-      `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes`
-    );
+    window.open("/keyboard", "RouletteKeyboard", `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes`);
   };
 
   const openPopup = (url: string, title: string, w = 600, h = 700) => {
     const left = (window.screen.width / 2) - (w / 2);
     const top = (window.screen.height / 2) - (h / 2);
-    window.open(
-      url,
-      title,
-      `width=${w},height=${h},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes`
-    );
+    window.open(url, title, `width=${w},height=${h},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes`);
   };
 
   const openStrategies = () => openPopup("/estrategias", "RouletteStrategies");
@@ -274,13 +243,8 @@ export default function Page() {
   const openTecladoPopup = () => openPopup("/teclado_full", "RouletteKeyboard", 800, 400);
   const openFifaCopaPopup = () => openPopup("/fifa-copa", "RouletteFifaCopa", 600, 700);
 
-  const open777Config = () => {
-    setIsConfigModalOpen(true);
-  };
-
-  const openUtilidades = () => {
-    router.push("/utilidades");
-  };
+  const open777Config = () => setIsConfigModalOpen(true);
+  const openUtilidades = () => router.push("/utilidades");
 
   const handleConfigPasswordSubmit = () => {
     if (configPassword === "6431") {
@@ -345,7 +309,6 @@ export default function Page() {
   function onSendInverted() {
     const nums = parseInput(raw);
     if (nums.length > 0) {
-      // Inverte a ordem dos números
       const invertedNums = nums.reverse();
       invertedNums.forEach(addNumber);
       setRaw("");
@@ -391,12 +354,9 @@ export default function Page() {
     });
   }
 
-  
-  // Lógica de Números Mesclados (Convergência Máxima)
   const mergedNumbers = useMemo(() => {
     const counts: Record<number, number> = {};
     let maxCount = 0;
-
     for (let n = 0; n <= 36; n++) {
       const count = getNumberColors(sel, n).length;
       if (count > 0) {
@@ -404,13 +364,10 @@ export default function Page() {
         if (count > maxCount) maxCount = count;
       }
     }
-
     if (maxCount <= 1) return { numbers: [], maxCount: 0 };
-
     const result = Object.entries(counts)
       .filter(([_, count]) => count === maxCount)
       .map(([n, _]) => parseInt(n));
-
     return { numbers: result, maxCount };
   }, [sel]);
 
@@ -419,14 +376,11 @@ export default function Page() {
 
   const getCellStyles = (n: number) => {
     const colors = getNumberColors(sel, n);
-    
-    // Filtro de intersecção
     if (strategyMode === "intersection" && mergedNumbers.maxCount > 1) {
       if (colors.length < mergedNumbers.maxCount) {
         return { opacity: 0.1, pointerEvents: 'none' as const, transition: 'all 0.3s' };
       }
     }
-
     if (colors.length === 0) return {};
     if (colors.length === 1) return { backgroundColor: colors[0], boxShadow: `0 0 15px ${colors[0]}88` };
     const step = 100 / colors.length;
@@ -437,7 +391,6 @@ export default function Page() {
     };
   };
 
-  // Cores para os botões X selecionados (Sincronizado com MovementPanel)
   const X_COLORS = [
     "#3b82f6", "#ef4444", "#22c55e", "#eab308", "#a855f7", "#ec4899", 
     "#06b6d4", "#f97316", "#8b5cf6", "#14b8a6", "#f43f5e", "#84cc16",
@@ -447,630 +400,212 @@ export default function Page() {
   const xHighlightStyles = useMemo(() => {
     const styles: Record<number, { backgroundColor: string; boxShadow: string; color: string; border?: string }> = {};
     if (history.length === 0 || selectedX.length === 0) return styles;
-    
     const lastNum = history[0];
-    // Processamos na ordem inversa para que o X mais recente (último do array) tenha prioridade de cor se houver sobreposição
-    [...selectedX].reverse().forEach((x) => {
-      const color = X_COLORS[(x - 1) % X_COLORS.length];
-      const steps = x + 1;
-      const h = wheelStepEU(lastNum, steps);
-      const ah = wheelStepEU(lastNum, -steps);
-      
-      const style = { 
-        backgroundColor: color, 
-        boxShadow: `0 0 15px ${color}`,
+    selectedX.forEach((dist, i) => {
+      const target = WHEEL_EU[(WHEEL_EU.indexOf(lastNum) + dist + 37) % 37];
+      styles[target] = { 
+        backgroundColor: X_COLORS[i % X_COLORS.length], 
+        boxShadow: `0 0 20px ${X_COLORS[i % X_COLORS.length]}`,
         color: "#fff",
-        border: "2px solid #fff",
-        zIndex: 10
+        border: "2px solid #fff"
       };
-      
-      // Se houver múltiplos X selecionados, o número atual pode acabar recebendo a cor do último X processado (o primeiro do array original).
-      // No entanto, como usamos reverse(), o X mais recente (último clicado) terá a prioridade final no objeto styles.
-      styles[h] = style;
-      styles[ah] = style;
-      styles[lastNum] = style;
     });
     return styles;
-  }, [selectedX, history]);
+  }, [history, selectedX]);
 
-	  const getTextColor = (n: number, styles: React.CSSProperties) => {
-	    const bg = styles.backgroundColor as string;
-	    if (!bg) return "#fff";
-	    const lightColors = ["#ffffff", "white", "#ffd000", "#facc15", "#ffcc00", "var(--selC2)", "var(--selC9)", "var(--selC11)"];
-	    if (lightColors.includes(bg.toLowerCase())) return "#000";
-	    return "#fff";
-	  };
-
-  const getEnhancedCellStyles = (n: number) => {
-    const xStyle = xHighlightStyles[n];
-    if (xStyle) return xStyle;
-
-    // Lógica para VALORES Y SELECIONADOS
-    if (selectedY && history.length > 0) {
-      const lastNum = history[0];
-      
-      if (selectedY === 'atual-vizinhos') {
-        const { prev, next } = neighborsEU(lastNum);
-        if (n === lastNum || n === prev || n === next) {
-          return {
-            backgroundColor: "#3b82f6",
-            boxShadow: `0 0 15px #3b82f6`,
-            color: "#fff",
-            border: "2px solid #fff",
-            zIndex: 10
-          };
-        }
-      } else {
-        const [start, end] = selectedY.split('-').map(Number);
-        let yColor = "#ffd000"; // Default amarelo
-        if (selectedY === '6-12') yColor = "#ef4444";
-        if (selectedY === '13-18') yColor = "#22c55e";
-
-        for (let y = start; y <= end; y++) {
-          const steps = y + 1;
-          if (n === wheelStepEU(lastNum, steps) || n === wheelStepEU(lastNum, -steps) || (y === 0 && n === lastNum)) {
-            return {
-              backgroundColor: yColor,
-              boxShadow: `0 0 15px ${yColor}`,
-              color: yColor === "#ffd000" ? "#000" : "#fff",
-              border: "2px solid #fff",
-              zIndex: 10
-            };
-          }
-        }
-      }
-    }
-    
-    // Adicionar destaque da HEAnalysis (Marcação FIFA COPA)
-    if (highlightedNumbers.includes(n)) {
-      return {
-        backgroundColor: "#ffd000",
-        boxShadow: "0 0 15px #ffd000",
-        color: "#000",
-        border: "2px solid #fff",
-        zIndex: 10
+  const yHighlightStyles = useMemo(() => {
+    const styles: Record<number, { backgroundColor: string; boxShadow: string; color: string; border?: string }> = {};
+    if (!selectedY || history.length === 0) return styles;
+    const lastNum = history[0];
+    const steps = wheelStepEU(lastNum, selectedY);
+    steps.forEach(s => {
+      const target = WHEEL_EU[(WHEEL_EU.indexOf(lastNum) + s + 37) % 37];
+      styles[target] = { 
+        backgroundColor: "#a855f7", 
+        boxShadow: "0 0 20px #a855f7",
+        color: "#fff",
+        border: "2px solid #fff"
       };
-    }
-    
-    return getCellStyles(n);
-  };
+    });
+    return styles;
+  }, [history, selectedY]);
 
-  const topZonePattern = useMemo(() => {
-    if (history.length === 0) return null;
-    const last = history[0];
-    const count = history.filter((x) => x === last).length;
-    return {
-      xExample: last,
-      count,
-      triggerKind: "T" as const,
-      triggerLabel: `Terminal ${last % 10}`,
-      triggerMembers: [],
-      zones9: [last],
-    };
-  }, [history]);
-
-  const calcDist = useMemo(() => {
-    if (distN1 === null || distN2 === null) return null;
-    
-    const idx1 = WHEEL_EU.indexOf(distN1);
-    const idx2 = WHEEL_EU.indexOf(distN2);
-    const L = WHEEL_EU.length;
-    
-    const h = (idx2 - idx1 + L) % L;
-    const ah = (idx1 - idx2 + L) % L;
-    
-    return { h, ah };
-  }, [distN1, distN2]);
+  if (authLoading || !user) {
+    return (
+      <div style={{ background: "#121212", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffd000", fontWeight: "bold" }}>
+        CARREGANDO...
+      </div>
+    );
+  }
 
   return (
-    <div className="app">
+    <main style={{ background: "#000", minHeight: "100vh", color: "#fff", padding: "10px", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       {showEaster99 && (
-        <div className="easterOverlay" onClick={() => setShowEaster99(false)}>
-          <img src="/easter-99.gif" alt="Easter 99" />
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+          background: "rgba(0,0,0,0.9)", zIndex: 9999, display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center", textAlign: "center", padding: "20px"
+        }}>
+          <h1 style={{ color: "#ffd000", fontSize: "40px", fontWeight: "900", marginBottom: "20px", textShadow: "0 0 20px #ffd000" }}>
+            🚐 CALA A BOCA E ESCUTA O SOM DA MINHA KOMBI AÍ!
+          </h1>
+          <div style={{ fontSize: "100px" }}>🚐💨💨💨</div>
         </div>
       )}
-      
-      <div className="panel topbar">
-        <div className="topbarLine">
-          {/* GRUPO 1: ENTRADA E ENVIO */}
-          <div className="inputWrap">
-            <input
-              type="text"
-              placeholder="Ex: 1 24 36 ou 1,24,36"
-              value={raw}
-              onChange={(e) => setRaw(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  onSend();
-                }
-              }}
-            />
-          </div>
-          <div style={{ display: 'flex', gap: '8px', paddingRight: '15px', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
-            <button className="btn btn-send" onClick={onSend}>ENVIAR</button>
-            <button className="btn btn-send" onClick={onSendInverted} style={{ background: "#ef4444", color: "#fff" }}>INVERTER E ENVIAR</button>
-            <button className="btn btn-undo" onClick={onUndoLast}>APAGAR</button>
-          </div>
-          
-          {/* GRUPO 2: AUTOMAÇÃO */}
-          <div style={{ display: 'flex', gap: '8px', padding: '0 15px', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
-            <button 
-              className="btn" 
-              onClick={() => setIsAutoModalOpen(true)} 
-              style={{ 
-                background: isAutoActive ? "#22c55e" : "#333", 
-                color: "#fff",
-                border: isAutoActive ? "1px solid #4ade80" : "1px solid #444",
-                minWidth: '140px'
-              }}
-            >
-              {isAutoActive ? "🟢 AUTOMATIZADO" : "🤖 AUTOMATIZAR"}
-            </button>
-          </div>
 
-          {/* GRUPO 3: FERRAMENTAS */}
-          <div style={{ display: 'flex', gap: '8px', paddingLeft: '15px' }}>
-            <button className="btn btn-reset" onClick={onResetAll}>RESET TOTAL</button>
-            <button className="btn btn-config" onClick={open777Config} style={{ background: "#f97316", color: "#fff" }}>
-              ⚙️ CONFIG
-            </button>
-            <button className="btn btn-utilidades" onClick={openUtilidades} style={{ background: "#ec4899", color: "#fff" }}>
-              🛠️ UTILIDADES
-            </button>
-          </div>
-        </div>
+      <div style={{ maxWidth: "1400px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 400px", gap: "10px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "15px", border: "1px solid #333" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <h2 style={{ color: "#ffd000", fontWeight: "900", fontSize: "18px", margin: 0 }}>ROULETTE PRO</h2>
+                <div style={{ background: "#333", padding: "4px 10px", borderRadius: "20px", fontSize: "12px", color: "#aaa" }}>
+                  {isAutoActive ? `AUTOMAÇÃO ATIVA: ${automationId}` : "MODO MANUAL"}
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button onClick={() => setIsAutoModalOpen(true)} style={{ background: "#333", border: "none", color: "#fff", padding: "8px 15px", borderRadius: "8px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}>
+                  CONECTAR
+                </button>
+                <button onClick={openUtilidades} style={{ background: "#4a90e2", border: "none", color: "#fff", padding: "8px 15px", borderRadius: "8px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}>
+                  UTILIDADES
+                </button>
+                <button onClick={open777Config} style={{ background: "#333", border: "none", color: "#fff", padding: "8px 15px", borderRadius: "8px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}>
+                  ⚙️
+                </button>
+              </div>
+            </div>
 
-        <div className="topbarLine secondary">
-          <button className="btn btn-colors" onClick={onResetColors} style={{ background: "#3b82f6", color: "#fff", minWidth: '150px' }}>
-            RESET DE CORES
-          </button>
-          
-          <div className="colorPicker">
-            <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#888' }}>COR ATIVA:</span>
-            {SEL_ORDER.map((_, i) => (
-              <div
-                key={i}
-                className={`colorCircle ${sel.activeColorIndex === i ? "active" : ""}`}
-                style={{ backgroundColor: `var(--selC${i + 1})` }}
-                onClick={() => onColorChange(i)}
+            <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+              <input
+                type="text"
+                value={raw}
+                onChange={(e) => setRaw(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && onSend()}
+                placeholder="Digite os números (ex: 1, 2, 3)"
+                style={{ flex: 1, background: "#000", border: "1px solid #444", borderRadius: "8px", padding: "12px", color: "#fff", fontSize: "14px" }}
               />
-            ))}
-          </div>
+              <button onClick={onSend} style={{ background: "#ffd000", color: "#000", border: "none", borderRadius: "8px", padding: "0 25px", fontWeight: "900", cursor: "pointer" }}>
+                ENVIAR
+              </button>
+              <button onClick={onSendInverted} style={{ background: "#333", color: "#fff", border: "none", borderRadius: "8px", padding: "0 15px", fontWeight: "bold", cursor: "pointer", fontSize: "12px" }}>
+                INV
+              </button>
+              <button onClick={onUndoLast} style={{ background: "#333", color: "#fff", border: "none", borderRadius: "8px", padding: "0 15px", fontWeight: "bold", cursor: "pointer" }}>
+                ↩
+              </button>
+              <button onClick={onResetAll} style={{ background: "#ff4b4b", color: "#fff", border: "none", borderRadius: "8px", padding: "0 15px", fontWeight: "bold", cursor: "pointer" }}>
+                LIMPAR
+              </button>
+            </div>
 
-          <div className="modeSelectWrap">
-            <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#888' }}>MODO</span>
-            <select 
-              className="modeSelect"
-              value={selMode}
-              onChange={(e) => setSelMode(e.target.value as SelMode)}
-            >
-              <option value="neighbors">1 — Vizinhos</option>
-              <option value="unique">2 — Único</option>
-            </select>
-          </div>
-
-          <div className="markingModeWrap">
-            <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#888' }}>MARCACAO</span>
-            <button 
-              className={`markingModeBtn ${markingMode === "unique" ? "active" : ""}`}
-              onClick={() => setMarkingMode("unique")}
-            >
-              UNICA
-            </button>
-            <button 
-              className={`markingModeBtn ${markingMode === "cumulative" ? "active" : ""}`}
-              onClick={() => setMarkingMode("cumulative")}
-            >
-              ACUMULADA
-            </button>
-          </div>
-
-          <div className="modeSelectWrap" style={{ marginLeft: '15px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '15px' }}>
-            <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#ffd000' }}>MODO ESTRATÉGIAS</span>
-            <select 
-              className="modeSelect"
-              value={strategyMode}
-              onChange={(e) => setStrategyMode(e.target.value as "total" | "intersection")}
-              style={{ borderColor: '#ffd000', color: '#ffd000' }}
-            >
-              <option value="total">TOTAL</option>
-              <option value="intersection">INTERSECÇÃO</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {mergedNumbers.numbers.length > 0 && (
-        <div className="panel" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '10px 15px' }}>
-            <span style={{ fontWeight: 'bold', color: '#3b82f6', whiteSpace: 'nowrap' }}>
-              MESCLADOS ({mergedNumbers.maxCount} MARCAÇÕES):
-            </span>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {mergedNumbers.numbers.map((n) => (
-                <div
-                  key={n}
-                  className={`chip ${colorOf(n)}`}
-	                  style={{ 
-	                    ...getCellStyles(n), 
-	                    width: '35px', 
-	                    height: '35px', 
-	                    fontSize: '14px', 
-	                    display: 'flex', 
-	                    alignItems: 'center', 
-	                    justifyContent: 'center', 
-	                    borderRadius: '50%', 
-	                    cursor: 'pointer', 
-	                    fontWeight: 'bold', 
-	                    color: getTextColor(n, getCellStyles(n)) 
-	                  }}
-	                  onClick={() => onSelect(n)}
-	                >
-	                  {n}
-	                </div>
+            <div style={{ display: "flex", gap: "10px", overflowX: "auto", paddingBottom: "5px" }}>
+              {history.slice(0, 20).map((n, i) => (
+                <div key={i} style={{
+                  minWidth: "40px", height: "40px", borderRadius: "8px", background: colorOf(n),
+                  display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "900",
+                  fontSize: "16px", border: i === 0 ? "2px solid #fff" : "none",
+                  boxShadow: i === 0 ? "0 0 15px rgba(255,255,255,0.5)" : "none"
+                }}>
+                  {n}
+                </div>
               ))}
             </div>
           </div>
-        </div>
-      )}
 
-      <div className="main">
-        <div className={`panel left ${minimized.history ? "minimized" : ""}`} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div className="panelHeader">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div className="sectionTitle">Histórico (80)</div>
-              <button 
-                onClick={openHistoryPopup}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
-                title="Expandir Histórico"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-              </button>
-            </div>
-            <button className="btn-min" onClick={() => toggleMin("history")}>{minimized.history ? "+" : "−"}</button>
-          </div>
-          {!minimized.history && (
-            <>
-              {/* TAB SELECTOR */}
-              <div style={{
-                display: 'flex',
-                gap: '8px',
-                marginBottom: '10px',
-                borderBottom: '1px solid #333',
-                paddingBottom: '8px'
-              }}>
-                <button
-                  onClick={() => setHistoryTab('tradicional')}
-                  style={{
-                    padding: '6px 12px',
-                    background: historyTab === 'tradicional' ? '#ff6b6b' : '#333',
-                    color: '#fff',
-                    border: '1px solid #555',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    fontSize: '11px',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Histórico
+          <div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "15px", border: "1px solid #333" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+              <div style={{ display: "flex", gap: "15px" }}>
+                <button onClick={() => setSelMode("neighbors")} style={{ background: selMode === "neighbors" ? "#ffd000" : "#333", color: selMode === "neighbors" ? "#000" : "#fff", border: "none", padding: "8px 20px", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }}>
+                  VIZINHOS
                 </button>
-                <button
-                  onClick={() => setHistoryTab('quente')}
-                  style={{
-                    padding: '6px 12px',
-                    background: historyTab === 'quente' ? '#ff6b6b' : '#333',
-                    color: '#fff',
-                    border: '1px solid #555',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    fontSize: '11px',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Histórico Quente
+                <button onClick={() => setSelMode("unique")} style={{ background: selMode === "unique" ? "#ffd000" : "#333", color: selMode === "unique" ? "#000" : "#fff", border: "none", padding: "8px 20px", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }}>
+                  ÚNICO
                 </button>
               </div>
-
-              {/* TRADITIONAL HISTORY TAB */}
-              {historyTab === 'tradicional' && (
-                <>
-                  <div className="longGrid" aria-label="Histórico longo">
-                    {longGridItems.map((n, idx) => {
-                      if (n === null) return <div key={idx} className="longCell empty" />;
-                      return (
-                        <div
-                          key={idx}
-                          className={`longCell ${colorOf(n)} ${disguisedPairIdx.has(idx) ? "historyPair" : ""} ${highlightedHistoryIndices.has(idx) ? "highlightedPattern" : ""}`}
-                          style={{
-                            ...getCellStyles(n),
-                            color: getTextColor(n, getCellStyles(n))
-                          }}
-                          onClick={() => onSelect(n)}
-                          title="Clique para selecionar (não registra)"
-                        >
-                          {n}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="hint">
-                    Entrada só pelo input. Clique em número seleciona N e vizinhos (ou outro modo) com a cor ativa.
-                    A seleção substitui a cor do chip. "RESET DE CORES" limpa as marcações.
-                  </div>
-                </>
-              )}
-
-              {/* HOT HISTORY TAB */}
-              {historyTab === 'quente' && (
-                <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
-                  <HotHistoryAnalysis
-                    history={history}
-                    onMarkNumbers={(nums) => onMarkStrategy(nums)}
-                    onColorChange={onColorChange}
-                    onHighlightPattern={(pattern) => {
-                      const indices = new Set<number>();
-                      // Procurar a sequência no histórico
-                      for (let i = 0; i <= history.length - pattern.length; i++) {
-                        const slice = history.slice(i, i + pattern.length);
-                        if (slice.every((val, index) => val === pattern[index])) {
-                          for (let j = 0; j < pattern.length; j++) indices.add(i + j);
-                        }
-                      }
-                      setHighlightedHistoryIndices(indices);
-                      setHistoryTab('tradicional'); // Volta para o histórico para mostrar o destaque
-                      // Limpar destaque após 3 segundos
-                      setTimeout(() => setHighlightedHistoryIndices(new Set()), 3000);
-                    }}
-                  />
+              <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
+                <div style={{ display: "flex", background: "#000", padding: "4px", borderRadius: "8px", border: "1px solid #444" }}>
+                  <button onClick={() => setStrategyMode("total")} style={{ background: strategyMode === "total" ? "#444" : "transparent", color: "#fff", border: "none", padding: "5px 15px", borderRadius: "6px", fontSize: "11px", fontWeight: "bold", cursor: "pointer" }}>TOTAL</button>
+                  <button onClick={() => setStrategyMode("intersection")} style={{ background: strategyMode === "intersection" ? "#444" : "transparent", color: "#fff", border: "none", padding: "5px 15px", borderRadius: "6px", fontSize: "11px", fontWeight: "bold", cursor: "pointer" }}>INTERSECÇÃO</button>
                 </div>
-              )}
-            </>
-          )}
-        </div>
-
-        <div className="middleCols">
-          <div className="strategiesWrap" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div className="panel strategiesPanel" style={{ position: 'relative' }}>
-              <button 
-                onClick={openStrategies}
-                style={{ position: 'absolute', top: '10px', right: '40px', zIndex: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
-                title="Expandir Estratégias"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-              </button>
-              <NeighborsBlock 
-                history={lastTen} 
-                sel={sel} 
-                onPick={onSelect} 
-                onMarkStrategy={onMarkStrategy}
-                strategyMode={strategyMode}
-                isMinimized={minimized.neighbors}
-                onToggle={() => toggleMin("neighbors")}
-              />
+                <button onClick={onResetColors} style={{ color: "#ff4b4b", background: "none", border: "none", fontWeight: "bold", cursor: "pointer", fontSize: "12px" }}>LIMPAR MARCAÇÕES</button>
+              </div>
             </div>
-            <HEAnalysis 
-              history={history} 
-              onPick={onSelect} 
-              onToggleHighlight={(isActive, numbers) => {
-                setHighlightedNumbers(isActive ? numbers : []);
-              }}
+
+            <TableMap 
+              sel={sel} 
+              onSelect={onSelect} 
+              getCellStyles={getCellStyles} 
+              xHighlightStyles={xHighlightStyles}
+              yHighlightStyles={yHighlightStyles}
+              repHighlights={repHighlights}
+              highlightedNumbers={highlightedNumbers}
             />
-          </div>
-          <div className="movementWrap" style={{ position: 'relative' }}>
-            <button 
-              onClick={openDeslocamentoPopup}
-              style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
-              title="Expandir Deslocamento"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-            </button>
-            <MovementPanel 
-              history={history} 
-              selectedX={selectedX} 
-              onXChange={setSelectedX}
-              selectedY={selectedY}
-              onYChange={setSelectedY}
-            />
-            <div className={`panel distCalcInside ${pickingFor ? 'isPicking' : ''}`}>
-              <div className="distCalcTitle">CALCULA FIFA</div>
-              <div className="distCalcContent">
-                <div className="distBtnGroup">
-                  <button className={`distSelectBtn ${pickingFor === 'n1' ? 'active' : ''}`} onClick={() => setPickingFor(pickingFor === 'n1' ? null : 'n1')}>{distN1 !== null ? `N1: ${distN1}` : 'SEL. N1'}</button>
-                  <button className={`distSelectBtn ${pickingFor === 'n2' ? 'active' : ''}`} onClick={() => setPickingFor(pickingFor === 'n2' ? null : 'n2')}>{distN2 !== null ? `N2: ${distN2}` : 'SEL. N2'}</button>
-                </div>
-                <div className="distResults">
-                  <div className="distItem"><span className="distLabel">H:</span><span className="distValue">{calcDist ? calcDist.h : "--"}</span></div>
-                  <div className="distItem"><span className="distLabel">AH:</span><span className="distValue">{calcDist ? calcDist.ah : "--"}</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="right">
-          <div className={`panel-wrap ${minimized.trackMap ? "minimized" : ""}`}>
-            <div className="panelHeader">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div className="sectionTitle">Mapa da Mesa</div>
-                <button 
-                  onClick={openMapaPopup}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
-                  title="Expandir Mapa"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-                </button>
-              </div>
-              <button className="btn-min" onClick={() => toggleMin("trackMap")}>{minimized.trackMap ? "+" : "−"}</button>
-            </div>
-            {!minimized.trackMap && (
-              <div className="tableMapContainer">
-                <TableMap sel={sel} onPick={onSelect} repHighlights={repHighlights} getCellStyles={getEnhancedCellStyles} />
-              </div>
-            )}
-          </div>
-
-          <div className={`panel-wrap ${minimized.raceDist ? "minimized" : ""}`}>
-            <div className="panelHeader">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div className="sectionTitle">RaceTrack</div>
-                <button 
-                  onClick={openRacetrackPopup}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
-                  title="Expandir Racetrack"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-                </button>
-              </div>
-              <button className="btn-min" onClick={() => toggleMin("raceDist")}>{minimized.raceDist ? "+" : "−"}</button>
-            </div>
-            {!minimized.raceDist && (
+            
+            <div style={{ marginTop: "20px" }}>
               <RaceTrack 
                 sel={sel} 
-                onPick={onSelect} 
-                getCellStyles={getEnhancedCellStyles}
-                strategyMode={strategyMode}
+                onSelect={onSelect} 
+                getCellStyles={getCellStyles}
+                xHighlightStyles={xHighlightStyles}
+                yHighlightStyles={yHighlightStyles}
                 highlightedNumbers={highlightedNumbers}
               />
-            )}
+            </div>
           </div>
+        </div>
 
-          <div className="panel-wrap">
-            <div className="panelHeader">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div className="sectionTitle">Teclado</div>
-                <button 
-                  onClick={openTecladoPopup}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
-                  title="Expandir Teclado"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-                </button>
-              </div>
-            </div>
-            <div className="quickKeyboard">
-              <div className="keyboardRow">
-                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
-                  <button key={n} className={`keyBtn ${colorOf(n)}`} onClick={() => addNumber(n)}>{n}</button>
-                ))}
-              </div>
-              <div className="keyboardRow">
-                {[13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(n => (
-                  <button key={n} className={`keyBtn ${colorOf(n)}`} onClick={() => addNumber(n)}>{n}</button>
-                ))}
-              </div>
-              <div className="keyboardRow">
-                {[25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36].map(n => (
-                  <button key={n} className={`keyBtn ${colorOf(n)}`} onClick={() => addNumber(n)}>{n}</button>
-                ))}
-              </div>
-            </div>
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <HotHistoryAnalysis 
+            history={history} 
+            onMarkNumbers={onMarkStrategy}
+            onResetColors={onResetColors}
+            onHighlightPattern={(nums) => {
+              setHighlightedNumbers(nums);
+              setTimeout(() => setHighlightedNumbers([]), 3000);
+            }}
+          />
+          
+          <MovementPanel 
+            history={history}
+            selectedX={selectedX}
+            setSelectedX={setSelectedX}
+            selectedY={selectedY}
+            setSelectedY={setSelectedY}
+            onMarkNumbers={onMarkStrategy}
+          />
         </div>
       </div>
 
       <AutomationModal 
-        isOpen={isAutoModalOpen} 
-        onClose={() => setIsAutoModalOpen(false)} 
+        isOpen={isAutoModalOpen}
+        onClose={() => setIsAutoModalOpen(false)}
         onSave={handleSaveAutomation}
-        onPause={handleDeactivateAutomation}
+        onDeactivate={handleDeactivateAutomation}
         onClear={handleClearAutomation}
         currentId={automationId}
-        isAutoActive={isAutoActive}
+        isActive={isAutoActive}
       />
 
       {isConfigModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999
-        }}>
-          <div style={{
-            background: '#1a1a1a',
-            border: '2px solid #ffd000',
-            borderRadius: '8px',
-            padding: '30px',
-            maxWidth: '400px',
-            width: '90%',
-            boxShadow: '0 0 30px rgba(255, 208, 0, 0.3)'
-          }}>
-            <h2 style={{ color: '#ffd000', marginBottom: '20px', textAlign: 'center', fontSize: '24px' }}>777 CONFIG</h2>
-            <p style={{ color: '#ccc', marginBottom: '20px', textAlign: 'center' }}>Digite a senha para acessar as estratégias:</p>
-            <input
-              type="password"
-              placeholder="Senha"
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.8)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: "#1a1a1a", padding: "30px", borderRadius: "15px", border: "1px solid #333", width: "300px" }}>
+            <h3 style={{ color: "#ffd000", marginTop: 0 }}>CONFIGURAÇÃO</h3>
+            <input 
+              type="password" 
               value={configPassword}
               onChange={(e) => setConfigPassword(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleConfigPasswordSubmit();
-                }
-              }}
-              style={{
-                width: '100%',
-                padding: '12px',
-                marginBottom: '15px',
-                background: '#222',
-                border: '1px solid #ffd000',
-                color: '#ffd000',
-                borderRadius: '4px',
-                fontSize: '16px',
-                boxSizing: 'border-box'
-              }}
-              autoFocus
+              placeholder="Senha de acesso"
+              style={{ width: "100%", background: "#000", border: "1px solid #444", padding: "10px", borderRadius: "8px", color: "#fff", marginBottom: "10px" }}
             />
-            {configPasswordError && (
-              <p style={{ color: '#ff4444', marginBottom: '15px', textAlign: 'center', fontSize: '14px' }}>{configPasswordError}</p>
-            )}
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-              <button
-                onClick={handleConfigPasswordSubmit}
-                style={{
-                  padding: '10px 20px',
-                  background: '#ffd000',
-                  color: '#000',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  fontSize: '14px'
-                }}
-              >
-                ENTRAR
-              </button>
-              <button
-                onClick={() => {
-                  setIsConfigModalOpen(false);
-                  setConfigPassword("");
-                  setConfigPasswordError("");
-                }}
-                style={{
-                  padding: '10px 20px',
-                  background: '#333',
-                  color: '#ccc',
-                  border: '1px solid #555',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  fontSize: '14px'
-                }}
-              >
-                CANCELAR
-              </button>
+            {configPasswordError && <div style={{ color: "#ff4b4b", fontSize: "12px", marginBottom: "10px" }}>{configPasswordError}</div>}
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button onClick={handleConfigPasswordSubmit} style={{ flex: 1, background: "#ffd000", color: "#000", border: "none", padding: "10px", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }}>ENTRAR</button>
+              <button onClick={() => setIsConfigModalOpen(false)} style={{ flex: 1, background: "#333", color: "#fff", border: "none", padding: "10px", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }}>CANCELAR</button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }
-// Build Force Update: Wed Jun 24 13:23:29 UTC 2026
