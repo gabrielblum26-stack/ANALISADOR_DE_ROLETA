@@ -217,14 +217,6 @@ export default function Page() {
   // Reforçar a detecção do 99
   const lastHistoryLength = useRef(history.length);
   useEffect(() => {
-    if (history.length > lastHistoryLength.current) {
-      if (history[0] === 99) {
-        triggerEaster99();
-      }
-    }
-    lastHistoryLength.current = history.length;
-  }, [history]);
-    
     // Sincronizar histórico com outras janelas
     localStorage.setItem("roulette_history", JSON.stringify(history));
     const bc = new BroadcastChannel("roulette_history_sync");
@@ -332,6 +324,10 @@ export default function Page() {
   }, [history]);
 
   function addNumber(n: number) {
+    if (n === 99) {
+      triggerEaster99();
+      return;
+    }
     setHistory((prev) => {
       const next = [n, ...prev];
       return next.slice(0, LONG_N);
