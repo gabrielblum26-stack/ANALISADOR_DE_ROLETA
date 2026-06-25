@@ -50,7 +50,10 @@ export default function HotHistoryAnalysis({
   const [activeTab, setActiveTab] = useState<"terminals" | "strategies" | "sectors" | "degree">(
     "terminals"
   );
-  const [alertsEnabled, setAlertsEnabled] = useState<boolean>(true);
+  
+  type AlertMode = "OFF" | "FOCO" | "GLOBAL";
+  const [alertMode, setAlertMode] = useState<AlertMode>("FOCO");
+
   type AlertData = {
     id: string;
     message: string; 
@@ -64,16 +67,16 @@ export default function HotHistoryAnalysis({
 
   // Carregar preferência de alertas
   useEffect(() => {
-    const saved = localStorage.getItem("roulette_alerts_enabled");
-    if (saved !== null) {
-      setAlertsEnabled(saved === "true");
+    const saved = localStorage.getItem("roulette_alert_mode") as AlertMode;
+    if (saved && ["OFF", "FOCO", "GLOBAL"].includes(saved)) {
+      setAlertMode(saved);
     }
   }, []);
 
   // Salvar preferência de alertas
   useEffect(() => {
-    localStorage.setItem("roulette_alerts_enabled", String(alertsEnabled));
-  }, [alertsEnabled]);
+    localStorage.setItem("roulette_alert_mode", alertMode);
+  }, [alertMode]);
 
   // Limpar alertas quando o histórico mudar (nova rodada)
   useEffect(() => {
@@ -148,103 +151,76 @@ export default function HotHistoryAnalysis({
 
   // Efeito para Alerta de Voz e Visual
   useEffect(() => {
-    if (!alertsEnabled || history.length < 1) return;
+    if (alertMode === "OFF" || history.length < 1) return;
 
-    // Verificar padrões de Grau
-    degreeAnalysis.patterns.forEach(p => {
-      if (p.pattern.length > 0) {
-        const historyEnd = history.slice(-p.pattern.length);
-        if (historyEnd.every((v, i) => v === p.pattern[i])) {
-          const patternKey = `degree-${degree}-${p.pattern.join(",")}-${p.target}-${history.length}`;
-          if (lastSpokenPattern.current !== patternKey) {
-            const message = `Possível Zona do ${p.target} (${degree}º Grau)`;
-            
-            // Alerta de Voz
-            const msg = new SpeechSynthesisUtterance(`Atenção! ${message}`);
-            msg.lang = 'pt-BR';
-            msg.rate = 1.1;
-            window.speechSynthesis.speak(msg);
-            
-            // Alerta Visual
-            addAlert({ 
-              message, 
-              type: "sector", // Usamos o estilo azul para zonas/setores
-              numbers: p.zona,
-              label: `Zona ${p.target}`,
-              sequence: p.pattern
-            });
-            lastSpokenPattern.current = patternKey;
+    // Função auxiliar para disparar alerta
+    const triggerAlert = (msgText: string, alertData: Omit<AlertData, "id">, patternKey: string) => {
+      if (lastSpokenPattern.current === patternKey) return;
+      
+      // Alerta de Voz
+      const msg = new SpeechSynthesisUtterance(`Atenção! ${msgText}`);
+      msg.lang = 'pt-BR';
+      msg.rate = 1.1;
+      window.speechSynthesis.speak(msg);
+      
+      // Alerta Visual
+      addAlert(alertData);
+      lastSpokenPattern.current = patternKey;
+    };
+
+    // 1. Padrões de Grau
+    if (alertMode === "GLOBAL" || (alertMode === "FOCO" && activeTab === "degree")) {
+      degreeAnalysis.patterns.forEach(p => {
+        if (p.pattern.length > 0) {
+          const historyEnd = history.slice(-p.pattern.length);
+          if (historyEnd.every((v, i) => v === p.pattern[i])) {
+            const patternKey = `degree-${degree}-${p.pattern.join(",")}-${p.target}-${history.length}`;
+            triggerAlert(
+              `Possível Zona do ${p.target}`,
+              { message: `Possível Zona do ${p.target} (${degree}º Grau)`, type: "sector", numbers: p.zona, label: `Zona ${p.target}`, sequence: p.pattern },
+              patternKey
+            );
           }
         }
-      }
-    });
+      });
+    }
 
-    // Verificar padrões de Terminais
-    terminalAnalysis.patterns.forEach(p => {
-      if (p.pattern.length > 0) {
-        const historyEnd = history.slice(-p.pattern.length);
-        if (historyEnd.every((v, i) => v === p.pattern[i])) {
-          const patternKey = `terminal-${p.pattern.join(",")}-${p.nextTerminal}-${history.length}`;
-          if (lastSpokenPattern.current !== patternKey) {
-            const message = `Possível Terminal ${p.nextTerminal}`;
-            
-            // Alerta de Voz
-            const msg = new SpeechSynthesisUtterance(`Atenção! ${message}`);
-            msg.lang = 'pt-BR';
-            msg.rate = 1.1;
-            window.speechSynthesis.speak(msg);
-            
-            // Alerta Visual
-            addAlert({ 
-              message, 
-              type: "terminal", 
-              numbers: TERMINAL_NUMBERS[p.nextTerminal],
-              label: `T${p.nextTerminal}`,
-              sequence: p.pattern
-            });
-            lastSpokenPattern.current = patternKey;
+    // 2. Padrões de Terminais
+    if (alertMode === "GLOBAL" || (alertMode === "FOCO" && activeTab === "terminals")) {
+      terminalAnalysis.patterns.forEach(p => {
+        if (p.pattern.length > 0) {
+          const historyEnd = history.slice(-p.pattern.length);
+          if (historyEnd.every((v, i) => v === p.pattern[i])) {
+            const patternKey = `terminal-${p.pattern.join(",")}-${p.nextTerminal}-${history.length}`;
+            triggerAlert(
+              `Possível Terminal ${p.nextTerminal}`,
+              { message: `Possível Terminal ${p.nextTerminal}`, type: "terminal", numbers: TERMINAL_NUMBERS[p.nextTerminal], label: `T${p.nextTerminal}`, sequence: p.pattern },
+              patternKey
+            );
           }
         }
-      }
-    });
+      });
+    }
 
-    // Alerta para Setores
-    if (!alertsEnabled) return;
-    sectorAnalysis.patterns.forEach(p => {
-      if (p.pattern.length > 0) {
-        const historyEnd = history.slice(-p.pattern.length);
-        if (historyEnd.every((v, i) => v === p.pattern[i])) {
-          const patternKey = `sector-${p.pattern.join(",")}-${p.nextSector}-${history.length}`;
-          if (lastSpokenPattern.current !== patternKey) {
-            const sectorNames: Record<string, string> = {
-              voisins: "Vizinhos do Zero",
-              tier: "Terço do Cilindro",
-              orphelins: "Órfãos",
-              zero_game: "Zero Game"
-            };
+    // 3. Padrões de Setores (Roda Quente)
+    if (alertMode === "GLOBAL" || (alertMode === "FOCO" && activeTab === "sectors")) {
+      sectorAnalysis.patterns.forEach(p => {
+        if (p.pattern.length > 0) {
+          const historyEnd = history.slice(-p.pattern.length);
+          if (historyEnd.every((v, i) => v === p.pattern[i])) {
+            const patternKey = `sector-${p.pattern.join(",")}-${p.nextSector}-${history.length}`;
+            const sectorNames: Record<string, string> = { voisins: "Vizinhos do Zero", tier: "Terço do Cilindro", orphelins: "Órfãos", zero_game: "Zero Game" };
             const sectorName = sectorNames[p.nextSector] || p.nextSector;
-            const message = `Possível entrada: ${sectorName}`;
-
-            // Alerta de Voz
-            const msg = new SpeechSynthesisUtterance(`Atenção! ${message}`);
-            msg.lang = 'pt-BR';
-            msg.rate = 1.1;
-            window.speechSynthesis.speak(msg);
-
-            // Alerta Visual
-            addAlert({ 
-              message, 
-              type: "sector", 
-              numbers: SECTORS[p.nextSector],
-              label: sectorName,
-              sequence: p.pattern
-            });
-            lastSpokenPattern.current = patternKey;
+            triggerAlert(
+              `Possível entrada: ${sectorName}`,
+              { message: `Possível entrada: ${sectorName}`, type: "sector", numbers: SECTORS[p.nextSector], label: sectorName, sequence: p.pattern },
+              patternKey
+            );
           }
         }
-      }
-    });
-  }, [history.length, terminalAnalysis.patterns, sectorAnalysis.patterns]);
+      });
+    }
+  }, [history.length, activeTab, alertMode, terminalAnalysis.patterns, sectorAnalysis.patterns, degreeAnalysis.patterns, addAlert]);
 
   const handleMarkSector = (sector: SectorName) => {
     const nums = SECTORS[sector];
@@ -272,6 +248,59 @@ export default function HotHistoryAnalysis({
       borderRadius: "8px",
       overflow: "hidden"
     }}>
+      {/* HEADER */}
+      <div style={{
+        padding: "8px 15px",
+        background: "#1a1a1a",
+        borderBottom: "1px solid #333",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        borderTopLeftRadius: "8px",
+        borderTopRightRadius: "8px"
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span style={{ fontSize: "13px", fontWeight: "900", color: "#fff", letterSpacing: "1px" }}>
+            HISTÓRICO ({history.length})
+          </span>
+          
+          {/* ALERT MODE SELECTOR */}
+          <div style={{ 
+            display: "flex", 
+            background: "#000", 
+            borderRadius: "6px", 
+            padding: "2px",
+            border: "1px solid #333",
+            marginLeft: "10px"
+          }}>
+            {(["OFF", "FOCO", "GLOBAL"] as AlertMode[]).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setAlertMode(mode)}
+                style={{
+                  padding: "4px 8px",
+                  fontSize: "9px",
+                  fontWeight: "bold",
+                  background: alertMode === mode ? (mode === "OFF" ? "#ff4b4b" : "#4a90e2") : "transparent",
+                  color: alertMode === mode ? "#fff" : "#666",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#333" }}></div>
+          <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#333" }}></div>
+          <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#ff4b4b", cursor: "pointer" }}></div>
+        </div>
+      </div>
+
       {/* TAB BUTTONS - FIXED */}
       <div style={{
         display: "flex",
@@ -379,40 +408,18 @@ export default function HotHistoryAnalysis({
         </button>
       </div>
 
-      {/* ALERT TOGGLE CONTROL */}
-      <div style={{
-        padding: "0 12px 10px 12px",
-        background: "#0f0f0f",
-        borderBottom: "1px solid #333"
-      }}>
-        <button
-          onClick={() => setAlertsEnabled(!alertsEnabled)}
-          style={{
-            width: "100%",
-            padding: "8px",
-            background: alertsEnabled ? "#2ecc71" : "#e74c3c",
-            color: "#fff",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            fontSize: "11px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
-            transition: "all 0.3s ease"
-          }}
-        >
-          <span style={{ fontSize: "14px" }}>{alertsEnabled ? "🔊" : "🔇"}</span>
-          {alertsEnabled ? "ALERTAS ATIVADOS" : "ALERTAS DESATIVADOS"}
-        </button>
-      </div>
-
       {/* ALERT BANNERS LIST */}
       <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
         {alerts
-          .filter(a => (activeTab === "terminals" && a.type === "terminal") || (activeTab === "sectors" && a.type === "sector") || (activeTab === "degree" && a.type === "sector"))
+          .filter(a => {
+            if (alertMode === "OFF") return false;
+            if (alertMode === "GLOBAL") return true;
+            // Modo FOCO: filtra pela aba ativa
+            if (activeTab === "terminals") return a.type === "terminal";
+            if (activeTab === "sectors") return a.type === "sector" && !a.label.startsWith("Zona");
+            if (activeTab === "degree") return a.type === "sector" && a.label.startsWith("Zona");
+            return false;
+          })
           .map((a) => (
           <div key={a.id} style={{
             background: a.type === "terminal" ? "linear-gradient(90deg, #ff6b6b, #ee5253)" : "linear-gradient(90deg, #4a90e2, #357abd)",
@@ -480,8 +487,7 @@ export default function HotHistoryAnalysis({
       <div style={{
         flex: 1,
         overflowY: "auto",
-        overflowX: "hidden",
-        padding: "12px",
+        padding: "15px",
         display: "flex",
         flexDirection: "column",
         gap: "15px"
@@ -620,7 +626,7 @@ export default function HotHistoryAnalysis({
               </div>
             </div>
 
-            {/* PATTERNS */}
+            {/* TERMINAL PATTERNS */}
             {terminalAnalysis.patterns.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <div style={{ fontSize: "11px", fontWeight: "bold", color: "#ffd000" }}>
@@ -704,180 +710,90 @@ export default function HotHistoryAnalysis({
 
         {/* TAB 2: STRATEGIES */}
         {activeTab === "strategies" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {/* STRATEGY SELECTORS */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {/* COLOR */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            {/* SELECTION GRID */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {/* COLORS */}
               <div>
-                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "4px" }}>
-                  COR:
-                </div>
+                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "6px" }}>CORES:</div>
                 <div style={{ display: "flex", gap: "6px" }}>
-                  <button
-                    onClick={() => handleToggleStrategy("color", "red")}
-                    style={{
-                      flex: 1,
-                      padding: "6px 4px",
-                      background: selectedStrategies.color === "red" ? "#ff6b6b" : "#333",
-                      color: "#fff",
-                      border: "1px solid #555",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      fontSize: "10px",
-                      textAlign: "center"
-                    }}
-                  >
-                    Vermelho
-                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
-                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.colors.red / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.colors.red || 0) / Math.max(1, history.length) * 100)}
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleToggleStrategy("color", "black")}
-                    style={{
-                      flex: 1,
-                      padding: "6px 4px",
-                      background: selectedStrategies.color === "black" ? "#ff6b6b" : "#333",
-                      color: "#fff",
-                      border: "1px solid #555",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      fontSize: "10px",
-                      textAlign: "center"
-                    }}
-                  >
-                    Preto
-                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
-                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.colors.black / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.colors.black || 0) / Math.max(1, history.length) * 100)}
-                    </div>
-                  </button>
+                  {["red", "black"].map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => handleToggleStrategy("color", color)}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        background: selectedStrategies.color === color ? (color === "red" ? "#ff4b4b" : "#444") : "#222",
+                        color: "#fff",
+                        border: selectedStrategies.color === color ? "2px solid #fff" : "1px solid #555",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        fontSize: "10px",
+                        textTransform: "uppercase"
+                      }}
+                    >
+                      {color === "red" ? "Vermelho" : "Preto"}
+                      <div style={{ fontSize: "9px", color: "#ffd000" }}>
+                        {strategyAnalysis ? getTemperatureEmoji(calculateTemperature(((strategyAnalysis.colors[color as "red"|"black"] || 0) / Math.max(1, history.length)) * 100)) : ""} {formatPercentage(((strategyAnalysis?.colors[color as "red"|"black"] || 0) / Math.max(1, history.length)) * 100)}
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
 
               {/* PARITY */}
               <div>
-                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "4px" }}>
-                  PAR / ÍMPAR:
-                </div>
+                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "6px" }}>PARIDADE:</div>
                 <div style={{ display: "flex", gap: "6px" }}>
-                  <button
-                    onClick={() => handleToggleStrategy("parity", "even")}
-                    style={{
-                      flex: 1,
-                      padding: "6px 4px",
-                      background: selectedStrategies.parity === "even" ? "#ff6b6b" : "#333",
-                      color: "#fff",
-                      border: "1px solid #555",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      fontSize: "10px",
-                      textAlign: "center"
-                    }}
-                  >
-                    Par
-                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
-                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.parities.even / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.parities.even || 0) / Math.max(1, history.length) * 100)}
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleToggleStrategy("parity", "odd")}
-                    style={{
-                      flex: 1,
-                      padding: "6px 4px",
-                      background: selectedStrategies.parity === "odd" ? "#ff6b6b" : "#333",
-                      color: "#fff",
-                      border: "1px solid #555",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      fontSize: "10px",
-                      textAlign: "center"
-                    }}
-                  >
-                    Ímpar
-                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
-                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.parities.odd / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.parities.odd || 0) / Math.max(1, history.length) * 100)}
-                    </div>
-                  </button>
+                  {["even", "odd"].map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => handleToggleStrategy("parity", p)}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        background: selectedStrategies.parity === p ? "#ff6b6b" : "#333",
+                        color: "#fff",
+                        border: "1px solid #555",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        fontSize: "10px",
+                        textTransform: "uppercase"
+                      }}
+                    >
+                      {p === "even" ? "Par" : "Ímpar"}
+                      <div style={{ fontSize: "9px", color: "#ffd000" }}>
+                        {strategyAnalysis ? getTemperatureEmoji(calculateTemperature(((strategyAnalysis.parities[p as "even"|"odd"] || 0) / Math.max(1, history.length)) * 100)) : ""} {formatPercentage(((strategyAnalysis?.parities[p as "even"|"odd"] || 0) / Math.max(1, history.length)) * 100)}
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* HALF */}
+              {/* DOZENS */}
               <div>
-                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "4px" }}>
-                  ALTO / BAIXO:
-                </div>
-                <div style={{ display: "flex", gap: "6px" }}>
-                  <button
-                    onClick={() => handleToggleStrategy("half", "low")}
-                    style={{
-                      flex: 1,
-                      padding: "6px 4px",
-                      background: selectedStrategies.half === "low" ? "#ff6b6b" : "#333",
-                      color: "#fff",
-                      border: "1px solid #555",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      fontSize: "10px",
-                      textAlign: "center"
-                    }}
-                  >
-                    1–18
-                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
-                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.halves.low / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.halves.low || 0) / Math.max(1, history.length) * 100)}
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleToggleStrategy("half", "high")}
-                    style={{
-                      flex: 1,
-                      padding: "6px 4px",
-                      background: selectedStrategies.half === "high" ? "#ff6b6b" : "#333",
-                      color: "#fff",
-                      border: "1px solid #555",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      fontSize: "10px",
-                      textAlign: "center"
-                    }}
-                  >
-                    19–36
-                    <div style={{ fontSize: "9px", color: "#ffd000" }}>
-                      {strategyAnalysis ? getTemperatureEmoji(calculateTemperature((strategyAnalysis.halves.high / Math.max(1, history.length)) * 100)) : ""} {formatPercentage((strategyAnalysis?.halves.high || 0) / Math.max(1, history.length) * 100)}
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {/* DOZEN */}
-              <div>
-                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "4px" }}>
-                  DÚZIA:
-                </div>
+                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "6px" }}>DÚZIAS:</div>
                 <div style={{ display: "flex", gap: "6px" }}>
                   {[1, 2, 3].map((d) => (
                     <button
                       key={d}
-                      onClick={() => handleToggleStrategy("dozen", d as 1 | 2 | 3)}
+                      onClick={() => handleToggleStrategy("dozen", d)}
                       style={{
                         flex: 1,
-                        padding: "6px 4px",
+                        padding: "8px",
                         background: selectedStrategies.dozen === d ? "#ff6b6b" : "#333",
                         color: "#fff",
                         border: "1px solid #555",
-                        borderRadius: "4px",
+                        borderRadius: "6px",
                         cursor: "pointer",
                         fontWeight: "bold",
-                        fontSize: "10px",
-                        textAlign: "center"
+                        fontSize: "10px"
                       }}
                     >
-                      {d}ª
+                      {d}ª Dúzia
                       <div style={{ fontSize: "9px", color: "#ffd000" }}>
                         {strategyAnalysis ? getTemperatureEmoji(calculateTemperature(((strategyAnalysis.dozens[d as 1|2|3] || 0) / Math.max(1, history.length)) * 100)) : ""} {formatPercentage(((strategyAnalysis?.dozens[d as 1|2|3] || 0) / Math.max(1, history.length)) * 100)}
                       </div>
@@ -886,30 +802,27 @@ export default function HotHistoryAnalysis({
                 </div>
               </div>
 
-              {/* COLUMN */}
+              {/* COLUMNS */}
               <div>
-                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "4px" }}>
-                  COLUNA:
-                </div>
+                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "6px" }}>COLUNAS:</div>
                 <div style={{ display: "flex", gap: "6px" }}>
                   {[1, 2, 3].map((c) => (
                     <button
                       key={c}
-                      onClick={() => handleToggleStrategy("column", c as 1 | 2 | 3)}
+                      onClick={() => handleToggleStrategy("column", c)}
                       style={{
                         flex: 1,
-                        padding: "6px 4px",
+                        padding: "8px",
                         background: selectedStrategies.column === c ? "#ff6b6b" : "#333",
                         color: "#fff",
                         border: "1px solid #555",
-                        borderRadius: "4px",
+                        borderRadius: "6px",
                         cursor: "pointer",
                         fontWeight: "bold",
-                        fontSize: "10px",
-                        textAlign: "center"
+                        fontSize: "10px"
                       }}
                     >
-                      C{c}
+                      {c}ª Coluna
                       <div style={{ fontSize: "9px", color: "#ffd000" }}>
                         {strategyAnalysis ? getTemperatureEmoji(calculateTemperature(((strategyAnalysis.columns[c as 1|2|3] || 0) / Math.max(1, history.length)) * 100)) : ""} {formatPercentage(((strategyAnalysis?.columns[c as 1|2|3] || 0) / Math.max(1, history.length)) * 100)}
                       </div>
@@ -1096,7 +1009,7 @@ export default function HotHistoryAnalysis({
                     onClick={() => handleMarkSector(sector as SectorName)}
                   >
                     <div style={{ fontSize: "12px", fontWeight: "bold", color: "#fff" }}>
-                      {stats.percentage > 0 ? `${getTemperatureEmoji(stats.percentage)} ${sector.toUpperCase()}` : sector.toUpperCase()}
+                      {stats.percentage > 0 ? `${getTemperatureEmoji(stats.percentage)} ${sector.toUpperCase().replace("_", " ")}` : sector.toUpperCase().replace("_", " ")}
                     </div>
                     <div style={{ fontSize: "11px", color: "#ffd000", fontWeight: "bold" }}>
                       {formatPercentage(stats.percentage)}
@@ -1133,7 +1046,7 @@ export default function HotHistoryAnalysis({
                           Sequência: <strong>{pattern.pattern.join(" → ")}</strong>
                         </div>
                         <div style={{ fontSize: "10px", color: "#888", marginBottom: "4px" }}>
-                          Setor: <strong style={{ color: "#ff6b6b" }}>{pattern.nextSector.toUpperCase()}</strong>
+                          Setor: <strong style={{ color: "#ff6b6b" }}>{pattern.nextSector.toUpperCase().replace("_", " ")}</strong>
                         </div>
                         <div style={{ fontSize: "10px", color: "#888", marginBottom: "4px" }}>
                           Força: <strong>{formatPercentage(pattern.strength)}</strong> | Reps: <strong>{pattern.count}</strong>
