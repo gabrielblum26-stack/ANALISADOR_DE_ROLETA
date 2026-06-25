@@ -6,10 +6,12 @@ import {
   analyzeTerminalPatterns,
   analyzeStrategy,
   analyzeSectorPatterns,
+  analyzeDegreePatterns,
   TERMINAL_NUMBERS,
   SECTORS,
   StrategyClassification,
-  SectorName
+  SectorName,
+  DegreeAnalysisResult
 } from "../lib/hothistory";
 import { markMultiple, SelState } from "../lib/selection";
 
@@ -45,7 +47,7 @@ export default function HotHistoryAnalysis({
   onColorChange,
   onHighlightPattern
 }: Props) {
-  const [activeTab, setActiveTab] = useState<"terminals" | "strategies" | "sectors">(
+  const [activeTab, setActiveTab] = useState<"terminals" | "strategies" | "sectors" | "degree">(
     "terminals"
   );
   const [alertsEnabled, setAlertsEnabled] = useState<boolean>(true);
@@ -134,9 +136,48 @@ export default function HotHistoryAnalysis({
     return analyzeSectorPatterns(history, sectorPatternLength, sectorMinReps);
   }, [history, sectorPatternLength, sectorMinReps]);
 
+  // ============ TAB 4: DEGREE PATTERNS ============
+  const [degree, setDegree] = useState<1 | 2>(1);
+  const [degreePatternLength, setDegreePatternLength] = useState(1);
+  const [degreeMinReps, setDegreeMinReps] = useState(6);
+  const [maxValetas, setMaxValetas] = useState(0);
+
+  const degreeAnalysis = useMemo(() => {
+    return analyzeDegreePatterns(history, degree, degreePatternLength, degreeMinReps, maxValetas);
+  }, [history, degree, degreePatternLength, degreeMinReps, maxValetas]);
+
   // Efeito para Alerta de Voz e Visual
   useEffect(() => {
     if (!alertsEnabled || history.length < 1) return;
+
+    // Verificar padrões de Grau
+    degreeAnalysis.patterns.forEach(p => {
+      if (p.pattern.length > 0) {
+        const historyEnd = history.slice(-p.pattern.length);
+        if (historyEnd.every((v, i) => v === p.pattern[i])) {
+          const patternKey = `degree-${degree}-${p.pattern.join(",")}-${p.target}-${history.length}`;
+          if (lastSpokenPattern.current !== patternKey) {
+            const message = `Possível Zona do ${p.target} (${degree}º Grau)`;
+            
+            // Alerta de Voz
+            const msg = new SpeechSynthesisUtterance(`Atenção! ${message}`);
+            msg.lang = 'pt-BR';
+            msg.rate = 1.1;
+            window.speechSynthesis.speak(msg);
+            
+            // Alerta Visual
+            addAlert({ 
+              message, 
+              type: "sector", // Usamos o estilo azul para zonas/setores
+              numbers: p.zona,
+              label: `Zona ${p.target}`,
+              sequence: p.pattern
+            });
+            lastSpokenPattern.current = patternKey;
+          }
+        }
+      }
+    });
 
     // Verificar padrões de Terminais
     terminalAnalysis.patterns.forEach(p => {
@@ -312,6 +353,30 @@ export default function HotHistoryAnalysis({
         >
           Roda Quente
         </button>
+        <button
+          onClick={() => setActiveTab("degree")}
+          style={{
+            flex: 1,
+            padding: "8px 4px",
+            background: activeTab === "degree" ? "#ff6b6b" : "#333",
+            color: "#fff",
+            border: "1px solid #555",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            transition: "all 0.2s",
+            fontSize: "10px",
+            whiteSpace: "normal",
+            lineHeight: "1.2",
+            minHeight: "36px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center"
+          }}
+        >
+          Padrão de Grau
+        </button>
       </div>
 
       {/* ALERT TOGGLE CONTROL */}
@@ -347,7 +412,7 @@ export default function HotHistoryAnalysis({
       {/* ALERT BANNERS LIST */}
       <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
         {alerts
-          .filter(a => (activeTab === "terminals" && a.type === "terminal") || (activeTab === "sectors" && a.type === "sector"))
+          .filter(a => (activeTab === "terminals" && a.type === "terminal") || (activeTab === "sectors" && a.type === "sector") || (activeTab === "degree" && a.type === "sector"))
           .map((a) => (
           <div key={a.id} style={{
             background: a.type === "terminal" ? "linear-gradient(90deg, #ff6b6b, #ee5253)" : "linear-gradient(90deg, #4a90e2, #357abd)",
@@ -1118,6 +1183,152 @@ export default function HotHistoryAnalysis({
             ) : (
               <div style={{ color: "#888", fontSize: "11px", padding: "10px", textAlign: "center" }}>
                 {history.length === 0 ? "Aguardando histórico..." : "Nenhum padrão encontrado."}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 4: DEGREE PATTERNS */}
+        {activeTab === "degree" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            {/* CONTROLS */}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              padding: "12px",
+              background: "#222",
+              borderRadius: "6px",
+              border: "1px solid #333"
+            }}>
+              {/* DEGREE SELECTOR */}
+              <div>
+                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "6px" }}>
+                  GRAU DOS VIZINHOS:
+                </div>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {[1, 2].map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => setDegree(d as 1 | 2)}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        background: degree === d ? "#ff6b6b" : "#333",
+                        color: "#fff",
+                        border: "1px solid #555",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        fontSize: "11px"
+                      }}
+                    >
+                      {d}º Grau ({d === 1 ? "3" : "5"} Números)
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* PATTERN LENGTH SELECTOR */}
+              <div>
+                <div style={{ fontSize: "10px", fontWeight: "bold", color: "#888", marginBottom: "6px" }}>
+                  PADRÃO (últimos N):
+                </div>
+                <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setDegreePatternLength(n)}
+                      style={{
+                        flex: "1 0 15%",
+                        padding: "6px 0",
+                        background: degreePatternLength === n ? "#ff6b6b" : "#333",
+                        color: "#fff",
+                        border: "1px solid #555",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        fontSize: "10px"
+                      }}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* REPS AND VALETAS */}
+              <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "10px", fontWeight: "bold", color: "#888" }}>MÍNIMO REPS:</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <button onClick={() => setDegreeMinReps(Math.max(1, degreeMinReps - 1))} style={{ width: "22px", height: "22px", background: "#333", border: "1px solid #555", borderRadius: "4px", color: "#fff" }}>-</button>
+                    <input type="number" value={degreeMinReps} readOnly style={{ width: "30px", background: "#111", color: "#fff", border: "1px solid #555", textAlign: "center", fontSize: "10px" }} />
+                    <button onClick={() => setDegreeMinReps(degreeMinReps + 1)} style={{ width: "22px", height: "22px", background: "#333", border: "1px solid #555", borderRadius: "4px", color: "#fff" }}>+</button>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "10px", fontWeight: "bold", color: "#888" }}>MÁX VALETAS:</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <button onClick={() => setMaxValetas(Math.max(0, maxValetas - 1))} style={{ width: "22px", height: "22px", background: "#333", border: "1px solid #555", borderRadius: "4px", color: "#fff" }}>-</button>
+                    <input type="number" value={maxValetas} readOnly style={{ width: "30px", background: "#111", color: "#fff", border: "1px solid #555", textAlign: "center", fontSize: "10px" }} />
+                    <button onClick={() => setMaxValetas(maxValetas + 1)} style={{ width: "22px", height: "22px", background: "#333", border: "1px solid #555", borderRadius: "4px", color: "#fff" }}>+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* RESULTS */}
+            {degreeAnalysis.patterns.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div style={{ fontSize: "11px", fontWeight: "bold", color: "#ffd000" }}>
+                  PADRÕES DE GRAU ENCONTRADOS:
+                </div>
+                {degreeAnalysis.patterns.map((p, idx) => {
+                  const temp = calculateTemperature(p.strength);
+                  return (
+                    <div key={idx} style={{ background: "#222", border: "1px solid #444", borderRadius: "8px", padding: "12px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                        <div>
+                          <div style={{ fontSize: "10px", color: "#888" }}>Sequência: <strong>{p.pattern.join(" → ")}</strong></div>
+                          <div style={{ fontSize: "11px", color: "#fff", marginTop: "4px" }}>Alvo Principal: <strong style={{ color: "#ff6b6b", fontSize: "14px" }}>{p.target}</strong></div>
+                          <div style={{ fontSize: "10px", color: "#888", marginTop: "2px" }}>Zona: <strong>{p.zona.join(", ")}</strong></div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: "10px", color: "#888" }}>Reps: <strong>{p.count}</strong></div>
+                          <div style={{ fontSize: "11px", color: "#ffd000", fontWeight: "bold" }}>{formatPercentage(p.strength)}</div>
+                          <div style={{ fontSize: "12px" }}>{getTemperatureEmoji(temp)}</div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
+                        <button
+                          onClick={() => onMarkNumbers([p.target])}
+                          style={{ padding: "6px 2px", background: "#ff6b6b", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "9px" }}
+                        >
+                          Marcar Alvo
+                        </button>
+                        <button
+                          onClick={() => onMarkNumbers(p.zona)}
+                          style={{ padding: "6px 2px", background: "#4a90e2", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "9px" }}
+                        >
+                          Marcar Zona
+                        </button>
+                        <button
+                          onClick={() => onHighlightPattern(p.pattern)}
+                          style={{ padding: "6px 2px", background: "#ffd000", color: "#000", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "9px" }}
+                        >
+                          Ver no Hist.
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ color: "#888", fontSize: "11px", padding: "20px", textAlign: "center", background: "#222", borderRadius: "6px", border: "1px dashed #444" }}>
+                Nenhum padrão de grau detectado com as configurações atuais.
               </div>
             )}
           </div>

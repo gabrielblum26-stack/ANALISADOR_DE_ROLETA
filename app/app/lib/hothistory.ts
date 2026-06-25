@@ -193,6 +193,104 @@ export type SectorAnalysisResult = {
   sectorStats: Record<SectorName, { count: number; percentage: number }>;
 };
 
+// ============ DEGREE PATTERN ANALYSIS ============
+
+export type DegreePattern = {
+  pattern: number[];
+  target: number; // O número central da zona
+  zona: number[]; // Os números que compõem a zona (3 ou 5)
+  count: number;
+  strength: number;
+};
+
+export type DegreeAnalysisResult = {
+  patterns: DegreePattern[];
+};
+
+export function getZonaNumbers(center: number, degree: 1 | 2): number[] {
+  const idx = WHEEL_EU.indexOf(center);
+  if (idx < 0) return [center];
+  const L = WHEEL_EU.length;
+  
+  if (degree === 1) {
+    return [
+      WHEEL_EU[(idx - 1 + L) % L],
+      center,
+      WHEEL_EU[(idx + 1) % L]
+    ];
+  } else {
+    return [
+      WHEEL_EU[(idx - 2 + L) % L],
+      WHEEL_EU[(idx - 1 + L) % L],
+      center,
+      WHEEL_EU[(idx + 1) % L],
+      WHEEL_EU[(idx + 2) % L]
+    ];
+  }
+}
+
+export function analyzeDegreePatterns(
+  history: number[],
+  degree: 1 | 2,
+  patternLength: number,
+  minRepetitions: number,
+  maxValetas: number
+): DegreeAnalysisResult {
+  const patterns: DegreePattern[] = [];
+  const patternMap: Record<string, { target: number; count: number }> = {};
+
+  // Percorrer histórico
+  for (let i = 0; i < history.length - patternLength - 1; i++) {
+    const pattern = history.slice(i, i + patternLength);
+    const patternKey = pattern.join(",");
+
+    // Verificar se após esse padrão, dentro do limite de valetas, caiu na zona de algum número
+    // Para simplificar a detecção de "quem está chamando quem":
+    // Vamos verificar se o próximo número (ou até maxValetas depois) pertence à zona de algum número central X.
+    // Mas a lógica solicitada parece ser: o padrão X chama a zona do alvo Y.
+    
+    // Vamos olhar o que veio depois do padrão (respeitando as valetas)
+    for (let v = 0; v <= maxValetas; v++) {
+      const nextIdx = i + patternLength + v;
+      if (nextIdx >= history.length) break;
+      
+      const hitNum = history[nextIdx];
+      
+      // Para cada número da roleta, verificar se hitNum está na sua zona
+      for (let target = 0; target <= 36; target++) {
+        const zona = getZonaNumbers(target, degree);
+        if (zona.includes(hitNum)) {
+          const key = `${patternKey}|${target}`;
+          if (!patternMap[key]) {
+            patternMap[key] = { target, count: 0 };
+          }
+          patternMap[key].count++;
+        }
+      }
+    }
+  }
+
+  // Filtrar e formatar resultados
+  const resultPatterns = Object.entries(patternMap)
+    .filter(([_, data]) => data.count >= minRepetitions)
+    .map(([key, data]) => {
+      const pattern = key.split("|")[0].split(",").map(Number);
+      const strength = (history.length > 0 ? (data.count / history.length) * 100 : 0);
+      return {
+        pattern,
+        target: data.target,
+        zona: getZonaNumbers(data.target, degree),
+        count: data.count,
+        strength
+      };
+    })
+    .sort((a, b) => b.strength - a.strength);
+
+  return { patterns: resultPatterns };
+}
+
+// ============ TERMINAL MAPPING ============
+
 function getNumberSector(num: number): SectorName | null {
   // Zero Game tem prioridade pois está contido em Voisins
   if (SECTORS.zero_game.includes(num)) return "zero_game";
