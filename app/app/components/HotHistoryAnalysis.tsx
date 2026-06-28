@@ -17,9 +17,10 @@ import { markMultiple, SelState } from "../lib/selection";
 
 type Props = {
   history: number[];
-  onMarkNumbers: (nums: number[]) => void;
-  onColorChange: (index: number) => void;
-  onHighlightPattern: (pattern: number[]) => void;
+  onMarkNumbers: (nums: number[], colorIndex?: number) => void;
+  onColorChange: (colorIndex: number) => void;
+  onHighlightPattern: (nums: number[]) => void;
+  onResetColors?: () => void; // Adicionado para compatibilidade
 };
 
 // Função auxiliar para determinar emoji de temperatura
