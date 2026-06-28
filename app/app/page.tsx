@@ -562,7 +562,7 @@ export default function Page() {
             onMarkNumbers={onMarkStrategy}
             onColorChange={(colorIndex) => {
               // Sincroniza a cor ativa com o componente de seleção
-              setActiveColor(colorIndex);
+              setSel(prev => setActiveColor(prev, colorIndex));
             }}
             onResetColors={onResetColors}
             onHighlightPattern={(nums) => {
