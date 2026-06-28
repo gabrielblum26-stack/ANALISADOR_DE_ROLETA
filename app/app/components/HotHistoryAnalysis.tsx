@@ -68,6 +68,24 @@ export default function HotHistoryAnalysis({
 
   const [alerts, setAlerts] = useState<AlertData[]>([]);
 
+  // ============ TAB 1: TERMINALS ============
+  const [terminalPatternLength, setTerminalPatternLength] = useState(1);
+  const [terminalMinReps, setTerminalMinReps] = useState(6);
+  const lastSpokenPattern = useRef<string>("");
+
+  // ============ TAB 2: STRATEGIES ============
+  const [selectedStrategies, setSelectedStrategies] = useState<StrategyClassification>({});
+
+  // ============ TAB 3: SECTORS ============
+  const [sectorPatternLength, setSectorPatternLength] = useState(1);
+  const [sectorMinReps, setSectorMinReps] = useState(6);
+
+  // ============ TAB 4: DEGREE PATTERNS ============
+  const [degree, setDegree] = useState<1 | 2>(1);
+  const [degreePatternLength, setDegreePatternLength] = useState(1);
+  const [degreeMinReps, setDegreeMinReps] = useState(6);
+  const [maxValetas, setMaxValetas] = useState(0);
+
   // Carregar preferência de alertas, som e configurações de padrões
   useEffect(() => {
     const savedMode = localStorage.getItem("roulette_alert_mode") as AlertMode;
@@ -134,11 +152,6 @@ export default function HotHistoryAnalysis({
     });
   };
 
-  // ============ TAB 1: TERMINALS ============
-  const [terminalPatternLength, setTerminalPatternLength] = useState(1);
-  const [terminalMinReps, setTerminalMinReps] = useState(6);
-  const lastSpokenPattern = useRef<string>("");
-
   const terminalAnalysis = useMemo(() => {
     return analyzeTerminalPatterns(history, terminalPatternLength, terminalMinReps);
   }, [history, terminalPatternLength, terminalMinReps]);
@@ -149,9 +162,6 @@ export default function HotHistoryAnalysis({
     const nums = TERMINAL_NUMBERS[terminal];
     onMarkNumbers(nums);
   };
-
-  // ============ TAB 2: STRATEGIES ============
-  const [selectedStrategies, setSelectedStrategies] = useState<StrategyClassification>({});
 
   const strategyAnalysis = useMemo(() => {
     return analyzeStrategy(history, selectedStrategies);
@@ -175,19 +185,9 @@ export default function HotHistoryAnalysis({
     }
   };
 
-  // ============ TAB 3: SECTORS ============
-  const [sectorPatternLength, setSectorPatternLength] = useState(1);
-  const [sectorMinReps, setSectorMinReps] = useState(6);
-
   const sectorAnalysis = useMemo(() => {
     return analyzeSectorPatterns(history, sectorPatternLength, sectorMinReps);
   }, [history, sectorPatternLength, sectorMinReps]);
-
-  // ============ TAB 4: DEGREE PATTERNS ============
-  const [degree, setDegree] = useState<1 | 2>(1);
-  const [degreePatternLength, setDegreePatternLength] = useState(1);
-  const [degreeMinReps, setDegreeMinReps] = useState(6);
-  const [maxValetas, setMaxValetas] = useState(0);
 
   const degreeAnalysis = useMemo(() => {
     return analyzeDegreePatterns(history, degree, degreePatternLength, degreeMinReps, maxValetas);

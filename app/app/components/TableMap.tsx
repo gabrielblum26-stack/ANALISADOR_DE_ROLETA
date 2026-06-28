@@ -22,13 +22,17 @@ type Props = {
   sel: SelState;
   repHighlights: Set<RepHighlight>;
   onPick: (n: number) => void;
+  onSelect?: (n: number) => void; // Adicionado para compatibilidade
   getCellStyles: (n: number) => React.CSSProperties;
+  xHighlightStyles?: any; // Adicionado para compatibilidade
+  yHighlightStyles?: any; // Adicionado para compatibilidade
 };
 
 export default function TableMap({
   sel,
   repHighlights,
   onPick,
+  onSelect,
   getCellStyles
 }: Props) {
   const rowToCol: RepHighlight[] = ["col3", "col2", "col1"];
