@@ -21,7 +21,7 @@ export type RepHighlight =
 type Props = {
   sel: SelState;
   repHighlights: Set<RepHighlight>;
-  onPick: (n: number) => void;
+  onPick?: (n: number) => void;
   onSelect?: (n: number) => void; // Adicionado para compatibilidade
   getCellStyles: (n: number) => React.CSSProperties;
   xHighlightStyles?: any; // Adicionado para compatibilidade
@@ -36,6 +36,10 @@ export default function TableMap({
   onSelect,
   getCellStyles
 }: Props) {
+  const handlePick = (n: number) => {
+    if (onPick) onPick(n);
+    if (onSelect) onSelect(n);
+  };
   const rowToCol: RepHighlight[] = ["col3", "col2", "col1"];
 
   const cellCls = (n: number) => {
@@ -72,7 +76,7 @@ export default function TableMap({
             boxShadow: getCellStyles(0).boxShadow || undefined,
             zIndex: getCellStyles(0).zIndex || undefined
           }} 
-          onClick={() => onPick(0)}
+          onClick={() => handlePick(0)}
         >
           0
         </div>
@@ -92,7 +96,7 @@ export default function TableMap({
                   boxShadow: getCellStyles(n).boxShadow || undefined,
                   zIndex: getCellStyles(n).zIndex || undefined
                 }}
-                onClick={() => onPick(n)}
+                onClick={() => handlePick(n)}
               >
                 {n}
               </div>
