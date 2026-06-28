@@ -26,6 +26,7 @@ type Props = {
   getCellStyles: (n: number) => React.CSSProperties;
   xHighlightStyles?: any; // Adicionado para compatibilidade
   yHighlightStyles?: any; // Adicionado para compatibilidade
+  highlightedNumbers?: number[]; // Adicionado para compatibilidade
 };
 
 export default function TableMap({
