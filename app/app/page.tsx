@@ -585,10 +585,10 @@ export default function Page() {
         isOpen={isAutoModalOpen}
         onClose={() => setIsAutoModalOpen(false)}
         onSave={handleSaveAutomation}
-        onDeactivate={handleDeactivateAutomation}
+        onPause={handleDeactivateAutomation}
         onClear={handleClearAutomation}
         currentId={automationId}
-        isActive={isAutoActive}
+        isAutoActive={isAutoActive}
       />
 
       {isConfigModalOpen && (
