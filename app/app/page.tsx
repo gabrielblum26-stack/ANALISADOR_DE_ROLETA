@@ -454,7 +454,7 @@ export default function Page() {
         </div>
       )}
 
-      <div style={{ maxWidth: "1400px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 400px 300px", gap: "10px" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 400px", gap: "10px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           <div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "15px", border: "1px solid #333" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
@@ -561,7 +561,6 @@ export default function Page() {
             history={history} 
             onMarkNumbers={onMarkStrategy}
             onColorChange={(colorIndex) => {
-              // Sincroniza a cor ativa com o componente de seleção
               setSel(prev => setActiveColor(prev, colorIndex));
             }}
             onResetColors={onResetColors}
@@ -570,9 +569,7 @@ export default function Page() {
               setTimeout(() => setHighlightedNumbers([]), 3000);
             }}
           />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          
           <MovementPanel 
             history={history}
             selectedX={selectedX}
