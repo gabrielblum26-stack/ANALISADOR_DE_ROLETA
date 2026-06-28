@@ -574,10 +574,9 @@ export default function Page() {
           <MovementPanel 
             history={history}
             selectedX={selectedX}
-            setSelectedX={setSelectedX}
+            onXChange={setSelectedX}
             selectedY={selectedY}
-            setSelectedY={setSelectedY}
-            onMarkNumbers={onMarkStrategy}
+            onYChange={setSelectedY}
           />
         </div>
       </div>
