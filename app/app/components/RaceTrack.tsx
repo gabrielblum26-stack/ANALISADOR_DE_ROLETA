@@ -69,8 +69,11 @@ function selectionFill(sel: SelState, n: number, customStyles?: React.CSSPropert
 
 type Props = {
   sel: SelState;
-  onPick: (n: number) => void;
+  onPick?: (n: number) => void;
+  onSelect?: (n: number) => void; // Adicionado para compatibilidade
   getCellStyles: (n: number) => React.CSSProperties;
+  xHighlightStyles?: any; // Adicionado para compatibilidade
+  yHighlightStyles?: any; // Adicionado para compatibilidade
   strategyMode?: "total" | "intersection";
   highlightedNumbers?: number[];
 };
@@ -78,10 +81,15 @@ type Props = {
 export default function RaceTrack({
   sel,
   onPick,
+  onSelect,
   getCellStyles,
   strategyMode,
   highlightedNumbers = []
 }: Props) {
+  const handlePick = (n: number) => {
+    if (onPick) onPick(n);
+    if (onSelect) onSelect(n);
+  };
   const pts = buildTrackPoints();
   const viewW = 1100;
   const viewH = 300;
@@ -160,7 +168,7 @@ export default function RaceTrack({
           return (
             <g 
               key={n} 
-              onClick={() => onPick(n)} 
+              onClick={() => handlePick(n)} 
               style={{ cursor: "pointer", opacity }}
               className="raceNode"
             >
