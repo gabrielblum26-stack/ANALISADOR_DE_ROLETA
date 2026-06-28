@@ -560,6 +560,10 @@ export default function Page() {
           <HotHistoryAnalysis 
             history={history} 
             onMarkNumbers={onMarkStrategy}
+            onColorChange={(colorIndex) => {
+              // Sincroniza a cor ativa com o componente de seleção
+              setActiveColor(colorIndex);
+            }}
             onResetColors={onResetColors}
             onHighlightPattern={(nums) => {
               setHighlightedNumbers(nums);
