@@ -201,12 +201,15 @@ export default function HotHistoryAnalysis({
     if (alertMode === "GLOBAL" || (alertMode === "FOCO" && activeTab === "degree")) {
       degreeAnalysis.patterns.forEach(p => {
         if (p.pattern.length > 0) {
+          // Verificar se o padrão está se formando (últimos N números correspondem ao padrão)
+          // Mas ANTES que o hit já tenha caído na zona (alerta no momento da armação, não após o resultado)
           const historyEnd = history.slice(-p.pattern.length);
           if (historyEnd.every((v, i) => v === p.pattern[i])) {
+            // Padrão detectado - disparar alerta AGORA, não após o hit
             const patternKey = `degree-${degree}-${p.pattern.join(",")}-${p.target}-${history.length}`;
             triggerAlert(
-              `Possível Zona do ${p.target}`,
-              { message: `Possível Zona do ${p.target} (${degree}º Grau)`, type: "sector", numbers: p.zona, label: `Zona ${p.target}`, sequence: p.pattern },
+              `Padrão Armado: Zona do ${p.target} (${degree}º Grau)`,
+              { message: `Padrão Armado: Zona do ${p.target} (${degree}º Grau)`, type: "sector", numbers: p.zona, label: `Zona ${p.target}`, sequence: p.pattern },
               patternKey
             );
           }
