@@ -68,7 +68,7 @@ export default function HotHistoryAnalysis({
 
   const [alerts, setAlerts] = useState<AlertData[]>([]);
 
-  // Carregar preferência de alertas e som
+  // Carregar preferência de alertas, som e configurações de padrões
   useEffect(() => {
     const savedMode = localStorage.getItem("roulette_alert_mode") as AlertMode;
     if (savedMode && ["OFF", "FOCO", "GLOBAL"].includes(savedMode)) {
@@ -78,15 +78,47 @@ export default function HotHistoryAnalysis({
     if (savedSound && ["VOZ", "RAPAZ", "FAAAH"].includes(savedSound)) {
       setSoundMode(savedSound);
     } else {
-      setSoundMode("RAPAZ"); // Padrão é RAPAZ se não houver salvo
+      setSoundMode("RAPAZ");
     }
+    
+    // Carregar configurações de padrões
+    const savedTerminalPatternLength = localStorage.getItem("roulette_terminal_pattern_length");
+    if (savedTerminalPatternLength) setTerminalPatternLength(parseInt(savedTerminalPatternLength));
+    const savedTerminalMinReps = localStorage.getItem("roulette_terminal_min_reps");
+    if (savedTerminalMinReps) setTerminalMinReps(parseInt(savedTerminalMinReps));
+    
+    const savedSectorPatternLength = localStorage.getItem("roulette_sector_pattern_length");
+    if (savedSectorPatternLength) setSectorPatternLength(parseInt(savedSectorPatternLength));
+    const savedSectorMinReps = localStorage.getItem("roulette_sector_min_reps");
+    if (savedSectorMinReps) setSectorMinReps(parseInt(savedSectorMinReps));
+    
+    const savedDegree = localStorage.getItem("roulette_degree");
+    if (savedDegree) setDegree(parseInt(savedDegree) as 1 | 2);
+    const savedDegreePatternLength = localStorage.getItem("roulette_degree_pattern_length");
+    if (savedDegreePatternLength) setDegreePatternLength(parseInt(savedDegreePatternLength));
+    const savedDegreeMinReps = localStorage.getItem("roulette_degree_min_reps");
+    if (savedDegreeMinReps) setDegreeMinReps(parseInt(savedDegreeMinReps));
+    const savedMaxValetas = localStorage.getItem("roulette_max_valetas");
+    if (savedMaxValetas) setMaxValetas(parseInt(savedMaxValetas));
+    
+    const savedSelectedStrategies = localStorage.getItem("roulette_selected_strategies");
+    if (savedSelectedStrategies) setSelectedStrategies(JSON.parse(savedSelectedStrategies));
   }, []);
 
-  // Salvar preferência de alertas e som
+  // Salvar todas as preferências e configurações
   useEffect(() => {
     localStorage.setItem("roulette_alert_mode", alertMode);
     localStorage.setItem("roulette_sound_mode", soundMode);
-  }, [alertMode, soundMode]);
+    localStorage.setItem("roulette_terminal_pattern_length", terminalPatternLength.toString());
+    localStorage.setItem("roulette_terminal_min_reps", terminalMinReps.toString());
+    localStorage.setItem("roulette_sector_pattern_length", sectorPatternLength.toString());
+    localStorage.setItem("roulette_sector_min_reps", sectorMinReps.toString());
+    localStorage.setItem("roulette_degree", degree.toString());
+    localStorage.setItem("roulette_degree_pattern_length", degreePatternLength.toString());
+    localStorage.setItem("roulette_degree_min_reps", degreeMinReps.toString());
+    localStorage.setItem("roulette_max_valetas", maxValetas.toString());
+    localStorage.setItem("roulette_selected_strategies", JSON.stringify(selectedStrategies));
+  }, [alertMode, soundMode, terminalPatternLength, terminalMinReps, sectorPatternLength, sectorMinReps, degree, degreePatternLength, degreeMinReps, maxValetas, selectedStrategies])
 
   // Limpar alertas quando o histórico mudar (nova rodada)
   useEffect(() => {
